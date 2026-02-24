@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+/* ══════════════════════════════════════════════════════
+   SHARED / TAB CHROME
+══════════════════════════════════════════════════════ */
+:root {
+  --bg:#0a0c0f; --surface:#111418; --surface2:#181c22; --border:#1e2530;
+  --green:#00e5a0; --green-dim:rgba(0,229,160,0.12);
+  --red:#ff4e6a;   --red-dim:rgba(255,78,106,0.12);
+  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.12);
+  --blue:#4eb5ff;  --blue-dim:rgba(78,181,255,0.1);
+  --text:#e8edf3;  --muted:#5a6478; --muted2:#8892a4;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,229,160,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.03) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* ── Tab bar ── */
+.tab-bar{position:relative;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:4px;}
+.tab-btn{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:16px 20px;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green);}
+.tab-badge{display:inline-block;background:var(--green-dim);color:var(--green);border:1px solid rgba(0,229,160,0.3);border-radius:20px;font-size:9px;padding:1px 7px;margin-left:6px;letter-spacing:0.5px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ══════════════════════════════════════════════════════
+   OPTIONS DASHBOARD STYLES
+══════════════════════════════════════════════════════ */
+#tab-options .wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px;}
+/* Header */
+#tab-options header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.logo{display:flex;flex-direction:column;gap:4px;}
+.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.5px;}
+.logo-title span{color:var(--green);}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(0,229,160,0.3);padding:4px 10px;border-radius:20px;font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.date-str{font-size:11px;color:var(--muted);}
+/* Filter Bar */
+.filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:24px;animation:fadeUp 0.4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.filter-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+.filter-divider{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.date-group{display:flex;align-items:center;gap:8px;}
+.date-group label{font-size:10px;color:var(--muted2);}
+input[type="date"]{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;outline:none;cursor:pointer;transition:border-color 0.2s;}
+input[type="date"]:focus{border-color:var(--green);}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.6);cursor:pointer;}
+.week-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:'DM Mono',monospace;}
+.chip:hover,.chip.active{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+.asset-select-wrap{position:relative;flex-shrink:0;}
+select.asset-select{appearance:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 32px 6px 12px;outline:none;cursor:pointer;transition:border-color 0.2s;min-width:140px;}
+select.asset-select:focus{border-color:var(--green);}
+.asset-select-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px;}
+.filter-clear{font-size:10px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid transparent;transition:all 0.15s;white-space:nowrap;margin-left:auto;font-family:'DM Mono',monospace;background:none;}
+.filter-clear:hover{color:var(--red);border-color:var(--red-dim);background:var(--red-dim);}
+#filter-status{font-size:10px;color:var(--green);background:var(--green-dim);border:1px solid rgba(0,229,160,0.2);border-radius:20px;padding:3px 10px;display:none;}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px;animation:fadeUp 0.5s ease both;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.kpi-card:hover{border-color:var(--green);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi-card.green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.kpi-card.red::before{background:linear-gradient(90deg,transparent,var(--red),transparent);}
+.kpi-card.yellow::before{background:linear-gradient(90deg,transparent,var(--yellow),transparent);}
+.kpi-card.blue::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.kpi-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.kpi-value{font-family:'Syne',sans-serif;font-weight:700;font-size:30px;line-height:1;margin-bottom:6px;}
+.kpi-card.green .kpi-value{color:var(--green);}
+.kpi-card.red .kpi-value{color:var(--red);}
+.kpi-card.yellow .kpi-value{color:var(--yellow);}
+.kpi-card.blue .kpi-value{color:var(--blue);}
+.kpi-sub{font-size:11px;color:var(--muted2);}
+/* Grids */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.65s ease both;}
+.grid-full{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.7s ease both;}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;}
+.card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.card-title span{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;}
+/* Bar chart */
+.bar-chart{display:flex;flex-direction:column;gap:10px;}
+.bar-row{display:flex;align-items:center;gap:12px;}
+.bar-label{font-size:11px;color:var(--muted2);width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
+.bar-val{font-size:11px;color:var(--text);width:70px;text-align:right;flex-shrink:0;}
+/* Trades table */
+.trades-table{width:100%;border-collapse:collapse;font-size:12px;}
+.trades-table th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:500;}
+.trades-table td{padding:9px 10px;border-bottom:1px solid rgba(30,37,48,0.5);color:var(--muted2);}
+.trades-table tr:last-child td{border-bottom:none;}
+.trades-table tr:hover td{background:var(--surface2);}
+.trades-table td.c-green{color:var(--green);}
+.trades-table td.c-blue{color:var(--blue);}
+.trades-table td.c-yellow{color:var(--yellow);}
+.trades-table td.c-red{color:var(--red);}
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;letter-spacing:0.5px;}
+.badge.green{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,229,160,0.2);}
+.badge.blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(78,181,255,0.2);}
+.badge.yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
+.badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,78,106,0.2);}
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:24px;}
+.donut-legend{display:flex;flex-direction:column;gap:10px;flex:1;}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.legend-val{margin-left:auto;color:var(--text);font-weight:500;}
+/* Ratios */
+.ratio-grid{display:flex;flex-direction:column;gap:10px;}
+.ratio-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
+.ratio-name{font-size:11px;color:var(--muted2);}
+.ratio-sub{font-size:10px;color:var(--muted);}
+.ratio-value{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+/* P/Day grid */
+.pday-grid-wide{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.pday-cell{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color 0.2s,background 0.2s;}
+.pday-cell:hover{border-color:var(--green);background:rgba(0,229,160,0.04);}
+.pday-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.pday-asset{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.pday-expiry{font-size:10px;color:var(--muted);margin-bottom:8px;}
+.pday-rate{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;line-height:1;margin-bottom:4px;}
+.pday-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:8px;}
+.pday-bar-inner{height:100%;border-radius:2px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
+.pday-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px;}
+/* Insights */
+.insights{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+.insight{padding:14px 16px;border-radius:8px;border-left:3px solid;font-size:12px;line-height:1.6;color:var(--muted2);}
+.insight.good{background:var(--green-dim);border-color:var(--green);}
+.insight.warn{background:var(--yellow-dim);border-color:var(--yellow);}
+.insight.info{background:var(--blue-dim);border-color:var(--blue);}
+.insight strong{display:block;margin-bottom:3px;}
+.insight.good strong{color:var(--green);}
+.insight.warn strong{color:var(--yellow);}
+.insight.info strong{color:var(--blue);}
+.no-data{text-align:center;padding:20px;font-size:12px;color:var(--muted);}
+.section-gap{margin-bottom:16px;}
+
+/* ══════════════════════════════════════════════════════
+   PERSONAL FINANCE STYLES
+══════════════════════════════════════════════════════ */
+#tab-finance{font-family:'Inter',sans-serif;}
+#tab-finance .pf-wrap{max-width:1400px;margin:0 auto;padding:32px 24px;position:relative;z-index:1;}
+#tab-finance h1{font-size:32px;font-weight:700;color:#10b981;margin-bottom:28px;font-family:'Syne',sans-serif;}
+
+/* PF KPI */
+#tab-finance .pf-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px;}
+#tab-finance .pf-kpi-card{background:#111418;border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s;}
+#tab-finance .pf-kpi-card:hover{border-color:#374151;}
+#tab-finance .pf-kpi-label{font-size:13px;color:#888;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+#tab-finance .pf-kpi-value{font-size:38px;font-weight:800;color:#10b981;margin-bottom:4px;font-family:'Syne',sans-serif;}
+#tab-finance .pf-kpi-value.blue{color:#3b82f6;}
+#tab-finance .pf-kpi-value.bright{color:#00ff88;}
+#tab-finance .pf-kpi-sub{font-size:12px;color:#666;}
+#tab-finance .runway-badge{display:inline-block;background:#00ff88;color:#000;padding:6px 14px;border-radius:8px;font-weight:700;font-size:17px;}
+
+/* PF Portfolio grid */
+#tab-finance .pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:32px;}
+@media(max-width:900px){#tab-finance .pf-portfolio-grid{grid-template-columns:1fr;}}
+#tab-finance .pf-card{background:#111418;border:1px solid var(--border);border-radius:16px;padding:28px;}
+#tab-finance .pf-card-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+#tab-finance .pf-card-title{font-size:18px;font-weight:700;color:#fff;font-family:'Syne',sans-serif;}
+#tab-finance .pf-card-sub{font-size:13px;color:#666;margin-top:3px;}
+
+/* Category rows */
+#tab-finance .pf-categories{display:flex;flex-direction:column;gap:16px;}
+#tab-finance .pf-cat-row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px;border-radius:12px;transition:all 0.2s;position:relative;}
+#tab-finance .pf-cat-row:hover{background:#1a1a1a;}
+#tab-finance .pf-cat-row.expanded{background:#1a1a1a;border:1px solid #10b981;padding:11px;}
+#tab-finance .pf-cat-expand{width:18px;height:18px;color:#666;flex-shrink:0;transition:transform 0.3s;}
+#tab-finance .pf-cat-row.expanded .pf-cat-expand{transform:rotate(90deg);}
+#tab-finance .pf-cat-info{flex:1;}
+#tab-finance .pf-cat-name{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+#tab-finance .pf-cat-label{font-size:14px;font-weight:600;color:#fff;}
+#tab-finance .pf-cat-count{background:#1a1a1a;border:1px solid #333;padding:2px 8px;border-radius:12px;font-size:10px;color:#888;}
+#tab-finance .pf-cat-bar-wrap{height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;}
+#tab-finance .pf-cat-bar{height:100%;background:#10b981;border-radius:3px;transition:width 0.5s ease;}
+#tab-finance .pf-cat-vals{display:flex;justify-content:space-between;margin-top:6px;}
+#tab-finance .pf-cat-amount{font-size:15px;font-weight:700;color:#fff;}
+#tab-finance .pf-cat-change{font-size:12px;font-weight:600;}
+#tab-finance .pf-cat-change.pos{color:#10b981;}
+#tab-finance .pf-cat-change.neg{color:#ef4444;}
+#tab-finance .pf-cat-change.neu{color:#666;}
+
+/* Tooltip */
+#tab-finance .pf-tooltip{position:absolute;top:-90px;left:50%;transform:translateX(-50%);background:#000;border:1px solid #333;border-radius:12px;padding:14px;min-width:280px;z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.2s;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+#tab-finance .pf-cat-row:hover .pf-tooltip{opacity:1;}
+#tab-finance .tt-header{font-size:13px;font-weight:600;color:#fff;margin-bottom:6px;}
+#tab-finance .tt-pct{color:#10b981;font-weight:700;}
+#tab-finance .tt-yoy{font-size:12px;color:#888;margin-top:3px;}
+#tab-finance .tt-link{font-size:11px;color:#10b981;margin-top:6px;}
+
+/* Account details */
+#tab-finance .pf-acct-details{margin-top:14px;background:#0a0a0a;border-radius:8px;padding:14px;display:none;}
+#tab-finance .pf-cat-row.expanded .pf-acct-details{display:block;}
+#tab-finance .pf-acct-table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:6px 0;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.05em;}
+#tab-finance .pf-acct-table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:10px 0;border-top:1px solid #1a1a1a;font-size:13px;}
+#tab-finance .pf-acct-name{color:#fff;}
+#tab-finance .pf-acct-bal{color:#fff;font-weight:600;}
+#tab-finance .pf-acct-mom,.pf-acct-yoy{font-size:12px;font-weight:600;}
+#tab-finance .pf-acct-total{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:10px 0;margin-top:6px;border-top:2px solid #1a1a1a;font-size:13px;font-weight:700;}
+#tab-finance .pos{color:#10b981;}
+#tab-finance .neg{color:#ef4444;}
+#tab-finance .neu{color:#666;}
+
+/* Anti-fragility */
+#tab-finance .pf-circle-wrap{position:relative;width:260px;height:260px;margin:0 auto;}
+#tab-finance .pf-circle-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+#tab-finance .pf-circle-pct{font-size:52px;font-weight:800;color:#10b981;line-height:1;font-family:'Syne',sans-serif;}
+#tab-finance .pf-circle-lbl{font-size:14px;color:#888;margin-top:6px;}
+
+/* Chart */
+#tab-finance .pf-chart-card{background:#111418;border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px;}
+#tab-finance .pf-chart-title{font-size:18px;font-weight:700;margin-bottom:20px;font-family:'Syne',sans-serif;color:#fff;}
+#tab-finance canvas{max-height:360px;}
+
+/* PF setup / load screen */
+#tab-finance .pf-setup{background:#111418;border:1px solid var(--border);border-radius:16px;padding:40px;max-width:520px;margin:80px auto;text-align:center;}
+#tab-finance .pf-setup-title{font-size:22px;font-weight:700;color:#10b981;margin-bottom:16px;font-family:'Syne',sans-serif;}
+#tab-finance .pf-setup-sub{font-size:13px;color:#888;margin-bottom:24px;line-height:1.6;}
+#tab-finance .pf-load-btn{background:#10b981;color:#000;border:none;border-radius:8px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:background 0.2s;font-family:'Inter',sans-serif;}
+#tab-finance .pf-load-btn:hover{background:#059669;}
+#tab-finance .pf-load-btn:disabled{opacity:0.5;cursor:not-allowed;}
+#tab-finance .pf-loading{text-align:center;color:#888;margin-top:14px;font-size:13px;}
+#tab-finance .pf-error{background:#7f1d1d;border:1px solid #991b1b;border-radius:8px;padding:12px;color:#fca5a5;font-size:13px;margin-top:14px;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+
+<!-- ══ TAB BAR ══ -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('options')">
+    Options Dashboard<span class="tab-badge">LIVE</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('finance')">
+    Personal Finance
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TAB 1: OPTIONS DASHBOARD
+══════════════════════════════════════════════ -->
+<div id="tab-options" class="tab-panel active">
+<div class="wrapper">
+
+  <header>
+    <div class="logo">
+      <div class="logo-title">OPTIONS <span>ALPHA</span></div>
+      <div class="logo-sub">Covered Call Strategy Tracker</div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>Live Tracker</div>
+      <div class="date-str" id="opt-date-str">Last updated: —</div>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <div class="filter-label">Asset</div>
+    <div class="asset-select-wrap">
+      <select class="asset-select" id="asset-filter" onchange="applyFilters()">
+        <option value="ALL">All Assets</option>
+      </select>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-label">Date Range</div>
+    <div class="date-group">
+      <label>From</label>
+      <input type="date" id="date-from" value="2026-02-12" onchange="clearChip();applyFilters()">
+    </div>
+    <div class="date-group">
+      <label>To</label>
+      <input type="date" id="date-to" value="2026-02-23" onchange="clearChip();applyFilters()">
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-label">Quick</div>
+    <div class="week-chips">
+      <div class="chip active" data-from="2026-02-12" data-to="2026-02-23" data-label="all" onclick="setChip(this)">All</div>
+      <div class="chip" data-from="2026-02-17" data-to="2026-02-23" onclick="setChip(this)">17–23 Feb</div>
+      <div class="chip" data-from="2026-02-12" data-to="2026-02-16" onclick="setChip(this)">12–16 Feb</div>
+      <div class="chip" data-from="2026-01-01" data-to="2026-01-31" onclick="setChip(this)">Jan 2026</div>
+    </div>
+    <span id="filter-status">Filtered</span>
+    <button class="filter-clear" onclick="resetFilters()">✕ Reset</button>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card green"><div class="kpi-label">Total Premium Received</div><div class="kpi-value" id="kpi-premium">—</div><div class="kpi-sub">Filtered selection</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Total Money Made</div><div class="kpi-value" id="kpi-made">—</div><div class="kpi-sub">Premium + Stock P/L</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Stock P/L (Realized)</div><div class="kpi-value" id="kpi-stockpl">—</div><div class="kpi-sub">Net realized stock moves</div></div>
+    <div class="kpi-card yellow"><div class="kpi-label">Return on Capital</div><div class="kpi-value" id="kpi-roc">—</div><div class="kpi-sub" id="kpi-roc-sub">On filtered capital</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Total Capital Deployed</div><div class="kpi-value" id="kpi-capital">—</div><div class="kpi-sub" id="kpi-capital-sub">—</div></div>
+  </div>
+
+  <div class="grid-2 section-gap">
+    <div class="card">
+      <div class="card-title"><span></span>Trade Outcome Breakdown</div>
+      <div class="donut-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
+          <circle cx="60" cy="60" r="45" fill="none" stroke="#1e2530" stroke-width="18"/>
+          <circle id="donut-assigned" cx="60" cy="60" r="45" fill="none" stroke="#4eb5ff" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+          <circle id="donut-expired"  cx="60" cy="60" r="45" fill="none" stroke="#00e5a0" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+          <circle id="donut-active"   cx="60" cy="60" r="45" fill="none" stroke="#ffd166" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+          <circle id="donut-loss"     cx="60" cy="60" r="45" fill="none" stroke="#ff4e6a" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+          <text id="donut-count" x="60" y="56" text-anchor="middle" font-size="20" font-family="Syne" font-weight="700" fill="#e8edf3">0</text>
+          <text x="60" y="70" text-anchor="middle" font-size="9" fill="#5a6478">TRADES</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Perfect Assignment<span class="legend-val" id="leg-assigned">—</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Expired Worthless<span class="legend-val" id="leg-expired">—</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Active / Open<span class="legend-val" id="leg-active">—</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Net Loss<span class="legend-val" id="leg-loss">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span></span>Profit Per Trade (Premium)</div>
+      <div class="bar-chart" id="premium-bars"></div>
+      <div style="margin-top:10px;font-size:10px;color:var(--muted)">⚡ = Active/Open &nbsp;·&nbsp; ✗ = Net Loss</div>
+    </div>
+  </div>
+
+  <div class="grid-3 section-gap">
+    <div class="card"><div class="card-title"><span></span>Key Ratios & Metrics</div><div class="ratio-grid" id="ratio-grid"></div></div>
+    <div class="card">
+      <div class="card-title"><span></span>Ticker Allocation</div>
+      <div style="margin-bottom:8px;font-size:11px;color:var(--muted)">By Capital Locked</div>
+      <div class="bar-chart" id="capital-bars" style="margin-bottom:18px"></div>
+      <div style="margin-bottom:8px;font-size:11px;color:var(--muted)">By Premium Earned</div>
+      <div class="bar-chart" id="ticker-bars"></div>
+    </div>
+    <div class="card"><div class="card-title"><span></span>Trade Summary</div><div class="ratio-grid" id="trade-summary"></div></div>
+  </div>
+
+  <div class="grid-full section-gap">
+    <div class="card">
+      <div class="card-title"><span></span>Profit / Day by Trade</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:16px">Asset · Expiry — higher $/day = more time-efficient capital use</div>
+      <div class="pday-grid-wide" id="pday-grid"></div>
+      <div style="display:flex;gap:32px;margin-top:16px;font-size:11px;color:var(--muted2)">
+        <span>Best: <strong style="color:var(--green)" id="ppd-best">—</strong></span>
+        <span>Avg: <strong style="color:var(--blue)" id="ppd-avg">—</strong></span>
+        <span>Worst: <strong style="color:var(--muted)" id="ppd-worst">—</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-full section-gap">
+    <div class="card">
+      <div class="card-title"><span></span>Premium Trade Log</div>
+      <table class="trades-table">
+        <thead><tr><th>Date</th><th>Asset</th><th>Name</th><th>Days</th><th>Premium</th><th>Total P/L</th><th>P/Day</th><th>Expiry</th><th>Status</th></tr></thead>
+        <tbody id="trade-tbody"></tbody>
+      </table>
+      <div id="trade-empty" class="no-data" style="display:none">No trades match current filters.</div>
+    </div>
+  </div>
+
+  <div class="grid-full section-gap">
+    <div class="card">
+      <div class="card-title"><span></span>Insights & Recommendations</div>
+      <div class="insights">
+        <div class="insight good"><strong>🏆 Perfect Assignments Dominate</strong>Most closed trades achieved perfect assignment or expired worthless — premium strategy is working.</div>
+        <div class="insight good"><strong>⚡ Short Duration = Higher Daily Return</strong>1–2 day QQQ trades generate the highest $/day. Lean into shorter expirations when IV is elevated.</div>
+        <div class="insight warn"><strong>⚠️ Watch Strike Selection on Volatile Days</strong>Net loss trades (23 Feb) had strikes set too far below cost basis. Use tighter strikes on uncertain days.</div>
+        <div class="insight warn"><strong>📊 GRAB Premiums Are Very Low</strong>GRAB yields only $5–$14 per trade on $440 capital — negligible in absolute terms vs QQQ positions.</div>
+        <div class="insight info"><strong>📈 Stock P/L Tracked Separately</strong>Premium income is your primary edge. Monitor stock P/L as a secondary signal for position sizing.</div>
+        <div class="insight info"><strong>💡 Annualized ROC Opportunity</strong>At ~2% per cycle (~2 weeks), potential 50–100% annualized if frequency and win rate are sustained.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;font-size:10px;color:var(--muted);letter-spacing:1px;padding-bottom:24px">
+    OPTIONS ALPHA · COVERED CALL STRATEGY TRACKER · LIVE DATA
+  </div>
+</div>
+</div><!-- /tab-options -->
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 2: PERSONAL FINANCE
+══════════════════════════════════════════════ -->
+<div id="tab-finance" class="tab-panel">
+  <!-- Load screen -->
+  <div id="pf-setup" class="pf-setup">
+    <div class="pf-setup-title">Personal Finance</div>
+    <p class="pf-setup-sub">Click below to load your financial data live from Google Sheets.</p>
+    <button class="pf-load-btn" id="pf-load-btn" onclick="pfLoadData()">Load Dashboard</button>
+    <div id="pf-loading" class="pf-loading hidden">Loading financial data…</div>
+    <div id="pf-error" class="pf-error hidden"></div>
+  </div>
+
+  <!-- Dashboard (hidden until loaded) -->
+  <div id="pf-dashboard" class="pf-wrap hidden">
+    <h1>Personal Finance</h1>
+
+    <div class="pf-kpi-grid">
+      <div class="pf-kpi-card">
+        <div class="pf-kpi-label">💼 Total Assets</div>
+        <div class="pf-kpi-value" id="pf-total-assets">$0</div>
+        <div class="pf-kpi-sub">Current month total</div>
+      </div>
+      <div class="pf-kpi-card">
+        <div class="pf-kpi-label">💳 Net Cash</div>
+        <div class="pf-kpi-value blue" id="pf-net-cash">$0</div>
+        <div class="pf-kpi-sub">Liquid assets</div>
+      </div>
+      <div class="pf-kpi-card">
+        <div class="pf-kpi-label">⚡ Runway</div>
+        <div class="pf-kpi-value bright"><span class="runway-badge" id="pf-runway">0 MO</span></div>
+        <div class="pf-kpi-sub">Months of expenses covered</div>
+      </div>
+    </div>
+
+    <div class="pf-portfolio-grid">
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div>
+            <div class="pf-card-title">Portfolio</div>
+            <div class="pf-card-sub" id="pf-portfolio-month">—</div>
+          </div>
+        </div>
+        <div class="pf-categories" id="pf-categories"></div>
+      </div>
+
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title">Anti-Fragility</div>
+        </div>
+        <div class="pf-circle-wrap">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#1a1a1a" stroke-width="20"/>
+            <circle id="pf-af-circle" cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="20"
+                    stroke-dasharray="502.4" stroke-dashoffset="502.4"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+          <div class="pf-circle-val">
+            <div class="pf-circle-pct" id="pf-af-pct">0%</div>
+            <div class="pf-circle-lbl">Stable Assets</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-chart-card">
+      <div class="pf-chart-title">📈 Trend — Assets & Cash</div>
+      <canvas id="pf-trend-chart"></canvas>
+    </div>
+  </div>
+</div><!-- /tab-finance -->
+
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='options')||(i===1&&tab==='finance')));
+  document.getElementById('tab-options').classList.toggle('active', tab==='options');
+  document.getElementById('tab-finance').classList.toggle('active', tab==='finance');
+}
+
+// ════════════════════════════════════════════════════════
+// TAB 1 — OPTIONS DASHBOARD
+// ════════════════════════════════════════════════════════
+const OPT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxBd1UrtpB9iFc7iNV0zPC2ey3ZAOCgp26lBf8gio9hPhD1x1hsiYicP3OxOIebKKw0gA/exec';
+
+let TRADES   = [];
+let DEPOSITS = {};
+
+const COLOR_PALETTE = ['var(--blue)','var(--green)','var(--yellow)','#c77dff','#ff9f1c','var(--red)','#2ec4b6'];
+const COLORS_MAP    = {};
+function getColor(asset) {
+  if (!COLORS_MAP[asset]) { COLORS_MAP[asset] = COLOR_PALETTE[Object.keys(COLORS_MAP).length % COLOR_PALETTE.length]; }
+  return COLORS_MAP[asset];
+}
+
+const fmtNum = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(Math.round(v)).toLocaleString() : '$' + Math.round(v).toLocaleString());
+const fmtDec = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(v).toFixed(2) : '$' + parseFloat(v).toFixed(2));
+const fmtK   = v => Math.abs(v) >= 1000 ? (v<0?'-':'')+'$'+(Math.abs(v)/1000).toFixed(0)+'K' : '$'+Math.round(v);
+
+function badge(s) {
+  if(s==='assigned') return '<span class="badge blue">Assigned ✓</span>';
+  if(s==='expired')  return '<span class="badge green">Expired ✓</span>';
+  if(s==='loss')     return '<span class="badge red">Net Loss ✗</span>';
+  return '<span class="badge yellow">Active ⚡</span>';
+}
+
+function parseStatus(indicator, totalPL) {
+  if (!indicator) return totalPL != null ? 'expired' : 'active';
+  const ind = String(indicator);
+  if (/Net Loss/i.test(ind))               return 'loss';
+  if (/Assignment|Assigned/i.test(ind))    return 'assigned';
+  if (/Expired|Worthless/i.test(ind))      return 'expired';
+  if (/Active/i.test(ind))                 return 'active';
+  if (/Closed/i.test(ind) && totalPL==null) return 'active';
+  if (/Closed/i.test(ind) && totalPL!=null) return 'expired';
+  return totalPL != null ? 'expired' : 'active';
+}
+
+function fmtExpiry(s) {
+  if (!s) return '—';
+  const d = new Date(s);
+  if (isNaN(d)) return String(s);
+  return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short'});
+}
+
+function fetchData() {
+  showOptLoading(true);
+  const cb = 'optCb_' + Date.now();
+  const sc = document.createElement('script');
+  window[cb] = function(json) {
+    delete window[cb];
+    document.body.removeChild(sc);
+    if (json.error) { showOptLoading(false); loadFallback(); return; }
+    TRADES = json.premiumTrades.map(t => ({
+      date: t.rawDate, asset: t.asset, name: t.name,
+      expiry: fmtExpiry(t.expiry), days: t.days,
+      premium: t.premium||0, totalPL: t.totalPL, ppd: t.ppd||0,
+      status: parseStatus(t.indicator, t.totalPL),
+      stockPL: t.stockPL||0, capitalLocked: t.capitalLocked||0, indicator: t.indicator||'',
+    }));
+    DEPOSITS = {};
+    json.deposits.forEach(d => { DEPOSITS[d.asset] = (DEPOSITS[d.asset]||0) + d.amount; });
+    const lu = new Date(json.lastUpdated);
+    document.getElementById('opt-date-str').textContent = 'Live · ' +
+      lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
+      lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    showOptLoading(false);
+    refreshAssetDropdown();
+    updateDateRange();
+    applyFilters();
+  };
+  sc.onerror = function() {
+    delete window[cb];
+    if(document.body.contains(sc)) document.body.removeChild(sc);
+    showOptLoading(false); loadFallback();
+  };
+  sc.src = OPT_WEBHOOK + '?callback=' + cb;
+  document.body.appendChild(sc);
+}
+
+function showOptLoading(on) {
+  let el = document.getElementById('opt-loading-overlay');
+  if (!el) {
+    el = document.createElement('div'); el.id='opt-loading-overlay';
+    el.style.cssText='position:fixed;inset:0;background:rgba(10,12,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:"DM Mono",monospace;';
+    el.innerHTML=`<div style="width:40px;height:40px;border:3px solid #1e2530;border-top-color:#00e5a0;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="font-size:12px;color:#5a6478;letter-spacing:2px;text-transform:uppercase">Loading live data…</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    document.body.appendChild(el);
+  }
+  el.style.display = on ? 'flex' : 'none';
+}
+
+function loadFallback() {
+  TRADES=[
+    {date:'2026-02-13',asset:'QQQ',name:'QQQ 602 20Feb',expiry:'20 Feb',days:7,premium:838,totalPL:938,ppd:134,status:'assigned',stockPL:100,capitalLocked:60100},
+    {date:'2026-02-18',asset:'QQQ',name:'QQQ 606 19Feb',expiry:'19 Feb',days:1,premium:296,totalPL:296,ppd:296,status:'expired',stockPL:0,capitalLocked:60650},
+    {date:'2026-02-20',asset:'QQQ',name:'QQQ 604 23Feb',expiry:'23 Feb',days:3,premium:407,totalPL:null,ppd:136,status:'active',stockPL:0,capitalLocked:60350},
+    {date:'2026-02-12',asset:'GRAB',name:'GRAB $4.5 13Feb',expiry:'13 Feb',days:1,premium:14,totalPL:14,ppd:14,status:'expired',stockPL:0,capitalLocked:440},
+    {date:'2026-02-22',asset:'USAS',name:'USAS $8',expiry:'17 Apr',days:54,premium:190,totalPL:null,ppd:4,status:'active',stockPL:0,capitalLocked:744},
+  ];
+  DEPOSITS={QQQ:180750,GRAB:838,USAS:744};
+  refreshAssetDropdown(); applyFilters();
+}
+
+function refreshAssetDropdown() {
+  const sel=document.getElementById('asset-filter');
+  const assets=[...new Set(TRADES.map(t=>t.asset))].sort();
+  while(sel.options.length>1) sel.remove(1);
+  assets.forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+}
+
+function updateDateRange() {
+  if(!TRADES.length) return;
+  const dates=TRADES.map(t=>t.date).filter(Boolean).sort();
+  document.getElementById('date-from').value=dates[0];
+  document.getElementById('date-to').value=dates[dates.length-1];
+  const allChip=document.querySelector('.chip[data-label="all"]');
+  if(allChip){allChip.dataset.from=dates[0];allChip.dataset.to=dates[dates.length-1];}
+}
+
+function filtered() {
+  const asset=document.getElementById('asset-filter').value;
+  const from=document.getElementById('date-from').value;
+  const to=document.getElementById('date-to').value;
+  return TRADES.filter(t=>(asset==='ALL'||t.asset===asset)&&(!from||t.date>=from)&&(!to||t.date<=to));
+}
+
+function applyFilters() {
+  const data=filtered();
+  renderKPI(data); renderDonut(data); renderPremiumBars(data);
+  renderRatios(data); renderCapitalBars(data); renderTickerBars(data);
+  renderTradeSummary(data); renderPdayGrid(data); renderTradeLog(data);
+  document.getElementById('filter-status').style.display=data.length<TRADES.length?'inline-block':'none';
+}
+
+function renderKPI(data) {
+  const premium=data.reduce((s,t)=>s+(t.premium||0),0);
+  const stockPL=data.reduce((s,t)=>s+(t.stockPL||0),0);
+  const made=premium+stockPL;
+  const af=document.getElementById('asset-filter').value;
+  const totalCap=af==='ALL'?Object.values(DEPOSITS).reduce((s,v)=>s+v,0):(DEPOSITS[af]||0);
+  const capAssets=af==='ALL'?Object.keys(DEPOSITS):[af];
+  const roc=totalCap>0?((premium/totalCap)*100).toFixed(2):'0.00';
+  document.getElementById('kpi-premium').textContent=fmtDec(premium);
+  document.getElementById('kpi-made').textContent=fmtDec(made);
+  document.getElementById('kpi-roc').textContent=roc+'%';
+  document.getElementById('kpi-roc-sub').textContent='On '+fmtNum(totalCap)+' capital';
+  document.getElementById('kpi-capital').textContent=fmtK(totalCap);
+  document.getElementById('kpi-capital-sub').textContent=capAssets.join(' · ');
+  const spEl=document.getElementById('kpi-stockpl');
+  spEl.textContent=fmtDec(stockPL);
+  spEl.style.color=stockPL<0?'var(--red)':stockPL>0?'var(--green)':'var(--muted2)';
+}
+
+function renderDonut(data) {
+  const n=data.length||1;
+  const a=data.filter(t=>t.status==='assigned').length;
+  const e=data.filter(t=>t.status==='expired').length;
+  const ac=data.filter(t=>t.status==='active').length;
+  const l=data.filter(t=>t.status==='loss').length;
+  const C=2*Math.PI*45;
+  const aL=(a/n)*C,eL=(e/n)*C,acL=(ac/n)*C,lL=(l/n)*C;
+  setArc('donut-assigned',aL,C,0); setArc('donut-expired',eL,C,-aL);
+  setArc('donut-active',acL,C,-(aL+eL)); setArc('donut-loss',lL,C,-(aL+eL+acL));
+  document.getElementById('donut-count').textContent=data.length;
+  document.getElementById('leg-assigned').textContent=`${a} (${Math.round(a/n*100)}%)`;
+  document.getElementById('leg-expired').textContent=`${e} (${Math.round(e/n*100)}%)`;
+  document.getElementById('leg-active').textContent=`${ac} (${Math.round(ac/n*100)}%)`;
+  document.getElementById('leg-loss').textContent=`${l} (${Math.round(l/n*100)}%)`;
+}
+function setArc(id,len,C,offset) {
+  const el=document.getElementById(id); if(!el) return;
+  el.setAttribute('stroke-dasharray',`${len.toFixed(2)} ${(C-len).toFixed(2)}`);
+  el.setAttribute('stroke-dashoffset',offset.toFixed(2));
+}
+
+function renderPremiumBars(data) {
+  const sorted=[...data].sort((a,b)=>b.premium-a.premium);
+  const max=Math.max(...sorted.map(t=>t.premium),1);
+  document.getElementById('premium-bars').innerHTML=sorted.length
+    ?sorted.map(t=>`<div class="bar-row"><div class="bar-label">${t.name}</div><div class="bar-track"><div class="bar-fill" style="width:${(t.premium/max*100).toFixed(1)}%;background:${getColor(t.asset)}"></div></div><div class="bar-val">${fmtDec(t.premium)}${t.status==='active'?' ⚡':t.status==='loss'?' ✗':''}</div></div>`).join('')
+    :'<div class="no-data">No data</div>';
+}
+
+function renderRatios(data) {
+  if(!data.length){document.getElementById('ratio-grid').innerHTML='<div class="no-data">No data</div>';return;}
+  const premium=data.reduce((s,t)=>s+(t.premium||0),0);
+  const closed=data.filter(t=>t.status!=='active');
+  const wins=data.filter(t=>t.status==='assigned'||t.status==='expired');
+  const losses=data.filter(t=>t.status==='loss');
+  const winRate=closed.length?Math.round((wins.length/closed.length)*100):0;
+  const ppds=data.map(t=>t.ppd).filter(v=>v>0);
+  const bestPPD=ppds.length?Math.max(...ppds).toFixed(2):0;
+  const avgPrem=(premium/data.length).toFixed(2);
+  const stockPL=data.reduce((s,t)=>s+(t.stockPL||0),0);
+  const af=document.getElementById('asset-filter').value;
+  const totalCap=af==='ALL'?Object.values(DEPOSITS).reduce((s,v)=>s+v,0):(DEPOSITS[af]||0);
+  const rocPct=totalCap>0?((premium/totalCap)*100).toFixed(2):'0.00';
+  const annROC=totalCap>0?((premium/totalCap)*52*100).toFixed(1):'0.0';
+  const effPct=totalCap>0?((stockPL/totalCap)*100).toFixed(2):'0.00';
+  document.getElementById('ratio-grid').innerHTML=`
+    <div class="ratio-item"><div><div class="ratio-name">Win Rate (closed)</div><div class="ratio-sub">${wins.length} wins / ${closed.length} closed</div></div><div class="ratio-value" style="color:var(--green)">${winRate}%</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Loss Rate (closed)</div><div class="ratio-sub">${losses.length} net loss / ${closed.length} closed</div></div><div class="ratio-value" style="color:${losses.length>0?'var(--red)':'var(--muted2)'}">${closed.length?Math.round((losses.length/closed.length)*100):0}%</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Annualized ROC</div><div class="ratio-sub">${rocPct}% × 52 wks</div></div><div class="ratio-value" style="color:var(--yellow)">~${annROC}%</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Avg Premium / Trade</div><div class="ratio-sub">$${parseFloat(premium).toFixed(0)} / ${data.length} trades</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPrem}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Best Profit/Day</div></div><div class="ratio-value" style="color:var(--green)">$${bestPPD}/d</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Capital Efficiency</div><div class="ratio-sub">Stock P/L vs capital</div></div><div class="ratio-value" style="color:${stockPL<0?'var(--red)':'var(--green)'}">${effPct}%</div></div>`;
+}
+
+function renderCapitalBars(data) {
+  const af=document.getElementById('asset-filter').value;
+  const src=af==='ALL'?DEPOSITS:{[af]:DEPOSITS[af]||0};
+  const max=Math.max(...Object.values(src),1);
+  document.getElementById('capital-bars').innerHTML=Object.entries(src).sort((a,b)=>b[1]-a[1])
+    .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtK(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
+}
+
+function renderTickerBars(data) {
+  const byAsset={};
+  data.forEach(t=>{byAsset[t.asset]=(byAsset[t.asset]||0)+(t.premium||0);});
+  const max=Math.max(...Object.values(byAsset),1);
+  document.getElementById('ticker-bars').innerHTML=Object.entries(byAsset).sort((a,b)=>b[1]-a[1])
+    .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtDec(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
+}
+
+function renderTradeSummary(data) {
+  const n=data.length;
+  const asgn=data.filter(t=>t.status==='assigned').length;
+  const exp=data.filter(t=>t.status==='expired').length;
+  const act=data.filter(t=>t.status==='active').length;
+  const loss=data.filter(t=>t.status==='loss').length;
+  const ppds=data.map(t=>t.ppd).filter(v=>v>0);
+  const avgPPD=ppds.length?(ppds.reduce((s,v)=>s+v,0)/ppds.length).toFixed(2):0;
+  const maxD=n?Math.max(...data.map(t=>t.days)):0, minD=n?Math.min(...data.map(t=>t.days)):0;
+  document.getElementById('trade-summary').innerHTML=n?`
+    <div class="ratio-item"><div><div class="ratio-name">Total Trades</div></div><div class="ratio-value" style="color:var(--text)">${n}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Perfect Assignments</div></div><div class="ratio-value" style="color:var(--blue)">${asgn}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Expired Worthless</div></div><div class="ratio-value" style="color:var(--green)">${exp}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Active / Open</div></div><div class="ratio-value" style="color:var(--yellow)">${act}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Net Loss Trades</div></div><div class="ratio-value" style="color:${loss>0?'var(--red)':'var(--muted2)'}">${loss}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Avg P/Day</div><div class="ratio-sub">Positive trades only</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPPD}/d</div></div>`
+    :'<div class="no-data">No data</div>';
+}
+
+function renderPdayGrid(data) {
+  const sorted=[...data].sort((a,b)=>b.ppd-a.ppd);
+  const maxPPD=Math.max(...sorted.map(t=>t.ppd),1);
+  const posPPDs=sorted.map(t=>t.ppd).filter(v=>v>0);
+  document.getElementById('pday-grid').innerHTML=sorted.length
+    ?sorted.map(t=>{
+      const isLoss=t.ppd<0;
+      const col=isLoss?'var(--red)':getColor(t.asset);
+      return `<div class="pday-cell" style="${isLoss?'border-color:rgba(255,78,106,0.3);background:rgba(255,78,106,0.04)':''}">
+        <div class="pday-header"><div class="pday-asset" style="color:${col}">${t.asset}</div>${badge(t.status)}</div>
+        <div class="pday-expiry">Expiry: <strong style="color:var(--text)">${t.expiry}</strong> · ${t.days}d</div>
+        <div class="pday-rate" style="color:${col}">${isLoss?'-':''}$${Math.abs(t.ppd).toFixed(2)}<span style="font-size:12px;font-weight:400;color:var(--muted2)">/day</span></div>
+        <div style="font-size:10px;color:var(--muted)">Premium: ${fmtDec(t.premium)}</div>
+        <div class="pday-bar-wrap"><div class="pday-bar-inner" style="width:${isLoss?0:(t.ppd/maxPPD*100).toFixed(1)}%;background:${col}"></div></div>
+        <div class="pday-meta"><span>${t.name}</span><span>${t.status==='active'?'Open':'Closed'}</span></div>
+      </div>`;
+    }).join('')
+    :'<div class="no-data">No trades match filters.</div>';
+  if(posPPDs.length){
+    document.getElementById('ppd-best').textContent='$'+Math.max(...posPPDs).toFixed(2)+'/d';
+    document.getElementById('ppd-avg').textContent='$'+(posPPDs.reduce((s,v)=>s+v,0)/posPPDs.length).toFixed(2)+'/d';
+    document.getElementById('ppd-worst').textContent='$'+Math.min(...posPPDs).toFixed(2)+'/d';
+  }
+}
+
+function renderTradeLog(data) {
+  const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('trade-tbody').innerHTML=sorted.map(t=>{
+    const ia=t.status==='assigned',iac=t.status==='active',il=t.status==='loss';
+    const nc=ia?'var(--blue)':iac?'var(--yellow)':il?'var(--red)':'var(--muted2)';
+    const plC=t.totalPL==null?'c-yellow':ia?'c-blue':il?'c-red':'c-green';
+    const ppdC=iac?'c-yellow':ia?'c-blue':il?'c-red':'c-green';
+    return `<tr style="background:${il?'rgba(255,78,106,0.06)':''}">
+      <td>${t.date?t.date.slice(5).replace('-',' '):'—'}</td>
+      <td style="color:${getColor(t.asset)};font-weight:500">${t.asset}</td>
+      <td style="color:${nc}">${t.name}</td>
+      <td>${t.days}</td>
+      <td class="${ia?'c-blue':il?'c-red':'c-green'}">${fmtDec(t.premium)}</td>
+      <td class="${plC}">${fmtDec(t.totalPL)}</td>
+      <td class="${ppdC}">${t.ppd<0?'-$'+Math.abs(t.ppd).toFixed(2):'$'+parseFloat(t.ppd).toFixed(2)}</td>
+      <td>${t.expiry}</td>
+      <td>${badge(t.status)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('trade-empty').style.display=sorted.length?'none':'block';
+}
+
+function setChip(el) {
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('date-from').value=el.dataset.from;
+  document.getElementById('date-to').value=el.dataset.to;
+  applyFilters();
+}
+function clearChip(){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));}
+function resetFilters(){
+  document.getElementById('asset-filter').value='ALL';
+  updateDateRange();
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('.chip[data-label="all"]')?.classList.add('active');
+  applyFilters();
+}
+
+// Init options tab
+fetchData();
+
+
+// ════════════════════════════════════════════════════════
+// TAB 2 — PERSONAL FINANCE
+// ════════════════════════════════════════════════════════
+const PF_WEBHOOK = 'YOUR_PF_APPS_SCRIPT_URL_HERE';
+
+const PF_EXCLUDED = [
+  'A - Growth Fund','E - FCNR ICICI','K - Invest Private Credit',
+  'K - Project Batam','K - Project Binance','K - Project MM',
+  'BLR Flat','Land-1 (E)','Land-2 (K 1/4)','Land -3 (K 1/2)'
+];
+
+let pfTrendChart = null;
+
+function pfLoadData() {
+  document.getElementById('pf-loading').classList.remove('hidden');
+  document.getElementById('pf-error').classList.add('hidden');
+  document.getElementById('pf-load-btn').disabled = true;
+
+  const cb = 'pfCb_' + Date.now();
+  const sc = document.createElement('script');
+
+  window[cb] = function(json) {
+    delete window[cb];
+    document.body.removeChild(sc);
+    document.getElementById('pf-loading').classList.add('hidden');
+
+    if (json.error) {
+      pfShowError('Error: ' + json.error);
+      document.getElementById('pf-load-btn').disabled = false;
+      return;
+    }
+
+    pfProcessData(json.details, json.expenses);
+    document.getElementById('pf-setup').classList.add('hidden');
+    document.getElementById('pf-dashboard').classList.remove('hidden');
+  };
+
+  sc.onerror = function() {
+    delete window[cb];
+    if(document.body.contains(sc)) document.body.removeChild(sc);
+    document.getElementById('pf-loading').classList.add('hidden');
+    pfShowError('Failed to reach Google Sheets. Check that the Apps Script is deployed with "Anyone" access.');
+    document.getElementById('pf-load-btn').disabled = false;
+  };
+
+  sc.src = PF_WEBHOOK + '?callback=' + cb;
+  document.body.appendChild(sc);
+}
+
+function pfProcessData(detailsRaw, expensesRaw) {
+  // ── Parse details ──
+  const detailsRows = detailsRaw.slice(1);
+  const monthlyData = {};
+
+  detailsRows.forEach(row => {
+    const month = row[0], account = row[1], category = row[2];
+    let value = parseFloat(String(row[3]).replace(/[$,]/g,'') || 0);
+    if (!month || !account || isNaN(value)) return;
+    if (!monthlyData[month]) monthlyData[month] = { totalAssets:0, netCash:0 };
+    monthlyData[month].totalAssets += value;
+    if (!PF_EXCLUDED.includes(account)) monthlyData[month].netCash += value;
+  });
+
+  // ── Parse expenses ──
+  const expRows = expensesRaw.slice(1);
+  const monthlyExpenses = {};
+  expRows.forEach(row => {
+    const month = row[1];
+    let amt = parseFloat(String(row[2]).replace(/[$,]/g,'') || 0);
+    if (!month || isNaN(amt)) return;
+    monthlyExpenses[month] = (monthlyExpenses[month]||0) + amt;
+  });
+
+  // ── Sort months descending ──
+  const months = Object.keys(monthlyData).sort((a,b) => new Date(b) - new Date(a));
+  const currentMonth = months[0];
+  const prevMonth    = months[1];
+  const curData      = monthlyData[currentMonth];
+
+  // ── Runway ──
+  const recent3 = months.slice(0,3);
+  let totalExp=0, expCount=0;
+  recent3.forEach(m => { if(monthlyExpenses[m]) { totalExp+=monthlyExpenses[m]; expCount++; } });
+  const avgExp = expCount>0 ? totalExp/expCount : 0;
+  const runway = avgExp>0 ? curData.netCash/avgExp : 0;
+
+  // ── KPIs ──
+  document.getElementById('pf-total-assets').textContent = '$'+(curData.totalAssets/1000000).toFixed(2)+'M';
+  document.getElementById('pf-net-cash').textContent     = '$'+(curData.netCash/1000000).toFixed(2)+'M';
+  document.getElementById('pf-runway').textContent       = '⚡ '+runway.toFixed(1)+' MO';
+  document.getElementById('pf-portfolio-month').textContent = currentMonth;
+
+  // ── Category totals ──
+  const catTotals={}, catPrev={}, catYoy={}, catAccounts={}, acctDetails={}, acctPrev={}, acctYoy={};
+
+  // year-ago month
+  const yearAgoMonth = months.find(m => {
+    const c=new Date(currentMonth), cand=new Date(m);
+    return cand.getFullYear()===c.getFullYear()-1 && cand.getMonth()===c.getMonth();
+  });
+
+  detailsRows.forEach(row => {
+    const month=row[0], account=row[1], category=row[2];
+    let value=parseFloat(String(row[3]).replace(/[$,]/g,'')||0);
+    if(!month||!category||isNaN(value)) return;
+
+    if(month===currentMonth) {
+      catTotals[category]  = (catTotals[category]||0)+value;
+      catAccounts[category]= (catAccounts[category]||0)+1;
+      if(!acctDetails[category]) acctDetails[category]=[];
+      acctDetails[category].push({account,value});
+    }
+    if(month===prevMonth) {
+      catPrev[category]=(catPrev[category]||0)+value;
+      if(!acctPrev[category]) acctPrev[category]={};
+      acctPrev[category][account]=value;
+    }
+    if(month===yearAgoMonth) {
+      catYoy[category]=(catYoy[category]||0)+value;
+      if(!acctYoy[category]) acctYoy[category]={};
+      acctYoy[category][account]=value;
+    }
+  });
+
+  // ── Render categories ──
+  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const catContainer = document.getElementById('pf-categories');
+  catContainer.innerHTML='';
+
+  sorted.forEach(([cat, value]) => {
+    const pct      = (value/curData.totalAssets)*100;
+    const prevVal  = catPrev[cat]||0;
+    const change   = value-prevVal;
+    const chgPct   = prevVal>0?((change/prevVal)*100):0;
+    const yoyVal   = catYoy[cat]||0;
+    const yoyChg   = value-yoyVal;
+    const yoyPct   = yoyVal>0?((yoyChg/yoyVal)*100):0;
+    const count    = catAccounts[cat]||0;
+
+    const chgClass = change>0?'pos':change<0?'neg':'neu';
+    const chgSym   = change>0?'↗':change<0?'↘':'—';
+    const yoyClass = yoyChg>0?'pos':yoyChg<0?'neg':'neu';
+    const yoySym   = yoyChg>0?'↗':'↘';
+
+    const row = document.createElement('div');
+    row.className='pf-cat-row';
+
+    const acctRows = (acctDetails[cat]||[]).map(({account,value:av}) => {
+      const pm = (acctPrev[cat]||{})[account]||0;
+      const momChg=av-pm, momPct=pm>0?((momChg/pm)*100):0;
+      const ya=(acctYoy[cat]||{})[account]||0;
+      const yoyChgA=av-ya, yoyPctA=ya>0?((yoyChgA/ya)*100):0;
+      const mc=momChg>0?'pos':momChg<0?'neg':'neu', ms=momChg>0?'↗':momChg<0?'↘':'—';
+      const yc=yoyChgA>0?'pos':yoyChgA<0?'neg':'neu', ys=yoyChgA>0?'↗':'↘';
+      return `<div class="pf-acct-table-row">
+        <div class="pf-acct-name">${account}</div>
+        <div class="pf-acct-bal">$${(av/1000).toFixed(1)}K</div>
+        <div class="pf-acct-mom ${mc}">${ms} (${momPct>=0?'+':''}${momPct.toFixed(1)}%)</div>
+        <div class="pf-acct-yoy ${yc}">${ys} (${yoyPctA>=0?'+':''}${yoyPctA.toFixed(1)}%)</div>
+      </div>`;
+    }).join('');
+
+    row.innerHTML=`
+      <svg class="pf-cat-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      <div class="pf-cat-info">
+        <div class="pf-cat-name">
+          <span class="pf-cat-label">${cat}</span>
+          <span class="pf-cat-count">${count} accts</span>
+        </div>
+        <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct.toFixed(1)}%"></div></div>
+        <div class="pf-cat-vals">
+          <span class="pf-cat-amount">$${(value/1000).toFixed(1)}K</span>
+          <span class="pf-cat-change ${chgClass}">${chgSym} $${Math.abs(change/1000).toFixed(1)}K (${chgPct>=0?'+':''}${chgPct.toFixed(1)}%)</span>
+        </div>
+      </div>
+      <div class="pf-tooltip">
+        <div class="tt-header">${cat} holds <span class="tt-pct">${pct.toFixed(1)}%</span> of portfolio</div>
+        <div class="tt-yoy ${yoyClass}">YoY: ${yoySym} $${Math.abs(yoyChg/1000).toFixed(1)}K (${yoyPct>=0?'+':''}${yoyPct.toFixed(0)}%)</div>
+        <div class="tt-link">Click to expand accounts</div>
+      </div>
+      <div class="pf-acct-details">
+        <div class="pf-acct-table-header"><div>Account</div><div>Balance</div><div>MoM</div><div>YoY</div></div>
+        ${acctRows}
+        <div class="pf-acct-total"><div style="color:#888">Total</div><div>$${(value/1000).toFixed(1)}K</div><div></div><div></div></div>
+      </div>`;
+
+    row.addEventListener('click', e => {
+      if(e.target.closest('.pf-acct-details')) return;
+      row.classList.toggle('expanded');
+    });
+    catContainer.appendChild(row);
+  });
+
+  // ── Anti-Fragility ──
+  const stableCats=['Low Interest','Active Savings','Real Estate','Growth Fund'];
+  const stableTotal = stableCats.reduce((s,c)=>s+(catTotals[c]||0),0);
+  const afPct = curData.totalAssets>0 ? (stableTotal/curData.totalAssets)*100 : 0;
+  document.getElementById('pf-af-pct').textContent = afPct.toFixed(0)+'%';
+  const circ=2*Math.PI*80;
+  document.getElementById('pf-af-circle').style.strokeDashoffset = circ - (afPct/100)*circ;
+
+  // ── Trend chart ──
+  const trendMonths = months.slice(0,18).reverse();
+  const assetsData  = trendMonths.map(m=>(monthlyData[m]?.totalAssets||0)/1000000);
+  const cashData    = trendMonths.map(m=>(monthlyData[m]?.netCash||0)/1000000);
+  pfRenderChart(trendMonths, assetsData, cashData);
+}
+
+function pfRenderChart(labels, assetsData, cashData) {
+  if (pfTrendChart) { pfTrendChart.destroy(); pfTrendChart=null; }
+  const ctx = document.getElementById('pf-trend-chart');
+  pfTrendChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Assets',data:assetsData,borderColor:'#10b981',backgroundColor:'transparent',borderWidth:3,tension:0.4,pointRadius:0,pointHoverRadius:6},
+        {label:'Cash',  data:cashData,  borderColor:'#3b82f6',backgroundColor:'transparent',borderWidth:3,tension:0.4,pointRadius:0,pointHoverRadius:6}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{color:'#888',padding:20,font:{size:12,family:'Inter'}}},
+        tooltip:{mode:'index',intersect:false,backgroundColor:'#000',borderColor:'#333',borderWidth:1,titleColor:'#fff',bodyColor:'#fff',padding:12,callbacks:{label:c=>`${c.dataset.label}: $${c.parsed.y.toFixed(2)}M`}}
+      },
+      scales:{
+        y:{beginAtZero:false,ticks:{color:'#666',font:{size:11,family:'Inter'},callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'#1a1a1a'}},
+        x:{ticks:{color:'#666',font:{size:11,family:'Inter'},maxRotation:45,minRotation:45},grid:{display:false}}
+      },
+      interaction:{mode:'nearest',axis:'x',intersect:false}
+    }
+  });
+}
+
+function pfShowError(msg) {
+  const el=document.getElementById('pf-error');
+  el.textContent=msg; el.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
