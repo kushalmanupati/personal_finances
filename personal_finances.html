@@ -80,7 +80,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
     display:inline-flex; align-items:center; gap:6px;
     background:linear-gradient(90deg, #56d389, #4eb5ff);
     color:#0a0c0f; font-family:'DM Mono', monospace; font-weight:700; font-size:18px;
-    padding:8px 20px; border-radius:8px; margin-top:4px;
+    padding:8px 20px; border-radius:8px;
 }
 
 /* Charts & Grids */
@@ -257,18 +257,18 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
       <div class="pf-kpi-card green">
         <div class="pf-kpi-label">Total Assets</div>
         <div class="pf-kpi-value green" id="pf-total-assets">—</div>
-        <div class="pf-kpi-sub" id="pf-assets-month">Latest Month</div>
       </div>
       <div class="pf-kpi-card blue">
         <div class="pf-kpi-label">Net Cash</div>
         <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
-        <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
       </div>
-      <div class="pf-kpi-card" style="display:flex; flex-direction:column; justify-content:space-between; align-items:flex-end;">
-        <div class="pf-kpi-label" style="justify-content:space-between; width:100%;">
+      <div class="pf-kpi-card" style="display:flex; flex-direction:column; position:relative;">
+        <div class="pf-kpi-label" style="justify-content:space-between; width:100%; margin-bottom:0;">
           <span>Runway</span> <span style="color:var(--yellow)">⚡</span>
         </div>
-        <div class="pf-runway-pill" id="pf-runway-val">⚡ 0.0 MO</div>
+        <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; width:100%; padding-top:16px;">
+          <div class="pf-runway-pill" id="pf-runway-val">⚡ 0.0 MO</div>
+        </div>
       </div>
     </div>
 
@@ -287,7 +287,7 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             <div class="pf-card-title">Savings Efficiency</div>
           </div>
         </div>
-        <div class="pf-circle-wrap" id="pf-savings-wrap">
+        <div class="pf-circle-wrap" id="pf-savings-wrap" style="max-width: 280px; margin: 32px auto 16px;">
           <svg viewBox="0 0 200 200" width="100%" height="100%">
             <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="16"/>
             <circle id="pf-savings-circle" cx="100" cy="100" r="80" fill="none" stroke="#ff9f1c" stroke-width="16"
@@ -332,7 +332,7 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             <div class="pf-card-title">Anti-Fragility</div>
           </div>
         </div>
-        <div class="pf-circle-wrap" id="pf-af-wrap">
+        <div class="pf-circle-wrap" id="pf-af-wrap" style="max-width: 280px; margin: 32px auto 16px;">
           <svg viewBox="0 0 200 200" width="100%" height="100%">
             <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="16"/>
             <circle id="pf-af-circle" cx="100" cy="100" r="80" fill="none" stroke="#00e5a0" stroke-width="16"
@@ -514,7 +514,8 @@ const keyToLabel = key => {
 };
 function isLiquidCash(category) {
   const catLower = String(category).toLowerCase().trim();
-  return !(catLower.includes('real estate') || catLower.includes('growth fund') || catLower.includes('project'));
+  // FIXED: "Projects" is no longer excluded from Net Cash
+  return !(catLower.includes('real estate') || catLower.includes('growth fund'));
 }
 function isStableAsset(category) {
   return STABLE_CATEGORIES.some(stable => String(category).toLowerCase().trim().includes(stable));
@@ -783,9 +784,9 @@ function pfProcessData(allData) {
   const curData = GLOBAL_PF_DATA[currentMonthKey];
   
   document.getElementById('pf-total-assets').textContent = fmtK(curData.assets);
-  document.getElementById('pf-assets-month').textContent = 'For ' + keyToLabel(currentMonthKey);
   document.getElementById('pf-net-cash').textContent = fmtK(curData.cash);
 
+  // Runway Math calculated dynamically using the freshly-calculated Net Cash
   let runwayLatestExp = GLOBAL_MONTHLY_EXPENSE > 0 ? GLOBAL_MONTHLY_EXPENSE : 1;
   let runwayValue = curData.cash / runwayLatestExp;
   document.getElementById('pf-runway-val').textContent = '⚡ ' + runwayValue.toFixed(1) + ' MO';
