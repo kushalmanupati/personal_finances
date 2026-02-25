@@ -941,7 +941,107 @@ function resetFilters(){
 fetchData();
 
 // Auto-fetch personal finance on page load
-pfLoadData();
+function pfLoadData() {
+  document.getElementById('pf-loading').classList.remove('hidden');
+  document.getElementById('pf-error').classList.add('hidden');
+  document.getElementById('pf-load-btn').disabled = true;
+  
+  document.getElementById('pf-setup').classList.remove('hidden');
+  document.getElementById('pf-dashboard').classList.add('hidden');
+
+  const cb = 'pfCb_' + Date.now();
+  const sc = document.createElement('script');
+
+  window[cb] = function(json) {
+    delete window[cb];
+    document.body.removeChild(sc);
+    document.getElementById('pf-loading').classList.add('hidden');
+
+    if (json.error) {
+      console.warn('Webhook error, loading fallback:', json.error);
+      pfLoadFallback();
+      return;
+    }
+
+    pfProcessData(json.details, json.expenses);
+    document.getElementById('pf-setup').classList.add('hidden');
+    document.getElementById('pf-dashboard').classList.remove('hidden');
+  };
+
+  sc.onerror = function() {
+    delete window[cb];
+    if(document.body.contains(sc)) document.body.removeChild(sc);
+    document.getElementById('pf-loading').classList.add('hidden');
+    console.warn('Failed to reach Google Sheets. Loading fallback data.');
+    pfLoadFallback();
+  };
+
+  if (PF_WEBHOOK === 'YOUR_PF_APPS_SCRIPT_URL_HERE') {
+    delete window[cb];
+    document.getElementById('pf-loading').classList.add('hidden');
+    pfLoadFallback();
+    return;
+  }
+
+  // 15-second timeout — fallback if Apps Script is too slow
+  const timeout = setTimeout(() => {
+    if (window[cb]) {
+      delete window[cb];
+      if(document.body.contains(sc)) document.body.removeChild(sc);
+      document.getElementById('pf-loading').classList.add('hidden');
+      console.warn('Timed out after 15s. Loading fallback data.');
+      pfLoadFallback();
+    }
+  }, 15000);
+
+  const origCb = window[cb];
+  window[cb] = function(json) {
+    clearTimeout(timeout);
+    origCb(json);
+  };
+
+  sc.src = PF_WEBHOOK + '?callback=' + cb;
+  document.body.appendChild(sc);
+}
+
+// Fallback data so the dashboard always renders (matches Options tab behavior)
+function pfLoadFallback() {
+  const details = [
+    ['Month', 'Account', 'Category', 'Value'],
+    // Current Month (Feb 2026)
+    ['Feb 2026', 'Chase Checking', 'Active Savings', 45000],
+    ['Feb 2026', 'Marcus HYSA', 'Active Savings', 125000],
+    ['Feb 2026', 'Vanguard S&P', 'Growth Fund', 680000],
+    ['Feb 2026', 'Fidelity 401k', 'Growth Fund', 320000],
+    ['Feb 2026', 'Primary Home', 'Real Estate', 950000],
+    ['Feb 2026', 'Coinbase', 'High Risk', 58000],
+    // Previous Month (Jan 2026)
+    ['Jan 2026', 'Chase Checking', 'Active Savings', 42000],
+    ['Jan 2026', 'Marcus HYSA', 'Active Savings', 120000],
+    ['Jan 2026', 'Vanguard S&P', 'Growth Fund', 665000],
+    ['Jan 2026', 'Fidelity 401k', 'Growth Fund', 315000],
+    ['Jan 2026', 'Primary Home', 'Real Estate', 950000],
+    ['Jan 2026', 'Coinbase', 'High Risk', 62000],
+    // Year Ago Month (Feb 2025)
+    ['Feb 2025', 'Chase Checking', 'Active Savings', 25000],
+    ['Feb 2025', 'Marcus HYSA', 'Active Savings', 80000],
+    ['Feb 2025', 'Vanguard S&P', 'Growth Fund', 550000],
+    ['Feb 2025', 'Fidelity 401k', 'Growth Fund', 250000],
+    ['Feb 2025', 'Primary Home', 'Real Estate', 900000],
+    ['Feb 2025', 'Coinbase', 'High Risk', 35000]
+  ];
+  
+  const expenses = [
+    ['ID', 'Month', 'Amount'],
+    [1, 'Feb 2026', 8200],
+    [2, 'Jan 2026', 9100],
+    [3, 'Dec 2025', 10500]
+  ];
+  
+  pfProcessData(details, expenses);
+  document.getElementById('pf-setup').classList.add('hidden');
+  document.getElementById('pf-dashboard').classList.remove('hidden');
+}
 
 
 // ════════════════════════════════════════════════════════
