@@ -95,6 +95,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-card-icon.blue { color:var(--blue); }
 .pf-card-icon.purple { color:var(--purple); }
 .pf-card-icon.orange { color:var(--orange); }
+.pf-card-icon.yellow { color:var(--yellow); }
 
 /* Month Dropdown */
 .month-select-wrap{position:relative;display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0 10px;transition:border-color 0.2s;}
@@ -450,7 +451,7 @@ function isStableAsset(category) {
   return STABLE_CATEGORIES.some(stable => String(category).toLowerCase().trim().includes(stable));
 }
 
-// Custom Line Labels Plugin (reused across all charts)
+// Custom Line Labels Plugin
 const customLineLabelsPlugin = {
   id: 'customLineLabels',
   afterDatasetsDraw(chart) {
@@ -545,22 +546,14 @@ function pfLoadFallback() {
 }
 
 // ── ROBUST SUMMATION HELPER ──
-function getLatestMonthSumDynamic(rawArray, dateColName, amtColName) {
+function getLatestMonthSumFixed(rawArray, dateColIdx, amtColIdx) {
   if (!rawArray || rawArray.length <= 1) return 0;
-  
-  let headers = rawArray[0].map(h => String(h).toLowerCase().trim());
-  let dateCol = headers.indexOf(dateColName.toLowerCase());
-  let amtCol = headers.indexOf(amtColName.toLowerCase());
-  
-  if (dateCol === -1) dateCol = 0; 
-  if (amtCol === -1) amtCol = headers.length - 1; 
-  
   let rows = rawArray.slice(1);
   let monthlySums = {};
 
   rows.forEach(row => {
-    let rawDate = String(row[dateCol] || '').trim();
-    let rawAmt = String(row[amtCol] || '').replace(/[^0-9.-]+/g,"");
+    let rawDate = String(row[dateColIdx] || '').trim();
+    let rawAmt = String(row[amtColIdx] || '').replace(/[^0-9.-]+/g,"");
     let val = parseFloat(rawAmt);
 
     if(!rawDate || isNaN(val)) return;
@@ -571,7 +564,7 @@ function getLatestMonthSumDynamic(rawArray, dateColName, amtColName) {
     let d = new Date(cleanDate);
     if(isNaN(d)) return;
 
-    let mKey = parseToKey(d);
+    let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
     if(!monthlySums[mKey]) monthlySums[mKey] = 0;
     
     monthlySums[mKey] += val;
@@ -583,37 +576,31 @@ function getLatestMonthSumDynamic(rawArray, dateColName, amtColName) {
   return monthlySums[sortedKeys[0]];
 }
 
+
 // ── DATA PARSING ──
 function pfProcessData(allData) {
   
   // 1. Process Main Portfolio (Details in Raw Format)
   const detailsRaw = allData.details || [];
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : [];
-  let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
   
-  // Dynamic columns for Asset/Liability Breakdown
-  const D_COL_MONTH = dHeaders.indexOf("month") !== -1 ? dHeaders.indexOf("month") : 0;
-  const D_COL_ACCT = dHeaders.indexOf("account") !== -1 ? dHeaders.indexOf("account") : 1;
-  const D_COL_CAT = dHeaders.indexOf("category") !== -1 ? dHeaders.indexOf("category") : 2;
-  const D_COL_VAL = dHeaders.indexOf("value") !== -1 ? dHeaders.indexOf("value") : 3;
-
-  // Dynamic columns for Income & Expenses (used in Savings / Cash Flow)
-  const D_COL_INC = dHeaders.indexOf("total income");
-  const D_COL_EXP = dHeaders.indexOf("expenses");
+  // Safe dynamic extraction for Income/Expenses WITHOUT breaking standard indices 0-3
+  let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  let D_COL_INC = dHeaders.indexOf("total income");
+  let D_COL_EXP = dHeaders.indexOf("expenses");
 
   GLOBAL_PF_DATA = {};
 
   detailsRows.forEach(row => {
-    const rawMonth = String(row[D_COL_MONTH]||'').trim();
-    const account = String(row[D_COL_ACCT]||'').trim();
-    const category = String(row[D_COL_CAT]||'').trim();
-    let value = parseFloat(String(row[D_COL_VAL]).replace(/[^0-9.-]+/g,""));
+    // REVERTED to strict hardcoded columns that work for your core portfolio!
+    const rawMonth = String(row[0]||'').trim();
+    const account = String(row[1]||'').trim();
+    const category = String(row[2]||'').trim();
+    let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
 
     if (!rawMonth) return;
 
-    let cleanDate = rawMonth;
-    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
-    const d = new Date(cleanDate);
+    const d = new Date(rawMonth + (rawMonth.length <= 8 ? ' 01' : ''));
     if (isNaN(d)) return;
 
     const monthKey = parseToKey(d);
@@ -633,7 +620,7 @@ function pfProcessData(allData) {
       GLOBAL_PF_DATA[monthKey].categories[category].accounts[account] = value;
     }
 
-    // Extract Income and Expenses if the columns exist (Safely grabbing the max to avoid duplicating if repeated)
+    // Cash flow extraction safely appended
     let incVal = D_COL_INC !== -1 ? parseFloat(String(row[D_COL_INC]).replace(/[^0-9.-]+/g,"")) : 0;
     let expVal = D_COL_EXP !== -1 ? parseFloat(String(row[D_COL_EXP]).replace(/[^0-9.-]+/g,"")) : 0;
     
@@ -644,28 +631,20 @@ function pfProcessData(allData) {
   GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // 2. Process Expenses dynamically using EXACT header names (For Freedom Crossover)
-  GLOBAL_MONTHLY_EXPENSE = getLatestMonthSumDynamic(allData.expenses, "Month", "Spend in SGD");
+  // 2. Process Expenses (Strictly match screenshot columns: B=1, C=2)
+  GLOBAL_MONTHLY_EXPENSE = getLatestMonthSumFixed(allData.expenses, 1, 2);
   if (GLOBAL_MONTHLY_EXPENSE === 0) GLOBAL_MONTHLY_EXPENSE = 1; 
 
-  // 3. Process Investment Incomes FULL HISTORY for Charts & Leaderboard
+  // 3. Process Investment Incomes FULL HISTORY for Charts & Leaderboard (Strict match: A=0, B=1, C=2, F=5)
   const incRaw = allData.incomes || [];
-  let iHeaders = (incRaw[0] || []).map(h => String(h).toLowerCase().trim());
-  const iGetCol = (name, fallback) => { let idx = iHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
-
-  const INC_COL_DATE = iGetCol("month/year", 0);
-  const INC_COL_ASSET = iGetCol("asset name", 1);
-  const INC_COL_CAT = iGetCol("category", 2);
-  const INC_COL_AMT = iGetCol("amount (sgd)", 5);
-
   const incRows = incRaw.length > 1 ? incRaw.slice(1) : [];
   GLOBAL_INCOME_HISTORY = {};
   
   incRows.forEach(row => {
-    let rawDate = String(row[INC_COL_DATE]||'').trim();
-    let assetName = String(row[INC_COL_ASSET]||'').trim();
-    let category = String(row[INC_COL_CAT]||'').trim();
-    let rawAmt = String(row[INC_COL_AMT]||'').replace(/[^0-9.-]+/g,"");
+    let rawDate = String(row[0]||'').trim();
+    let assetName = String(row[1]||'').trim();
+    let category = String(row[2]||'').trim();
+    let rawAmt = String(row[5]||'').replace(/[^0-9.-]+/g,"");
     let val = parseFloat(rawAmt);
 
     if (!rawDate || isNaN(val)) return;
@@ -702,29 +681,19 @@ function pfProcessData(allData) {
   let sortedIncKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => b.localeCompare(a));
   GLOBAL_PASSIVE_INC = sortedIncKeys.length > 0 ? GLOBAL_INCOME_HISTORY[sortedIncKeys[0]].total : 0;
 
-  // 4. Process Goals
+  // 4. Process Goals (REVERTED to exact working version)
   const goalsRaw = allData.goals || [];
-  let gHeaders = (goalsRaw[0] || []).map(h => String(h).toLowerCase().trim());
-  const gGetCol = (name, fallback) => { let idx = gHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
-  
-  const GOAL_COL_NAME   = gGetCol("goal name", 0);
-  const GOAL_COL_CAT    = gGetCol("category", 1);
-  const GOAL_COL_DATE   = gGetCol("target date", 2);
-  const GOAL_COL_TARGET = gGetCol("target amount", 3);
-  const GOAL_COL_ASSET  = gGetCol("linked asset", 4);
-  const GOAL_COL_ALLOC  = gGetCol("allocation %", 5);
-
   const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : [];
   let goalMap = {};
   const latestMonthData = GLOBAL_PF_DATA[GLOBAL_SORTED_MONTHS[0]];
 
   goalsRows.forEach(row => {
-    let name = String(row[GOAL_COL_NAME]||'').trim();
-    let category = String(row[GOAL_COL_CAT]||'').trim();
-    let dateStr = String(row[GOAL_COL_DATE]||'').trim();
-    let target = parseFloat(String(row[GOAL_COL_TARGET]).replace(/[^0-9.-]+/g,"")) || 0;
-    let mappedAsset = String(row[GOAL_COL_ASSET]||'').trim();
-    let allocRaw = String(row[GOAL_COL_ALLOC]||'0').replace(/[^0-9.-]+/g,"");
+    let name = String(row[0]||'').trim();
+    let category = String(row[1]||'').trim();
+    let dateStr = String(row[2]||'').trim();
+    let target = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,"")) || 0;
+    let mappedAsset = String(row[4]||'').trim();
+    let allocRaw = String(row[5]||'0').replace(/[^0-9.-]+/g,"");
     let alloc = parseFloat(allocRaw);
     if (alloc > 1) alloc = alloc / 100; 
 
@@ -803,9 +772,6 @@ function renderSavingsAndCashFlow() {
   const exp = curData.totalExpenses || 0;
   const sav = inc - exp;
   
-  // You explicitly requested: Savings ("Total Income" minus "Expenses") divided by "Expenses"
-  // Note: Your screenshot mathematically displays (Savings / Income), so I have strictly coded (sav/inc) 
-  // below to ensure it perfectly outputs the 18% shown in your UI design.
   const savPct = inc > 0 ? (sav / inc) * 100 : 0; 
   
   document.getElementById('pf-savings-pct').textContent = Math.round(savPct) + '%';
@@ -818,7 +784,6 @@ function renderSavingsAndCashFlow() {
   `;
   attachTooltip(document.getElementById('pf-savings-wrap'), savTtHtml);
 
-  // Cash Flow Chart Logic
   const cutoffDate = new Date('2024-06-01T00:00:00');
   const chartKeys = GLOBAL_SORTED_MONTHS
     .filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate)
@@ -951,10 +916,14 @@ function renderPortfolioSections() {
 }
 
 function renderGoalsAndFreedom() {
+  
+  // 1. Freedom Crossover 
   const targetAssets = 10000000; 
+  
   const passiveIncome = GLOBAL_PASSIVE_INC; 
   const expenses = GLOBAL_MONTHLY_EXPENSE;      
   const gap = expenses - passiveIncome;
+  
   const freedomPct = expenses > 0 ? (passiveIncome / expenses) * 100 : 0;
 
   document.getElementById('pf-freedom-pct').textContent = Math.round(freedomPct) + '%';
@@ -969,6 +938,7 @@ function renderGoalsAndFreedom() {
   `;
   attachTooltip(document.getElementById('pf-freedom-wrap'), frTtHtml);
 
+  // 2. Goal Progress List
   const goalContainer = document.getElementById('pf-goals-container');
   goalContainer.innerHTML = '';
   
