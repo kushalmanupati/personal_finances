@@ -25,7 +25,7 @@
   --red:#ff4e6a;   --red-dim:rgba(255,78,106,0.12);
   --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.12);
   --blue:#4eb5ff;  --blue-dim:rgba(78,181,255,0.1);
-  --purple:#c77dff;--purple-dim:rgba(199,125,255,0.12);
+  --purple:#8a2be2;--purple-dim:rgba(138,43,226,0.12); 
   --orange:#ff9f1c;--orange-dim:rgba(255,159,28,0.12);
   --text:#e8edf3;  --muted:#5a6478; --muted2:#8892a4;
 }
@@ -77,17 +77,17 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-kpi-value.red{color:var(--red);}
 .pf-kpi-sub{font-size:11px;color:var(--muted2);min-height:14px;}
 
-/* Charts */
+/* Charts & Grids */
 .pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
-.pf-chart-title{font-size:16px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.pf-chart-title{font-size:16px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:-0.5px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.pf-chart-title-left {display:flex;align-items:center;gap:8px;}
 .pf-chart-title span {color:var(--green);}
 
-/* Grids */
 .pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
 .pf-goals-grid{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:24px;}
 @media(max-width:900px){.pf-portfolio-grid, .pf-goals-grid{grid-template-columns:1fr;}}
 
-.pf-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.pf-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
 .pf-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .pf-card-title-wrap {display:flex;align-items:center;gap:8px;}
 .pf-card-title{font-size:16px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;}
@@ -104,6 +104,14 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 select.pf-month-select{appearance:none;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 16px 8px 0;outline:none;cursor:pointer;}
 .month-select-wrap::after{content:'▾';position:absolute;right:10px;color:var(--muted);pointer-events:none;font-size:10px;}
 
+/* Toggle Switch */
+.pf-toggle-wrap {display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted2);cursor:pointer;}
+.pf-toggle {position:relative;width:32px;height:18px;background:var(--surface2);border-radius:9px;border:1px solid var(--border);transition:all 0.3s;}
+.pf-toggle::after {content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--muted);border-radius:50%;transition:all 0.3s;}
+input[type="checkbox"]:checked + .pf-toggle {background:var(--green-dim);border-color:var(--green);}
+input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);background:var(--green);}
+.pf-toggle-input {display:none;}
+
 /* Category Rows */
 .pf-categories{display:flex;flex-direction:column;gap:8px;}
 .pf-cat-row{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:8px 12px;border-radius:8px;background:var(--surface2);border:1px solid transparent;transition:all 0.2s;position:relative;}
@@ -118,6 +126,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-cat-subtext {font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;font-weight:400;}
 .pf-cat-count{background:transparent;border:1px solid var(--green);color:var(--text);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;font-family:'Inter',sans-serif;margin-left:4px;}
 .pf-cat-count.yellow { border-color: var(--yellow); }
+.pf-cat-count.orange { border-color: var(--orange); }
 .pf-cat-right{text-align:right;}
 .pf-cat-amount{font-size:14px;font-weight:700;color:var(--text);}
 .pf-goal-topval{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
@@ -132,7 +141,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-cat-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.5s ease;}
 .pf-cat-bar.yellow { background: var(--yellow); }
 
-/* Portfolio Details Nested */
+/* Nested Tables */
 .pf-acct-details{margin:6px 0 4px 22px;background:var(--bg);border-radius:6px;padding:12px;display:none;border:1px solid var(--border);}
 .pf-cat-row.expanded > .pf-acct-details{display:block;}
 .pf-acct-table-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(30,37,48,0.5);font-size:12px;}
@@ -140,7 +149,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-acct-name{color:var(--muted2);font-weight:400;}
 .pf-acct-bal{color:var(--text);font-weight:600;font-family:'DM Mono',monospace;}
 
-/* GOAL DETAILS NESTED */
+/* Expanded Box Detail (Goals & Merchants) */
 .pf-goal-expanded-box { display:none; margin-top:12px; background:var(--surface); border-radius:8px; border:1px solid var(--border); overflow:hidden; cursor:default; }
 .pf-cat-row.expanded > .pf-goal-expanded-box { display:block; }
 .pf-gbox-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
@@ -149,8 +158,8 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-gbox-close { width:16px; height:16px; color:var(--muted); cursor:pointer; }
 .pf-gbox-close:hover { color:var(--text); }
 .pf-gbox-table { padding:0 16px; }
-.pf-gbox-th { display:grid; grid-template-columns: 2fr 1fr 1fr; padding:12px 0 8px; font-size:11px; color:var(--muted); font-weight:500; border-bottom:1px solid rgba(30,37,48,0.5); }
-.pf-gbox-tr { display:grid; grid-template-columns: 2fr 1fr 1fr; padding:12px 0; border-bottom:1px solid rgba(30,37,48,0.5); font-size:12px; color:var(--text); }
+.pf-gbox-th { display:grid; grid-template-columns: 1fr 2fr 1fr; padding:12px 0 8px; font-size:11px; color:var(--muted); font-weight:500; border-bottom:1px solid rgba(30,37,48,0.5); }
+.pf-gbox-tr { display:grid; grid-template-columns: 1fr 2fr 1fr; padding:12px 0; border-bottom:1px solid rgba(30,37,48,0.5); font-size:12px; color:var(--text); }
 .pf-gbox-tr:last-child { border-bottom:none; }
 .pf-gbox-td-right { text-align:right; font-family:'DM Mono',monospace; }
 .pf-gbox-footer { padding:12px 16px; background:var(--surface2); border-top:1px solid var(--border); font-size:11px; color:var(--muted2); }
@@ -178,13 +187,15 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .tt-action { color: var(--green); font-size: 10px; margin-top: 10px; font-weight: 500; }
 .tt-row { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 6px; }
 .tt-row:last-child { margin-bottom: 0; }
-.tt-lbl { color: var(--muted2); font-weight: 500; }
+.tt-lbl { color: var(--muted2); font-weight: 500; display:flex; align-items:center; gap:6px; }
 .tt-val { color: var(--text); font-weight: 600; font-family: 'DM Mono', monospace; }
 .tt-val.green { color: var(--green); }
 .tt-val.red { color: var(--red); }
 .tt-val.blue { color: var(--blue); }
 .tt-val.purple { color: var(--purple); }
 .tt-val.yellow { color: var(--yellow); }
+
+.tt-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
 
 /* Controls & Bottom Tabs */
 .refresh-btn {
@@ -243,11 +254,6 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
         <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
         <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
       </div>
-      <div class="pf-kpi-card red" style="display:none;"> 
-        <div class="pf-kpi-label">Liabilities</div>
-        <div class="pf-kpi-value red" id="pf-liabilities">—</div>
-        <div class="pf-kpi-sub">Total negative balances</div>
-      </div>
     </div>
 
     <div class="pf-chart-card">
@@ -293,7 +299,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
     </div>
 
     <div class="pf-portfolio-grid">
-      <div class="pf-card">
+      <div class="pf-card" style="margin-bottom:0;">
         <div class="pf-card-header">
           <div class="pf-card-title-wrap">
             <svg class="pf-card-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
@@ -307,7 +313,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
         <div class="pf-categories" id="pf-categories"></div>
       </div>
 
-      <div class="pf-card">
+      <div class="pf-card" style="margin-bottom:0;">
         <div class="pf-card-header">
           <div class="pf-card-title-wrap">
             <svg class="pf-card-icon green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -347,7 +353,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
     </div>
 
     <div class="pf-goals-grid">
-      <div class="pf-card">
+      <div class="pf-card" style="margin-bottom:0;">
         <div class="pf-card-header">
           <div class="pf-card-title-wrap">
             <svg class="pf-card-icon purple" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
@@ -367,16 +373,76 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
         </div>
       </div>
 
-      <div class="pf-card">
+      <div class="pf-card" style="margin-bottom:0;">
         <div class="pf-card-header">
           <div class="pf-card-title-wrap">
             <svg class="pf-card-icon green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
             <div class="pf-card-title">Goal Progress</div>
           </div>
         </div>
-        <div class="pf-categories" id="pf-goals-container">
-          </div>
+        <div class="pf-categories" id="pf-goals-container"></div>
       </div>
+    </div>
+    
+    <div class="pf-goals-grid" style="margin-top:24px;">
+      
+      <div class="pf-card" style="margin-bottom:0;">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon purple" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="pf-card-title">50/30/20 Rule</div>
+          </div>
+        </div>
+        <div class="pf-circle-wrap" id="pf-503020-wrap">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--purple-dim)" stroke-width="16"/>
+            <circle id="pf-ring-essentials" cx="100" cy="100" r="80" fill="none" stroke="var(--green)" stroke-width="16"
+                    stroke-dasharray="0 502.4" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+                    
+            <circle cx="100" cy="100" r="60" fill="none" stroke="var(--surface2)" stroke-width="16"/>
+            <circle id="pf-ring-lifestyle" cx="100" cy="100" r="60" fill="none" stroke="var(--green)" stroke-width="16"
+                    stroke-dasharray="0 377" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="pf-chart-card" style="margin-bottom:0;">
+        <div class="pf-chart-title">
+          <div class="pf-chart-title-left">
+            <svg class="pf-card-icon green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Monthly Spends
+          </div>
+          <label class="pf-toggle-wrap">
+            <input type="checkbox" id="pf-spend-chart-toggle" class="pf-toggle-input" onchange="renderSpendsChart()">
+            <div class="pf-toggle"></div>
+            Discretionary only
+          </label>
+        </div>
+        <div style="position:relative;height:240px;width:100%;">
+          <canvas id="pf-spends-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="pf-card" style="margin-top:24px;">
+      <div class="pf-card-header">
+        <div class="pf-card-title-wrap">
+          <svg class="pf-card-icon orange" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <div class="pf-card-title">Merchants</div>
+        </div>
+        <label class="pf-toggle-wrap">
+          <input type="checkbox" id="pf-merchant-toggle" class="pf-toggle-input" onchange="renderMerchantsLeaderboard()">
+          <div class="pf-toggle"></div>
+          Discretionary only
+        </label>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:16px;display:flex;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Top 10 by Spend</span>
+          <span id="pf-merchant-total">Total: $0</span>
+      </div>
+      <div class="pf-categories" id="pf-merchants-container"></div>
     </div>
 
     <div style="text-align:center;">
@@ -410,17 +476,21 @@ const PF_WEBHOOK_INCOMES = 'https://script.google.com/macros/s/AKfycbxGfZVYSOZR6
 let pfTrendChart = null;
 let pfPassiveChart = null;
 let pfCashflowChart = null;
+let pfSpendsChart = null;
+
 let GLOBAL_PF_DATA = {};       
 let GLOBAL_SORTED_MONTHS = []; 
 let GLOBAL_MONTHLY_EXPENSE = 0; 
 let GLOBAL_PASSIVE_INC = 0;
 let GLOBAL_GOALS = []; 
 let GLOBAL_INCOME_HISTORY = {}; 
+let GLOBAL_EXPENSE_HISTORY = {}; 
 
 const STABLE_CATEGORIES = ['low interest', 'active savings', 'real estate', 'growth fund'];
-const BAR_COLORS = ['#00e5a0', '#4eb5ff', '#c77dff', '#ffd166', '#ff4e6a'];
+const NON_DISC_CATS = ['rent', 'helper salary', 'education', 'remittance', 'taxes'];
 
-// Helper formatting
+const BAR_COLORS = ['#00e5a0', '#4eb5ff', '#c77dff', '#ffd166', '#ff4e6a', '#ff9f1c', '#00bbf9', '#f15bb5', '#9b5de5', '#fee440'];
+
 const fmtK = val => {
   const abs = Math.abs(val);
   if (abs >= 1e6) return '$' + (abs/1e6).toFixed(2) + 'M';
@@ -433,25 +503,22 @@ const keyToLabel = key => {
   const [y, m] = key.split('-');
   return new Date(y, m - 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
 };
-
-function setArc(id, pct) {
-  const el = document.getElementById(id);
-  if(!el) return;
-  const c = 2 * Math.PI * 80;
-  el.setAttribute('stroke-dasharray', `${(pct > 100 ? 100 : pct / 100) * c} ${c}`);
-}
-
 function isLiquidCash(category) {
   const catLower = String(category).toLowerCase().trim();
-  if (catLower.includes('real estate') || catLower.includes('growth fund') || catLower.includes('project')) return false;
-  return true;
+  return !(catLower.includes('real estate') || catLower.includes('growth fund') || catLower.includes('project'));
 }
-
 function isStableAsset(category) {
   return STABLE_CATEGORIES.some(stable => String(category).toLowerCase().trim().includes(stable));
 }
+function isNonDisc(category) {
+  return NON_DISC_CATS.some(nd => String(category).toLowerCase().trim() === nd);
+}
+function setArc(id, pct, maxDash = 502.4) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.setAttribute('stroke-dasharray', `${(pct > 100 ? 100 : pct / 100) * maxDash} ${maxDash}`);
+}
 
-// Custom Line Labels Plugin
 const customLineLabelsPlugin = {
   id: 'customLineLabels',
   afterDatasetsDraw(chart) {
@@ -481,7 +548,6 @@ Chart.register(customLineLabelsPlugin);
 function pfLoadData() {
   document.getElementById('pf-setup').classList.remove('hidden');
   document.getElementById('pf-dashboard').classList.add('hidden');
-  document.getElementById('pf-error').classList.add('hidden');
 
   let completedReqs = 0;
   let hasFailed = false;
@@ -489,9 +555,7 @@ function pfLoadData() {
 
   const fallbackTimer = setTimeout(() => {
     if(completedReqs < 4 && !hasFailed) {
-      hasFailed = true;
-      console.warn("API timeout, loading fallback data.");
-      pfLoadFallback();
+      hasFailed = true; pfLoadFallback();
     }
   }, 10000); 
 
@@ -501,9 +565,7 @@ function pfLoadData() {
     
     window[cb] = function(json) {
       if(hasFailed) return; 
-      delete window[cb];
-      document.body.removeChild(sc);
-      
+      delete window[cb]; document.body.removeChild(sc);
       if (json.error) { hasFailed = true; pfLoadFallback(); return; }
       
       allFetchedData[key] = json.data || [];
@@ -511,29 +573,13 @@ function pfLoadData() {
       
       if(key === 'details' && json.lastUpdated) {
         const lu = new Date(json.lastUpdated);
-        document.getElementById('pf-date-str').textContent = 'Live · ' +
-          lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
-          lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        document.getElementById('pf-date-str').textContent = 'Live · ' + lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
       }
-
-      if (completedReqs === 4) {
-        clearTimeout(fallbackTimer);
-        pfProcessData(allFetchedData);
-      }
+      if (completedReqs === 4) { clearTimeout(fallbackTimer); pfProcessData(allFetchedData); }
     };
-
-    sc.onerror = function() {
-      if(hasFailed) return;
-      hasFailed = true;
-      delete window[cb];
-      document.body.removeChild(sc);
-      pfLoadFallback();
-    };
-
-    sc.src = url + '?callback=' + cb;
-    document.body.appendChild(sc);
+    sc.onerror = function() { if(hasFailed) return; hasFailed = true; delete window[cb]; document.body.removeChild(sc); pfLoadFallback(); };
+    sc.src = url + '?callback=' + cb; document.body.appendChild(sc);
   }
-
   fetchTab(PF_WEBHOOK_DETAILS, 'details');
   fetchTab(PF_WEBHOOK_EXPENSES, 'expenses');
   fetchTab(PF_WEBHOOK_GOALS, 'goals');
@@ -545,97 +591,100 @@ function pfLoadFallback() {
   pfProcessData({ details: [], expenses: [], goals: [], incomes: [] });
 }
 
-// ── ROBUST SUMMATION HELPER ──
-function getLatestMonthSumFixed(rawArray, dateColIdx, amtColIdx) {
-  if (!rawArray || rawArray.length <= 1) return 0;
-  let rows = rawArray.slice(1);
-  let monthlySums = {};
-
-  rows.forEach(row => {
-    let rawDate = String(row[dateColIdx] || '').trim();
-    let rawAmt = String(row[amtColIdx] || '').replace(/[^0-9.-]+/g,"");
-    let val = parseFloat(rawAmt);
-
-    if(!rawDate || isNaN(val)) return;
-
-    let cleanDate = rawDate;
-    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) { cleanDate = "01 " + rawDate; }
-    
-    let d = new Date(cleanDate);
-    if(isNaN(d)) return;
-
-    let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
-    if(!monthlySums[mKey]) monthlySums[mKey] = 0;
-    
-    monthlySums[mKey] += val;
-  });
-
-  let sortedKeys = Object.keys(monthlySums).sort((a,b) => b.localeCompare(a));
-  if(sortedKeys.length === 0) return 0;
-
-  return monthlySums[sortedKeys[0]];
-}
-
-
 // ── DATA PARSING ──
 function pfProcessData(allData) {
   
-  // 1. Process Main Portfolio (Details in Raw Format)
+  // 1. Details Processing
   const detailsRaw = allData.details || [];
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : [];
-  
-  // Safe dynamic extraction for Income/Expenses WITHOUT breaking standard indices 0-3
   let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
   let D_COL_INC = dHeaders.indexOf("total income");
   let D_COL_EXP = dHeaders.indexOf("expenses");
 
   GLOBAL_PF_DATA = {};
-
   detailsRows.forEach(row => {
-    // REVERTED to strict hardcoded columns that work for your core portfolio!
     const rawMonth = String(row[0]||'').trim();
     const account = String(row[1]||'').trim();
     const category = String(row[2]||'').trim();
     let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
-
     if (!rawMonth) return;
 
-    const d = new Date(rawMonth + (rawMonth.length <= 8 ? ' 01' : ''));
+    let cleanDate = rawMonth;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
+    const d = new Date(cleanDate);
     if (isNaN(d)) return;
 
     const monthKey = parseToKey(d);
-    if (!GLOBAL_PF_DATA[monthKey]) {
-        GLOBAL_PF_DATA[monthKey] = { 
-            dateObj: d, assets: 0, cash: 0, categories: {}, 
-            totalIncome: 0, totalExpenses: 0 
-        };
-    }
+    if (!GLOBAL_PF_DATA[monthKey]) GLOBAL_PF_DATA[monthKey] = { dateObj: d, assets: 0, cash: 0, categories: {}, totalIncome: 0, totalExpenses: 0 };
 
     if (!isNaN(value) && value > 0) {
       GLOBAL_PF_DATA[monthKey].assets += value;
       if (isLiquidCash(category)) GLOBAL_PF_DATA[monthKey].cash += value;
-      
       if (!GLOBAL_PF_DATA[monthKey].categories[category]) GLOBAL_PF_DATA[monthKey].categories[category] = { total: 0, accounts: {} };
       GLOBAL_PF_DATA[monthKey].categories[category].total += value;
       GLOBAL_PF_DATA[monthKey].categories[category].accounts[account] = value;
     }
-
-    // Cash flow extraction safely appended
     let incVal = D_COL_INC !== -1 ? parseFloat(String(row[D_COL_INC]).replace(/[^0-9.-]+/g,"")) : 0;
     let expVal = D_COL_EXP !== -1 ? parseFloat(String(row[D_COL_EXP]).replace(/[^0-9.-]+/g,"")) : 0;
-    
     if (!isNaN(incVal) && incVal > 0) GLOBAL_PF_DATA[monthKey].totalIncome = Math.max(GLOBAL_PF_DATA[monthKey].totalIncome || 0, incVal);
     if (!isNaN(expVal) && expVal > 0) GLOBAL_PF_DATA[monthKey].totalExpenses = Math.max(GLOBAL_PF_DATA[monthKey].totalExpenses || 0, expVal);
   });
 
-  GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
+  GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => b.localeCompare(a));
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // 2. Process Expenses (Strictly match screenshot columns: B=1, C=2)
-  GLOBAL_MONTHLY_EXPENSE = getLatestMonthSumFixed(allData.expenses, 1, 2);
-  if (GLOBAL_MONTHLY_EXPENSE === 0) GLOBAL_MONTHLY_EXPENSE = 1; 
+  // 2. Expenses Processing (Full History for Chart & Merchants)
+  const expRaw = allData.expenses || [];
+  let eHeaders = (expRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  const eGetCol = (name, fallback) => { let idx = eHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
+  
+  const EXP_COL_DATE = eGetCol("date", 0);
+  const EXP_COL_MONTH = eGetCol("month", 1);
+  const EXP_COL_AMT = eGetCol("spend in sgd", 2);
+  const EXP_COL_SRC = eGetCol("expense source", 3);
+  const EXP_COL_CAT = eGetCol("category of expense", 4);
 
-  // 3. Process Investment Incomes FULL HISTORY for Charts & Leaderboard (Strict match: A=0, B=1, C=2, F=5)
+  GLOBAL_EXPENSE_HISTORY = {};
+  const expRows = expRaw.length > 1 ? expRaw.slice(1) : [];
+  
+  expRows.forEach(row => {
+      let rawMonth = String(row[EXP_COL_MONTH]||'').trim();
+      let rawDate = String(row[EXP_COL_DATE]||'').trim();
+      let rawAmt = String(row[EXP_COL_AMT]||'').replace(/[^0-9.-]+/g,"");
+      let val = parseFloat(rawAmt);
+      let src = String(row[EXP_COL_SRC]||'Unknown').trim();
+      let cat = String(row[EXP_COL_CAT]||'Uncategorized').trim();
+
+      if(!rawMonth || isNaN(val) || val <= 0) return;
+
+      let cleanDate = rawMonth;
+      if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
+      let d = new Date(cleanDate);
+      if(isNaN(d)) return;
+
+      let mKey = parseToKey(d);
+      if(!GLOBAL_EXPENSE_HISTORY[mKey]) GLOBAL_EXPENSE_HISTORY[mKey] = { dateObj: d, total: 0, disc: 0, nonDisc: 0, categories: {}, merchants: {} };
+
+      let isNd = isNonDisc(cat);
+      GLOBAL_EXPENSE_HISTORY[mKey].total += val;
+      if(isNd) GLOBAL_EXPENSE_HISTORY[mKey].nonDisc += val; else GLOBAL_EXPENSE_HISTORY[mKey].disc += val;
+
+      if(!GLOBAL_EXPENSE_HISTORY[mKey].categories[cat]) GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] = 0;
+      GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] += val;
+
+      if(!GLOBAL_EXPENSE_HISTORY[mKey].merchants[src]) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src] = { total: 0, disc: 0, txns: [] };
+      GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].total += val;
+      if(!isNd) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].disc += val;
+      
+      // Store transaction detail for expansion
+      GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].txns.push({ date: rawDate, cat: cat, amt: val, isNonDisc: isNd });
+  });
+
+  // Calculate Latest Month Expense for Freedom Crossover
+  let sortedExpKeys = Object.keys(GLOBAL_EXPENSE_HISTORY).sort((a,b) => b.localeCompare(a));
+  GLOBAL_MONTHLY_EXPENSE = sortedExpKeys.length > 0 ? GLOBAL_EXPENSE_HISTORY[sortedExpKeys[0]].total : 1;
+
+  // 3. Investment Incomes 
   const incRaw = allData.incomes || [];
   const incRows = incRaw.length > 1 ? incRaw.slice(1) : [];
   GLOBAL_INCOME_HISTORY = {};
@@ -644,44 +693,32 @@ function pfProcessData(allData) {
     let rawDate = String(row[0]||'').trim();
     let assetName = String(row[1]||'').trim();
     let category = String(row[2]||'').trim();
-    let rawAmt = String(row[5]||'').replace(/[^0-9.-]+/g,"");
-    let val = parseFloat(rawAmt);
+    let val = parseFloat(String(row[5]||'').replace(/[^0-9.-]+/g,""));
 
     if (!rawDate || isNaN(val)) return;
 
     let cleanDate = rawDate;
-    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) { cleanDate = "01 " + rawDate; }
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) cleanDate = "01 " + rawDate;
     let d = new Date(cleanDate);
     if(isNaN(d)) return;
 
     let mKey = parseToKey(d);
-    
-    if (!GLOBAL_INCOME_HISTORY[mKey]) {
-      GLOBAL_INCOME_HISTORY[mKey] = { dateObj: d, total: 0, options: 0, categories: {} };
-    }
+    if (!GLOBAL_INCOME_HISTORY[mKey]) GLOBAL_INCOME_HISTORY[mKey] = { dateObj: d, total: 0, options: 0, categories: {} };
 
     GLOBAL_INCOME_HISTORY[mKey].total += val;
-    if (category.toLowerCase() === 'options') {
-      GLOBAL_INCOME_HISTORY[mKey].options += val;
-    }
+    if (category.toLowerCase() === 'options') GLOBAL_INCOME_HISTORY[mKey].options += val;
 
-    if (!GLOBAL_INCOME_HISTORY[mKey].categories[category]) {
-      GLOBAL_INCOME_HISTORY[mKey].categories[category] = { total: 0, assets: [] };
-    }
+    if (!GLOBAL_INCOME_HISTORY[mKey].categories[category]) GLOBAL_INCOME_HISTORY[mKey].categories[category] = { total: 0, assets: [] };
     GLOBAL_INCOME_HISTORY[mKey].categories[category].total += val;
     
     let existingAsset = GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.find(a => a.name === assetName);
-    if (existingAsset) {
-      existingAsset.value += val;
-    } else {
-      GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.push({ name: assetName, value: val });
-    }
+    if (existingAsset) existingAsset.value += val; else GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.push({ name: assetName, value: val });
   });
 
   let sortedIncKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => b.localeCompare(a));
   GLOBAL_PASSIVE_INC = sortedIncKeys.length > 0 ? GLOBAL_INCOME_HISTORY[sortedIncKeys[0]].total : 0;
 
-  // 4. Process Goals (REVERTED to exact working version)
+  // 4. Goals Processing
   const goalsRaw = allData.goals || [];
   const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : [];
   let goalMap = {};
@@ -693,8 +730,7 @@ function pfProcessData(allData) {
     let dateStr = String(row[2]||'').trim();
     let target = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,"")) || 0;
     let mappedAsset = String(row[4]||'').trim();
-    let allocRaw = String(row[5]||'0').replace(/[^0-9.-]+/g,"");
-    let alloc = parseFloat(allocRaw);
+    let alloc = parseFloat(String(row[5]||'0').replace(/[^0-9.-]+/g,""));
     if (alloc > 1) alloc = alloc / 100; 
 
     if(!name) return;
@@ -703,10 +739,7 @@ function pfProcessData(allData) {
     
     if (mappedAsset && latestMonthData) {
        let acctBal = 0;
-       Object.values(latestMonthData.categories).forEach(cat => {
-          if (cat.accounts[mappedAsset]) { acctBal += cat.accounts[mappedAsset]; }
-       });
-       
+       Object.values(latestMonthData.categories).forEach(cat => { if (cat.accounts[mappedAsset]) acctBal += cat.accounts[mappedAsset]; });
        let contribution = acctBal * alloc;
        goalMap[name].current += contribution;
        goalMap[name].accounts.push({ name: mappedAsset, allocPct: alloc * 100, value: contribution });
@@ -717,15 +750,13 @@ function pfProcessData(allData) {
   // Init UI
   const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
   const curData = GLOBAL_PF_DATA[currentMonthKey];
-  
   document.getElementById('pf-total-assets').textContent = '$' + Math.round(curData.assets).toLocaleString();
   document.getElementById('pf-assets-month').textContent = 'For ' + keyToLabel(currentMonthKey);
   document.getElementById('pf-net-cash').textContent = '$' + Math.round(curData.cash).toLocaleString();
 
   const monthSelect = document.getElementById('pf-month-filter');
-  let allMonthKeys = new Set([...GLOBAL_SORTED_MONTHS, ...sortedIncKeys]);
+  let allMonthKeys = new Set([...GLOBAL_SORTED_MONTHS, ...sortedIncKeys, ...sortedExpKeys]);
   let sortedAllMonths = Array.from(allMonthKeys).sort((a,b) => b.localeCompare(a)); 
-  
   monthSelect.innerHTML = sortedAllMonths.map(m => `<option value="${m}">${keyToLabel(m)}</option>`).join('');
   
   updateAllSections();
@@ -734,7 +765,6 @@ function pfProcessData(allData) {
   document.getElementById('pf-dashboard').classList.remove('hidden');
 }
 
-// Master Render Trigger
 function updateAllSections() {
     renderPortfolioSections();
     renderTrendChart();
@@ -742,18 +772,17 @@ function updateAllSections() {
     renderGoalsAndFreedom();
     renderPassiveChart();
     renderYieldLeaderboard();
+    
+    render503020();
+    renderSpendsChart();
+    renderMerchantsLeaderboard();
 }
 
-// Tooltips
 const pfTooltip = document.createElement('div');
 pfTooltip.className = 'rich-tooltip';
 document.body.appendChild(pfTooltip);
-
 function attachTooltip(el, html) {
-  el.addEventListener('mouseover', e => {
-    pfTooltip.innerHTML = html;
-    pfTooltip.style.opacity = 1;
-  });
+  el.addEventListener('mouseover', e => { pfTooltip.innerHTML = html; pfTooltip.style.opacity = 1; });
   el.addEventListener('mousemove', e => {
     let x = e.pageX + 15; let y = e.pageY + 15;
     if (x + pfTooltip.offsetWidth > window.innerWidth) x = e.pageX - pfTooltip.offsetWidth - 15;
@@ -764,6 +793,193 @@ function attachTooltip(el, html) {
 
 // ── RENDER SECTIONS ──
 
+function render503020() {
+  const selectedKey = document.getElementById('pf-month-filter').value;
+  const pfData = GLOBAL_PF_DATA[selectedKey] || { totalIncome: 0 };
+  const expData = GLOBAL_EXPENSE_HISTORY[selectedKey] || { total: 0, disc: 0, nonDisc: 0 };
+
+  const income = pfData.totalIncome;
+  const essentials = expData.nonDisc;
+  const lifestyle = expData.disc;
+  const savings = income - (essentials + lifestyle);
+
+  const essPct = income > 0 ? (essentials / income) * 100 : 0;
+  const lifePct = income > 0 ? (lifestyle / income) * 100 : 0;
+  const savPct = income > 0 ? (savings / income) * 100 : 0;
+
+  // Max Dash Array for rings
+  const outerCirc = 2 * Math.PI * 80; // 502.4
+  const innerCirc = 2 * Math.PI * 60; // 377.0
+
+  setArc('pf-ring-essentials', essPct, outerCirc);
+  setArc('pf-ring-lifestyle', lifePct, innerCirc);
+
+  const html = `
+    <div class="tt-row"><span class="tt-lbl"><span class="tt-dot" style="background:var(--purple)"></span> Income (${keyToLabel(selectedKey)})</span><span class="tt-val">${fmtK(income)}</span></div>
+    <div class="tt-row"><span class="tt-lbl"><span class="tt-dot" style="background:var(--green)"></span> Essentials (Target: 50%)</span><span class="tt-val green">${fmtK(essentials)} (${essPct.toFixed(0)}%)</span></div>
+    <div class="tt-row"><span class="tt-lbl"><span class="tt-dot" style="background:var(--green)"></span> Lifestyle (Target: 30%)</span><span class="tt-val green">${fmtK(lifestyle)} (${lifePct.toFixed(0)}%)</span></div>
+    <div class="tt-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;"><span class="tt-lbl">Implied Savings: ${savPct.toFixed(0)}% (Target: 20%)</span></div>
+  `;
+  attachTooltip(document.getElementById('pf-503020-wrap'), html);
+}
+
+function renderSpendsChart() {
+  const isDiscOnly = document.getElementById('pf-spend-chart-toggle').checked;
+  const cutoffDate = new Date('2025-08-01T00:00:00');
+  
+  const chartKeys = Object.keys(GLOBAL_EXPENSE_HISTORY)
+    .filter(key => GLOBAL_EXPENSE_HISTORY[key].dateObj >= cutoffDate)
+    .sort((a,b) => GLOBAL_EXPENSE_HISTORY[a].dateObj - GLOBAL_EXPENSE_HISTORY[b].dateObj);
+
+  const labels = chartKeys.map(key => {
+    const d = GLOBAL_EXPENSE_HISTORY[key].dateObj;
+    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
+  });
+
+  // Extract all unique categories across timeframe to build datasets
+  let allCats = new Set();
+  chartKeys.forEach(k => {
+      Object.keys(GLOBAL_EXPENSE_HISTORY[k].categories).forEach(cat => {
+          if (isDiscOnly && isNonDisc(cat)) return;
+          allCats.add(cat);
+      });
+  });
+
+  // Convert Set to Array and sort by largest overall spend to assign consistent colors
+  let catSums = {};
+  Array.from(allCats).forEach(cat => {
+      catSums[cat] = chartKeys.reduce((sum, k) => sum + (GLOBAL_EXPENSE_HISTORY[k].categories[cat] || 0), 0);
+  });
+  let sortedCats = Array.from(allCats).sort((a,b) => catSums[b] - catSums[a]);
+
+  const datasets = sortedCats.map((cat, idx) => {
+      return {
+          label: cat,
+          data: chartKeys.map(k => GLOBAL_EXPENSE_HISTORY[k].categories[cat] || 0),
+          backgroundColor: BAR_COLORS[idx % BAR_COLORS.length],
+          borderRadius: 4,
+          barPercentage: 0.7
+      };
+  });
+
+  if (pfSpendsChart) { pfSpendsChart.destroy(); }
+  const ctx = document.getElementById('pf-spends-chart');
+
+  pfSpendsChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111418', borderColor: '#1e2530', borderWidth: 1, titleColor: '#e8edf3', bodyColor: '#8892a4', padding: 12,
+          callbacks: {
+            label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}`,
+            footer: items => `Total: ${fmtK(items.reduce((a, b) => a + b.parsed.y, 0))}`
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { display: false } },
+        y: { stacked: true, display: false, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function renderMerchantsLeaderboard() {
+  const selectedKey = document.getElementById('pf-month-filter').value;
+  const isDiscOnly = document.getElementById('pf-merchant-toggle').checked;
+  const container = document.getElementById('pf-merchants-container');
+  container.innerHTML = '';
+  
+  const expData = GLOBAL_EXPENSE_HISTORY[selectedKey];
+  if (!expData || Object.keys(expData.merchants).length === 0) {
+      container.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center;">No Expenses recorded for this month</div>';
+      document.getElementById('pf-merchant-total').textContent = 'Total: $0';
+      return;
+  }
+
+  let totalForList = 0;
+  let merchantArr = [];
+
+  Object.entries(expData.merchants).forEach(([merchName, mData]) => {
+      let val = isDiscOnly ? mData.disc : mData.total;
+      if (val > 0) {
+          totalForList += val;
+          merchantArr.push({ name: merchName, val: val, txns: mData.txns });
+      }
+  });
+
+  document.getElementById('pf-merchant-total').textContent = `Total: ${fmtK(totalForList)}`;
+
+  // Top 10 Descending
+  merchantArr.sort((a,b) => b.val - a.val).slice(0, 10).forEach((merch, idx) => {
+      const pct = totalForList > 0 ? (merch.val / totalForList) * 100 : 0;
+      
+      // Filter transactions inside the merchant card if toggle is ON
+      const filteredTxns = isDiscOnly ? merch.txns.filter(t => !t.isNonDisc) : merch.txns;
+      
+      const acctRows = filteredTxns.map(t => `
+        <div class="pf-gbox-tr">
+          <div>${t.date || '—'}</div>
+          <div>${t.cat}</div>
+          <div class="pf-gbox-td-right">$${t.amt.toFixed(2)}</div>
+        </div>
+      `).join('');
+
+      const row = document.createElement('div');
+      row.className = 'pf-cat-row goal-row'; // Reuse styles
+      row.innerHTML = `
+        <div class="pf-cat-main">
+          <div class="pf-cat-left">
+            <span style="color:var(--muted2); font-size:11px; margin-right:8px; font-family:'DM Mono',monospace;">${idx+1}</span>
+            <div class="pf-cat-name">${merch.name} <span class="pf-cat-count orange">${filteredTxns.length} txns</span></div>
+          </div>
+          <div class="pf-cat-right">
+            <div class="pf-cat-amount">${fmtK(merch.val)} <span style="font-size:11px;color:var(--muted);font-weight:500;">(${pct.toFixed(1)}%)</span></div>
+          </div>
+        </div>
+        <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct}%;"></div></div>
+        
+        <div class="pf-goal-expanded-box" onclick="event.stopPropagation()">
+          <div class="pf-gbox-header">
+            <div class="pf-gbox-title">
+              <svg width="14" height="14" style="color:var(--green)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              ${merch.name}
+              <span class="pf-gbox-badge">${filteredTxns.length} transactions</span>
+            </div>
+            <svg class="pf-gbox-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </div>
+          <div class="pf-gbox-table">
+            <div class="pf-gbox-th"><div>Date</div><div>Category</div><div class="pf-gbox-td-right">Amount</div></div>
+            ${acctRows}
+          </div>
+          <div class="pf-gbox-footer" style="display:flex; justify-content:space-between;">
+            <span>Total</span>
+            <strong>$${merch.val.toFixed(2)}</strong>
+          </div>
+        </div>
+      `;
+
+      row.querySelector('.pf-cat-main').addEventListener('click', () => {
+        const isExpanded = row.classList.contains('expanded');
+        container.querySelectorAll('.goal-row.expanded').forEach(r => r.classList.remove('expanded'));
+        if (!isExpanded) row.classList.add('expanded');
+      });
+      row.querySelector('.pf-gbox-close').addEventListener('click', (e) => {
+        e.stopPropagation(); row.classList.remove('expanded');
+      });
+
+      container.appendChild(row);
+  });
+}
+
+// ── REUSED SECTIONS ──
+
 function renderSavingsAndCashFlow() {
   const selectedKey = document.getElementById('pf-month-filter').value;
   const curData = GLOBAL_PF_DATA[selectedKey] || { totalIncome: 0, totalExpenses: 0 };
@@ -771,7 +987,6 @@ function renderSavingsAndCashFlow() {
   const inc = curData.totalIncome || 0;
   const exp = curData.totalExpenses || 0;
   const sav = inc - exp;
-  
   const savPct = inc > 0 ? (sav / inc) * 100 : 0; 
   
   document.getElementById('pf-savings-pct').textContent = Math.round(savPct) + '%';
@@ -834,11 +1049,7 @@ function renderPortfolioSections() {
   const curData = GLOBAL_PF_DATA[selectedKey];
   const catContainer = document.getElementById('pf-categories');
   catContainer.innerHTML = '';
-  
-  if (!curData) {
-      catContainer.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center;">No Portfolio Data for this month</div>';
-      return;
-  }
+  if (!curData) return;
 
   const [yStr, mStr] = selectedKey.split('-');
   let prevDate = new Date(yStr, parseInt(mStr) - 2);
@@ -895,7 +1106,6 @@ function renderPortfolioSections() {
 
     const ttHtml = `<div class="tt-title"><span>${catName}</span> holds ${pct.toFixed(1)}% of portfolio</div>
                     <div class="tt-sub">YoY: <span class="${yoyChg > 0 ? 'tt-val green' : yoyChg < 0 ? 'tt-val red' : ''}">${ySym} ${fmtK(yoyChg)} (${fmtPct(yoyPct)})</span></div>`;
-    
     attachTooltip(row.querySelector('.pf-cat-main'), ttHtml);
     row.querySelector('.pf-cat-main').addEventListener('click', () => row.classList.toggle('expanded'));
     catContainer.appendChild(row);
@@ -916,14 +1126,10 @@ function renderPortfolioSections() {
 }
 
 function renderGoalsAndFreedom() {
-  
-  // 1. Freedom Crossover 
   const targetAssets = 10000000; 
-  
   const passiveIncome = GLOBAL_PASSIVE_INC; 
   const expenses = GLOBAL_MONTHLY_EXPENSE;      
   const gap = expenses - passiveIncome;
-  
   const freedomPct = expenses > 0 ? (passiveIncome / expenses) * 100 : 0;
 
   document.getElementById('pf-freedom-pct').textContent = Math.round(freedomPct) + '%';
@@ -938,14 +1144,9 @@ function renderGoalsAndFreedom() {
   `;
   attachTooltip(document.getElementById('pf-freedom-wrap'), frTtHtml);
 
-  // 2. Goal Progress List
   const goalContainer = document.getElementById('pf-goals-container');
   goalContainer.innerHTML = '';
-  
-  if (GLOBAL_GOALS.length === 0) {
-    goalContainer.innerHTML = '<div class="no-data" style="color:var(--muted); font-size:12px; text-align:center; padding:20px;">No goals mapped yet.</div>';
-    return;
-  }
+  if (GLOBAL_GOALS.length === 0) return;
 
   GLOBAL_GOALS.sort((a,b) => a.current - b.current).forEach((goal, idx) => {
     const pct = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
@@ -1001,20 +1202,11 @@ function renderGoalsAndFreedom() {
 
     row.querySelector('.pf-cat-main').addEventListener('click', () => {
       const isExpanded = row.classList.contains('expanded');
-      document.querySelectorAll('.goal-row.expanded').forEach(r => {
-         r.classList.remove('expanded');
-         r.style.borderColor = 'transparent';
-      });
-      if (!isExpanded) {
-        row.classList.add('expanded');
-        row.style.borderColor = color;
-      }
+      document.querySelectorAll('.goal-row.expanded').forEach(r => { r.classList.remove('expanded'); r.style.borderColor = 'transparent'; });
+      if (!isExpanded) { row.classList.add('expanded'); row.style.borderColor = color; }
     });
-    
     row.querySelector('.pf-gbox-close').addEventListener('click', (e) => {
-      e.stopPropagation();
-      row.classList.remove('expanded');
-      row.style.borderColor = 'transparent';
+      e.stopPropagation(); row.classList.remove('expanded'); row.style.borderColor = 'transparent';
     });
     goalContainer.appendChild(row);
   });
@@ -1026,11 +1218,7 @@ function renderYieldLeaderboard() {
   container.innerHTML = '';
 
   const incData = GLOBAL_INCOME_HISTORY[selectedKey];
-  
-  if (!incData || !incData.categories || incData.total === 0) {
-      container.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center;">No Passive Income recorded for this month</div>';
-      return;
-  }
+  if (!incData || !incData.categories || incData.total === 0) return;
 
   const sortedCats = Object.entries(incData.categories).sort((a,b) => b[1].total - a[1].total);
   const totalIncome = incData.total;
@@ -1074,7 +1262,6 @@ function renderPassiveChart() {
   const ctx = document.getElementById('pf-passive-chart');
 
   const chartKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => GLOBAL_INCOME_HISTORY[a].dateObj - GLOBAL_INCOME_HISTORY[b].dateObj);
-
   const labels = chartKeys.map(key => {
     const d = GLOBAL_INCOME_HISTORY[key].dateObj;
     return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
@@ -1093,37 +1280,19 @@ function renderPassiveChart() {
       ]
     },
     options:{
-      responsive:true, 
-      maintainAspectRatio:false, 
-      interaction:{mode:'index',intersect:false},
-      layout: { padding: { right: 50 } }, 
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12,
-          callbacks:{ label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}` }
-        }
-      },
-      scales:{
-        y:{ display:false, beginAtZero:true },
-        x:{ ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0}, grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]} }
-      }
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, layout: { padding: { right: 50 } }, 
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12, callbacks:{ label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}` } } },
+      scales:{ y:{ display:false, beginAtZero:true }, x:{ ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0}, grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]} } }
     }
   });
 }
 
 function renderTrendChart() {
   const cutoffDate = new Date('2024-06-01T00:00:00');
-  
-  const chartKeys = GLOBAL_SORTED_MONTHS
-    .filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate)
-    .sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
-
+  const chartKeys = GLOBAL_SORTED_MONTHS.filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate).sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
   const labels = chartKeys.map(key => {
-    const d = GLOBAL_PF_DATA[key].dateObj;
-    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
+    const d = GLOBAL_PF_DATA[key].dateObj; return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
   });
-
   const assetsData = chartKeys.map(key => GLOBAL_PF_DATA[key].assets);
   const cashData = chartKeys.map(key => GLOBAL_PF_DATA[key].cash);
 
@@ -1140,21 +1309,9 @@ function renderTrendChart() {
       ]
     },
     options:{
-      responsive:true, 
-      maintainAspectRatio:false, 
-      interaction:{mode:'index',intersect:false},
-      layout: { padding: { right: 50 } }, 
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12,
-          callbacks:{ label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}` }
-        }
-      },
-      scales:{
-        y:{ display:false, beginAtZero:false },
-        x:{ ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0}, grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]} }
-      }
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, layout: { padding: { right: 50 } }, 
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12, callbacks:{ label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}` } } },
+      scales:{ y:{ display:false, beginAtZero:false }, x:{ ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0}, grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]} } }
     }
   });
 }
@@ -1162,10 +1319,7 @@ function renderTrendChart() {
 pfLoadData();
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .catch(err => console.log('SW registration failed:', err));
-  });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err)); });
 }
 </script>
 </body>
