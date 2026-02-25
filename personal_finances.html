@@ -479,16 +479,23 @@ function pfLoadFallback() {
 
 function pfProcessData(allData) {
   // ════════════════════════════════════════════════════════
-  // ⚙️ COLUMN CONFIGURATION (0-Indexed: A=0, B=1, C=2, etc.)
+  // ⚙️ COLUMN CONFIGURATION (0-Indexed: A=0, B=1, C=2, D=3, etc.)
   // ════════════════════════════════════════════════════════
-  const EXP_COL_AMT = 1; 
+  // EXPENSES TAB
+  const EXP_COL_DATE = 1; // Col B (Month)
+  const EXP_COL_AMT  = 2; // Col C (Amount)
+
+  // INVESTMENT INCOMES TAB
+  const INC_COL_DATE = 0; // Col A (Date/Month)
+  const INC_COL_AMT  = 2; // Col C (Amount - Change this if your amount is in Col B or D!)
   
-  const GOAL_COL_NAME = 0;   // Col A (Goal Name)
-  const GOAL_COL_CAT = 1;    // Col B (Category)
-  const GOAL_COL_DATE = 2;   // Col C (Target Date)
-  const GOAL_COL_TARGET = 3; // Col D (Target Amount)
-  const GOAL_COL_ASSET = 4;  // Col E (Linked Asset)
-  const GOAL_COL_ALLOC = 5;  // Col F (Allocation %)
+  // GOAL MAPPER TAB
+  const GOAL_COL_NAME = 0;   // Col A 
+  const GOAL_COL_CAT = 1;    // Col B 
+  const GOAL_COL_DATE = 2;   // Col C 
+  const GOAL_COL_TARGET = 3; // Col D 
+  const GOAL_COL_ASSET = 4;  // Col E 
+  const GOAL_COL_ALLOC = 5;  // Col F 
   // ════════════════════════════════════════════════════════
 
   // 1. Process Main Portfolio
@@ -525,29 +532,43 @@ function pfProcessData(allData) {
   GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
+  // Helper function to safely calculate the average of the 3 most recent months
+  function getLatestAvg(rawArray, dateCol, amtCol) {
+    if (!rawArray || rawArray.length <= 1) return 0;
+    let rows = rawArray.slice(1);
+    let monthly = {};
+    
+    rows.forEach(row => {
+      let rawDate = String(row[dateCol] || '').trim();
+      let rawAmt = String(row[amtCol] || '').replace(/[^0-9.-]+/g,"");
+      let val = parseFloat(rawAmt);
+      if(!rawDate || isNaN(val) || val <= 0) return;
+
+      let d = new Date(rawDate + (rawDate.length <= 8 ? ' 01' : ''));
+      if(isNaN(d)) return;
+      
+      let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
+      if(!monthly[mKey]) monthly[mKey] = 0;
+      monthly[mKey] += val;
+    });
+    
+    let sorted = Object.keys(monthly).sort((a,b) => b.localeCompare(a)); // Newest first
+    if(sorted.length === 0) return 0;
+    
+    let sum = 0, count = 0;
+    for(let i=0; i < Math.min(3, sorted.length); i++) {
+      sum += monthly[sorted[i]];
+      count++;
+    }
+    return sum / count;
+  }
+
   // 2. Process Expenses
-  const expRaw = allData.expenses || [];
-  const expRows = expRaw.length > 1 ? expRaw.slice(1) : expRaw;
-  let totalExp = 0, expCount = 0;
-  
-  expRows.slice(0, 3).forEach(row => {
-    let valRaw = String(row[EXP_COL_AMT] || row[row.length-1] || 0); 
-    let val = parseFloat(valRaw.replace(/[^0-9.-]+/g,"")); 
-    if(!isNaN(val) && val > 0) { totalExp += val; expCount++; }
-  });
-  GLOBAL_AVG_EXPENSE = expCount > 0 ? (totalExp / expCount) : 10000; 
+  GLOBAL_AVG_EXPENSE = getLatestAvg(allData.expenses, EXP_COL_DATE, EXP_COL_AMT);
+  if (GLOBAL_AVG_EXPENSE === 0) GLOBAL_AVG_EXPENSE = 1; // Prevent dividing by zero
 
   // 3. Process Investment Incomes
-  const incRaw = allData.incomes || [];
-  const incRows = incRaw.length > 1 ? incRaw.slice(1) : incRaw;
-  let totalInc = 0, incCount = 0;
-  
-  incRows.slice(0, 3).forEach(row => {
-    let valRaw = String(row[row.length-1] || 0); 
-    let val = parseFloat(valRaw.replace(/[^0-9.-]+/g,"")); 
-    if(!isNaN(val) && val > 0) { totalInc += val; incCount++; }
-  });
-  GLOBAL_PASSIVE_INC = incCount > 0 ? (totalInc / incCount) : 0; 
+  GLOBAL_PASSIVE_INC = getLatestAvg(allData.incomes, INC_COL_DATE, INC_COL_AMT);
 
   // 4. Process Goals
   const goalsRaw = allData.goals || [];
@@ -603,7 +624,6 @@ function pfProcessData(allData) {
   document.getElementById('pf-setup').classList.add('hidden');
   document.getElementById('pf-dashboard').classList.remove('hidden');
 }
-
 // Tooltips
 const pfTooltip = document.createElement('div');
 pfTooltip.className = 'rich-tooltip';
