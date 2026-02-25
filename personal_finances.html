@@ -74,8 +74,14 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-kpi-value{font-size:32px;font-weight:800;margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:-1px;}
 .pf-kpi-value.green{color:var(--green);}
 .pf-kpi-value.blue{color:var(--blue);}
-.pf-kpi-value.red{color:var(--red);}
-.pf-kpi-sub{font-size:11px;color:var(--muted2);min-height:14px;}
+
+/* Runway Pill */
+.pf-runway-pill {
+    display:inline-flex; align-items:center; gap:6px;
+    background:linear-gradient(90deg, #56d389, #4eb5ff);
+    color:#0a0c0f; font-family:'DM Mono', monospace; font-weight:700; font-size:18px;
+    padding:8px 20px; border-radius:8px; margin-top:4px;
+}
 
 /* Charts & Grids */
 .pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
@@ -149,7 +155,7 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
 .pf-acct-name{color:var(--muted2);font-weight:400;}
 .pf-acct-bal{color:var(--text);font-weight:600;font-family:'DM Mono',monospace;}
 
-/* Expanded Box Detail (Goals & Merchants) */
+/* Expanded Box Detail */
 .pf-goal-expanded-box { display:none; margin-top:12px; background:var(--surface); border-radius:8px; border:1px solid var(--border); overflow:hidden; cursor:default; }
 .pf-cat-row.expanded > .pf-goal-expanded-box { display:block; }
 .pf-gbox-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
@@ -228,6 +234,10 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
       <div class="logo-sub">Net Worth & Asset Tracker</div>
     </div>
     <div class="header-right">
+      <div class="month-select-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <select class="pf-month-select" id="pf-month-filter" onchange="updateAllSections()"></select>
+      </div>
       <div class="date-str" id="pf-date-str">Last updated: —</div>
     </div>
   </header>
@@ -253,6 +263,12 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
         <div class="pf-kpi-label">Net Cash</div>
         <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
         <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
+      </div>
+      <div class="pf-kpi-card" style="display:flex; flex-direction:column; justify-content:space-between; align-items:flex-end;">
+        <div class="pf-kpi-label" style="justify-content:space-between; width:100%;">
+          <span>Runway</span> <span style="color:var(--yellow)">⚡</span>
+        </div>
+        <div class="pf-runway-pill" id="pf-runway-val">⚡ 0.0 MO</div>
       </div>
     </div>
 
@@ -304,10 +320,6 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
           <div class="pf-card-title-wrap">
             <svg class="pf-card-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
             <div class="pf-card-title">Portfolio</div>
-          </div>
-          <div class="month-select-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <select class="pf-month-select" id="pf-month-filter" onchange="updateAllSections()"></select>
           </div>
         </div>
         <div class="pf-categories" id="pf-categories"></div>
@@ -385,7 +397,6 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
     </div>
     
     <div class="pf-goals-grid" style="margin-top:24px;">
-      
       <div class="pf-card" style="margin-bottom:0;">
         <div class="pf-card-header">
           <div class="pf-card-title-wrap">
@@ -395,11 +406,10 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
         </div>
         <div class="pf-circle-wrap" id="pf-503020-wrap">
           <svg viewBox="0 0 200 200" width="100%" height="100%">
-            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--purple-dim)" stroke-width="16"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(138, 43, 226, 0.3)" stroke-width="16"/>
             <circle id="pf-ring-essentials" cx="100" cy="100" r="80" fill="none" stroke="var(--green)" stroke-width="16"
                     stroke-dasharray="0 502.4" stroke-dashoffset="0"
                     transform="rotate(-90 100 100)" stroke-linecap="round"/>
-                    
             <circle cx="100" cy="100" r="60" fill="none" stroke="var(--surface2)" stroke-width="16"/>
             <circle id="pf-ring-lifestyle" cx="100" cy="100" r="60" fill="none" stroke="var(--green)" stroke-width="16"
                     stroke-dasharray="0 377" stroke-dashoffset="0"
@@ -415,7 +425,7 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             Monthly Spends
           </div>
           <label class="pf-toggle-wrap">
-            <input type="checkbox" id="pf-spend-chart-toggle" class="pf-toggle-input" onchange="renderSpendsChart()">
+            <input type="checkbox" id="pf-spend-chart-toggle" class="pf-toggle-input" onchange="renderSpendsChart()" checked>
             <div class="pf-toggle"></div>
             Discretionary only
           </label>
@@ -433,7 +443,7 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
           <div class="pf-card-title">Merchants</div>
         </div>
         <label class="pf-toggle-wrap">
-          <input type="checkbox" id="pf-merchant-toggle" class="pf-toggle-input" onchange="renderMerchantsLeaderboard()">
+          <input type="checkbox" id="pf-merchant-toggle" class="pf-toggle-input" onchange="renderMerchantsLeaderboard()" checked>
           <div class="pf-toggle"></div>
           Discretionary only
         </label>
@@ -488,7 +498,6 @@ let GLOBAL_EXPENSE_HISTORY = {};
 
 const STABLE_CATEGORIES = ['low interest', 'active savings', 'real estate', 'growth fund'];
 const NON_DISC_CATS = ['rent', 'helper salary', 'education', 'remittance', 'taxes'];
-
 const BAR_COLORS = ['#00e5a0', '#4eb5ff', '#c77dff', '#ffd166', '#ff4e6a', '#ff9f1c', '#00bbf9', '#f15bb5', '#9b5de5', '#fee440'];
 
 const fmtK = val => {
@@ -522,6 +531,7 @@ function setArc(id, pct, maxDash = 502.4) {
 const customLineLabelsPlugin = {
   id: 'customLineLabels',
   afterDatasetsDraw(chart) {
+    if (chart.config.type !== 'line') return; // Do not draw line labels on Bar charts
     const { ctx } = chart;
     chart.data.datasets.forEach((dataset, i) => {
       const meta = chart.getDatasetMeta(i);
@@ -591,10 +601,36 @@ function pfLoadFallback() {
   pfProcessData({ details: [], expenses: [], goals: [], incomes: [] });
 }
 
+function getLatestMonthSumFixed(rawArray, dateColIdx, amtColIdx) {
+  if (!rawArray || rawArray.length <= 1) return 0;
+  let rows = rawArray.slice(1);
+  let monthlySums = {};
+
+  rows.forEach(row => {
+    let rawDate = String(row[dateColIdx] || '').trim();
+    let rawAmt = String(row[amtColIdx] || '').replace(/[^0-9.-]+/g,"");
+    let val = parseFloat(rawAmt);
+    if(!rawDate || isNaN(val)) return;
+
+    let cleanDate = rawDate;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) { cleanDate = "01 " + rawDate; }
+    let d = new Date(cleanDate);
+    if(isNaN(d)) return;
+
+    let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
+    if(!monthlySums[mKey]) monthlySums[mKey] = 0;
+    monthlySums[mKey] += val;
+  });
+
+  let sortedKeys = Object.keys(monthlySums).sort((a,b) => b.localeCompare(a));
+  if(sortedKeys.length === 0) return 0;
+  return monthlySums[sortedKeys[0]];
+}
+
+
 // ── DATA PARSING ──
 function pfProcessData(allData) {
   
-  // 1. Details Processing
   const detailsRaw = allData.details || [];
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : [];
   let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
@@ -633,7 +669,6 @@ function pfProcessData(allData) {
   GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => b.localeCompare(a));
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // 2. Expenses Processing (Full History for Chart & Merchants)
   const expRaw = allData.expenses || [];
   let eHeaders = (expRaw[0] || []).map(h => String(h).toLowerCase().trim());
   const eGetCol = (name, fallback) => { let idx = eHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
@@ -676,15 +711,12 @@ function pfProcessData(allData) {
       GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].total += val;
       if(!isNd) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].disc += val;
       
-      // Store transaction detail for expansion
       GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].txns.push({ date: rawDate, cat: cat, amt: val, isNonDisc: isNd });
   });
 
-  // Calculate Latest Month Expense for Freedom Crossover
   let sortedExpKeys = Object.keys(GLOBAL_EXPENSE_HISTORY).sort((a,b) => b.localeCompare(a));
   GLOBAL_MONTHLY_EXPENSE = sortedExpKeys.length > 0 ? GLOBAL_EXPENSE_HISTORY[sortedExpKeys[0]].total : 1;
 
-  // 3. Investment Incomes 
   const incRaw = allData.incomes || [];
   const incRows = incRaw.length > 1 ? incRaw.slice(1) : [];
   GLOBAL_INCOME_HISTORY = {};
@@ -718,7 +750,6 @@ function pfProcessData(allData) {
   let sortedIncKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => b.localeCompare(a));
   GLOBAL_PASSIVE_INC = sortedIncKeys.length > 0 ? GLOBAL_INCOME_HISTORY[sortedIncKeys[0]].total : 0;
 
-  // 4. Goals Processing
   const goalsRaw = allData.goals || [];
   const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : [];
   let goalMap = {};
@@ -747,12 +778,17 @@ function pfProcessData(allData) {
   });
   GLOBAL_GOALS = Object.values(goalMap);
 
-  // Init UI
+  // Init UI & KPIs
   const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
   const curData = GLOBAL_PF_DATA[currentMonthKey];
-  document.getElementById('pf-total-assets').textContent = '$' + Math.round(curData.assets).toLocaleString();
+  
+  document.getElementById('pf-total-assets').textContent = fmtK(curData.assets);
   document.getElementById('pf-assets-month').textContent = 'For ' + keyToLabel(currentMonthKey);
-  document.getElementById('pf-net-cash').textContent = '$' + Math.round(curData.cash).toLocaleString();
+  document.getElementById('pf-net-cash').textContent = fmtK(curData.cash);
+
+  let runwayLatestExp = GLOBAL_MONTHLY_EXPENSE > 0 ? GLOBAL_MONTHLY_EXPENSE : 1;
+  let runwayValue = curData.cash / runwayLatestExp;
+  document.getElementById('pf-runway-val').textContent = '⚡ ' + runwayValue.toFixed(1) + ' MO';
 
   const monthSelect = document.getElementById('pf-month-filter');
   let allMonthKeys = new Set([...GLOBAL_SORTED_MONTHS, ...sortedIncKeys, ...sortedExpKeys]);
@@ -807,9 +843,8 @@ function render503020() {
   const lifePct = income > 0 ? (lifestyle / income) * 100 : 0;
   const savPct = income > 0 ? (savings / income) * 100 : 0;
 
-  // Max Dash Array for rings
-  const outerCirc = 2 * Math.PI * 80; // 502.4
-  const innerCirc = 2 * Math.PI * 60; // 377.0
+  const outerCirc = 2 * Math.PI * 80; 
+  const innerCirc = 2 * Math.PI * 60; 
 
   setArc('pf-ring-essentials', essPct, outerCirc);
   setArc('pf-ring-lifestyle', lifePct, innerCirc);
@@ -836,7 +871,6 @@ function renderSpendsChart() {
     return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
   });
 
-  // Extract all unique categories across timeframe to build datasets
   let allCats = new Set();
   chartKeys.forEach(k => {
       Object.keys(GLOBAL_EXPENSE_HISTORY[k].categories).forEach(cat => {
@@ -845,7 +879,6 @@ function renderSpendsChart() {
       });
   });
 
-  // Convert Set to Array and sort by largest overall spend to assign consistent colors
   let catSums = {};
   Array.from(allCats).forEach(cat => {
       catSums[cat] = chartKeys.reduce((sum, k) => sum + (GLOBAL_EXPENSE_HISTORY[k].categories[cat] || 0), 0);
@@ -916,11 +949,8 @@ function renderMerchantsLeaderboard() {
 
   document.getElementById('pf-merchant-total').textContent = `Total: ${fmtK(totalForList)}`;
 
-  // Top 10 Descending
   merchantArr.sort((a,b) => b.val - a.val).slice(0, 10).forEach((merch, idx) => {
       const pct = totalForList > 0 ? (merch.val / totalForList) * 100 : 0;
-      
-      // Filter transactions inside the merchant card if toggle is ON
       const filteredTxns = isDiscOnly ? merch.txns.filter(t => !t.isNonDisc) : merch.txns;
       
       const acctRows = filteredTxns.map(t => `
@@ -932,7 +962,7 @@ function renderMerchantsLeaderboard() {
       `).join('');
 
       const row = document.createElement('div');
-      row.className = 'pf-cat-row goal-row'; // Reuse styles
+      row.className = 'pf-cat-row goal-row'; 
       row.innerHTML = `
         <div class="pf-cat-main">
           <div class="pf-cat-left">
@@ -977,8 +1007,6 @@ function renderMerchantsLeaderboard() {
       container.appendChild(row);
   });
 }
-
-// ── REUSED SECTIONS ──
 
 function renderSavingsAndCashFlow() {
   const selectedKey = document.getElementById('pf-month-filter').value;
@@ -1228,7 +1256,6 @@ function renderYieldLeaderboard() {
     const pct = totalIncome > 0 ? (value / totalIncome) * 100 : 0;
     
     const acctRows = catData.assets.map(acc => {
-        const share = (acc.value / value) * 100;
         return `<div class="pf-acct-table-row">
             <div class="pf-acct-name">${acc.name}</div>
             <div class="pf-acct-bal">$${Math.round(acc.value).toLocaleString()}</div>
