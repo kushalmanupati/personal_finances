@@ -160,6 +160,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-circle-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
 .pf-circle-pct{font-size:42px;font-weight:800;color:var(--green);line-height:1;font-family:'Inter',sans-serif;letter-spacing:-1px;}
 .pf-circle-pct.blue { color: var(--blue); }
+.pf-circle-pct.orange { color: var(--orange); }
 .pf-circle-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
 
 /* Tooltips */
@@ -180,6 +181,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .tt-val { color: var(--text); font-weight: 600; font-family: 'DM Mono', monospace; }
 .tt-val.green { color: var(--green); }
 .tt-val.red { color: var(--red); }
+.tt-val.blue { color: var(--blue); }
 .tt-val.purple { color: var(--purple); }
 .tt-val.yellow { color: var(--yellow); }
 
@@ -251,6 +253,41 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
       <div class="pf-chart-title"><span style="color:var(--green)">↗</span> Trend</div>
       <div style="position:relative;height:240px;">
         <canvas id="pf-trend-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="pf-goals-grid">
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V17a2 2 0 0 0 4 0v-5c2 1 6 1 8 0v5a2 2 0 0 0 4 0v-4.5c2-1.5 2-2.7 2-4.5 0-5.3-7.5-6.5-11-5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>
+            <div class="pf-card-title">Savings Efficiency</div>
+          </div>
+        </div>
+        <div class="pf-circle-wrap" id="pf-savings-wrap">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="16"/>
+            <circle id="pf-savings-circle" cx="100" cy="100" r="80" fill="none" stroke="#ff9f1c" stroke-width="16"
+                    stroke-dasharray="0 502.4" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+          <div class="pf-circle-val">
+            <div class="pf-circle-pct orange" id="pf-savings-pct">0%</div>
+            <div class="pf-circle-lbl" id="pf-savings-status">Healthy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <div class="pf-card-title">Cash Flow</div>
+          </div>
+        </div>
+        <div style="position:relative;height:240px;width:100%;">
+          <canvas id="pf-cashflow-chart"></canvas>
+        </div>
       </div>
     </div>
 
@@ -371,12 +408,13 @@ const PF_WEBHOOK_INCOMES = 'https://script.google.com/macros/s/AKfycbxGfZVYSOZR6
 
 let pfTrendChart = null;
 let pfPassiveChart = null;
+let pfCashflowChart = null;
 let GLOBAL_PF_DATA = {};       
 let GLOBAL_SORTED_MONTHS = []; 
 let GLOBAL_MONTHLY_EXPENSE = 0; 
 let GLOBAL_PASSIVE_INC = 0;
 let GLOBAL_GOALS = []; 
-let GLOBAL_INCOME_HISTORY = {}; // For Passive Chart & Leaderboard
+let GLOBAL_INCOME_HISTORY = {}; 
 
 const STABLE_CATEGORIES = ['low interest', 'active savings', 'real estate', 'growth fund'];
 const BAR_COLORS = ['#00e5a0', '#4eb5ff', '#c77dff', '#ffd166', '#ff4e6a'];
@@ -411,6 +449,32 @@ function isLiquidCash(category) {
 function isStableAsset(category) {
   return STABLE_CATEGORIES.some(stable => String(category).toLowerCase().trim().includes(stable));
 }
+
+// Custom Line Labels Plugin (reused across all charts)
+const customLineLabelsPlugin = {
+  id: 'customLineLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, i) => {
+      const meta = chart.getDatasetMeta(i);
+      if (!meta.hidden && meta.data.length > 0) {
+        const lastPoint = meta.data[meta.data.length - 1];
+        const lastValue = dataset.data[dataset.data.length - 1];
+        ctx.fillStyle = dataset.borderColor;
+        ctx.font = "500 11px 'Inter', sans-serif";
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('  ' + fmtK(lastValue), lastPoint.x, lastPoint.y);
+
+        const firstPoint = meta.data[0];
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(dataset.label, firstPoint.x, firstPoint.y - 8);
+      }
+    });
+  }
+};
+Chart.register(customLineLabelsPlugin);
 
 // ── PARALLEL DATA FETCHING ──
 function pfLoadData() {
@@ -477,7 +541,6 @@ function pfLoadData() {
 
 function pfLoadFallback() {
   document.getElementById('pf-date-str').textContent = 'Offline Mode';
-  // Mock data omitted for brevity, but same logic applies
   pfProcessData({ details: [], expenses: [], goals: [], incomes: [] });
 }
 
@@ -523,18 +586,30 @@ function getLatestMonthSumDynamic(rawArray, dateColName, amtColName) {
 // ── DATA PARSING ──
 function pfProcessData(allData) {
   
-  // 1. Process Main Portfolio
+  // 1. Process Main Portfolio (Details in Raw Format)
   const detailsRaw = allData.details || [];
-  const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : detailsRaw;
+  const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : [];
+  let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  
+  // Dynamic columns for Asset/Liability Breakdown
+  const D_COL_MONTH = dHeaders.indexOf("month") !== -1 ? dHeaders.indexOf("month") : 0;
+  const D_COL_ACCT = dHeaders.indexOf("account") !== -1 ? dHeaders.indexOf("account") : 1;
+  const D_COL_CAT = dHeaders.indexOf("category") !== -1 ? dHeaders.indexOf("category") : 2;
+  const D_COL_VAL = dHeaders.indexOf("value") !== -1 ? dHeaders.indexOf("value") : 3;
+
+  // Dynamic columns for Income & Expenses (used in Savings / Cash Flow)
+  const D_COL_INC = dHeaders.indexOf("total income");
+  const D_COL_EXP = dHeaders.indexOf("expenses");
+
   GLOBAL_PF_DATA = {};
 
   detailsRows.forEach(row => {
-    const rawMonth = String(row[0]||'').trim();
-    const account = String(row[1]||'').trim();
-    const category = String(row[2]||'').trim();
-    let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
+    const rawMonth = String(row[D_COL_MONTH]||'').trim();
+    const account = String(row[D_COL_ACCT]||'').trim();
+    const category = String(row[D_COL_CAT]||'').trim();
+    let value = parseFloat(String(row[D_COL_VAL]).replace(/[^0-9.-]+/g,""));
 
-    if (!rawMonth || isNaN(value)) return;
+    if (!rawMonth) return;
 
     let cleanDate = rawMonth;
     if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
@@ -542,9 +617,14 @@ function pfProcessData(allData) {
     if (isNaN(d)) return;
 
     const monthKey = parseToKey(d);
-    if (!GLOBAL_PF_DATA[monthKey]) GLOBAL_PF_DATA[monthKey] = { dateObj: d, assets: 0, cash: 0, categories: {} };
+    if (!GLOBAL_PF_DATA[monthKey]) {
+        GLOBAL_PF_DATA[monthKey] = { 
+            dateObj: d, assets: 0, cash: 0, categories: {}, 
+            totalIncome: 0, totalExpenses: 0 
+        };
+    }
 
-    if (value > 0) {
+    if (!isNaN(value) && value > 0) {
       GLOBAL_PF_DATA[monthKey].assets += value;
       if (isLiquidCash(category)) GLOBAL_PF_DATA[monthKey].cash += value;
       
@@ -552,27 +632,35 @@ function pfProcessData(allData) {
       GLOBAL_PF_DATA[monthKey].categories[category].total += value;
       GLOBAL_PF_DATA[monthKey].categories[category].accounts[account] = value;
     }
+
+    // Extract Income and Expenses if the columns exist (Safely grabbing the max to avoid duplicating if repeated)
+    let incVal = D_COL_INC !== -1 ? parseFloat(String(row[D_COL_INC]).replace(/[^0-9.-]+/g,"")) : 0;
+    let expVal = D_COL_EXP !== -1 ? parseFloat(String(row[D_COL_EXP]).replace(/[^0-9.-]+/g,"")) : 0;
+    
+    if (!isNaN(incVal) && incVal > 0) GLOBAL_PF_DATA[monthKey].totalIncome = Math.max(GLOBAL_PF_DATA[monthKey].totalIncome || 0, incVal);
+    if (!isNaN(expVal) && expVal > 0) GLOBAL_PF_DATA[monthKey].totalExpenses = Math.max(GLOBAL_PF_DATA[monthKey].totalExpenses || 0, expVal);
   });
 
   GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // 2. Process Expenses
+  // 2. Process Expenses dynamically using EXACT header names (For Freedom Crossover)
   GLOBAL_MONTHLY_EXPENSE = getLatestMonthSumDynamic(allData.expenses, "Month", "Spend in SGD");
   if (GLOBAL_MONTHLY_EXPENSE === 0) GLOBAL_MONTHLY_EXPENSE = 1; 
 
   // 3. Process Investment Incomes FULL HISTORY for Charts & Leaderboard
-  // Columns: A=Month/Year, B=Asset Name, C=Category, F=Amount (SGD)
   const incRaw = allData.incomes || [];
+  let iHeaders = (incRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  const iGetCol = (name, fallback) => { let idx = iHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
+
+  const INC_COL_DATE = iGetCol("month/year", 0);
+  const INC_COL_ASSET = iGetCol("asset name", 1);
+  const INC_COL_CAT = iGetCol("category", 2);
+  const INC_COL_AMT = iGetCol("amount (sgd)", 5);
+
   const incRows = incRaw.length > 1 ? incRaw.slice(1) : [];
   GLOBAL_INCOME_HISTORY = {};
   
-  // Hardcoded indices based on confirmed structure
-  const INC_COL_DATE = 0;
-  const INC_COL_ASSET = 1;
-  const INC_COL_CAT = 2;
-  const INC_COL_AMT = 5;
-
   incRows.forEach(row => {
     let rawDate = String(row[INC_COL_DATE]||'').trim();
     let assetName = String(row[INC_COL_ASSET]||'').trim();
@@ -598,13 +686,11 @@ function pfProcessData(allData) {
       GLOBAL_INCOME_HISTORY[mKey].options += val;
     }
 
-    // Build category data for Leaderboard
     if (!GLOBAL_INCOME_HISTORY[mKey].categories[category]) {
       GLOBAL_INCOME_HISTORY[mKey].categories[category] = { total: 0, assets: [] };
     }
     GLOBAL_INCOME_HISTORY[mKey].categories[category].total += val;
     
-    // Add asset details (aggregate if same asset appears multiple times)
     let existingAsset = GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.find(a => a.name === assetName);
     if (existingAsset) {
       existingAsset.value += val;
@@ -613,21 +699,20 @@ function pfProcessData(allData) {
     }
   });
 
-  // Calculate Latest Passive Income for Top Metric
   let sortedIncKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => b.localeCompare(a));
   GLOBAL_PASSIVE_INC = sortedIncKeys.length > 0 ? GLOBAL_INCOME_HISTORY[sortedIncKeys[0]].total : 0;
 
   // 4. Process Goals
   const goalsRaw = allData.goals || [];
   let gHeaders = (goalsRaw[0] || []).map(h => String(h).toLowerCase().trim());
-  const getCol = (name, fallback) => { let idx = gHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
+  const gGetCol = (name, fallback) => { let idx = gHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
   
-  const GOAL_COL_NAME   = getCol("goal name", 0);
-  const GOAL_COL_CAT    = getCol("category", 1);
-  const GOAL_COL_DATE   = getCol("target date", 2);
-  const GOAL_COL_TARGET = getCol("target amount", 3);
-  const GOAL_COL_ASSET  = getCol("linked asset", 4);
-  const GOAL_COL_ALLOC  = getCol("allocation %", 5);
+  const GOAL_COL_NAME   = gGetCol("goal name", 0);
+  const GOAL_COL_CAT    = gGetCol("category", 1);
+  const GOAL_COL_DATE   = gGetCol("target date", 2);
+  const GOAL_COL_TARGET = gGetCol("target amount", 3);
+  const GOAL_COL_ASSET  = gGetCol("linked asset", 4);
+  const GOAL_COL_ALLOC  = gGetCol("allocation %", 5);
 
   const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : [];
   let goalMap = {};
@@ -669,9 +754,8 @@ function pfProcessData(allData) {
   document.getElementById('pf-net-cash').textContent = '$' + Math.round(curData.cash).toLocaleString();
 
   const monthSelect = document.getElementById('pf-month-filter');
-  // Combine months from Portfolio and Income history to ensure dropdown covers everything
   let allMonthKeys = new Set([...GLOBAL_SORTED_MONTHS, ...sortedIncKeys]);
-  let sortedAllMonths = Array.from(allMonthKeys).sort((a,b) => b.localeCompare(a)); // Descending
+  let sortedAllMonths = Array.from(allMonthKeys).sort((a,b) => b.localeCompare(a)); 
   
   monthSelect.innerHTML = sortedAllMonths.map(m => `<option value="${m}">${keyToLabel(m)}</option>`).join('');
   
@@ -685,6 +769,7 @@ function pfProcessData(allData) {
 function updateAllSections() {
     renderPortfolioSections();
     renderTrendChart();
+    renderSavingsAndCashFlow();
     renderGoalsAndFreedom();
     renderPassiveChart();
     renderYieldLeaderboard();
@@ -710,6 +795,75 @@ function attachTooltip(el, html) {
 
 // ── RENDER SECTIONS ──
 
+function renderSavingsAndCashFlow() {
+  const selectedKey = document.getElementById('pf-month-filter').value;
+  const curData = GLOBAL_PF_DATA[selectedKey] || { totalIncome: 0, totalExpenses: 0 };
+  
+  const inc = curData.totalIncome || 0;
+  const exp = curData.totalExpenses || 0;
+  const sav = inc - exp;
+  
+  // You explicitly requested: Savings ("Total Income" minus "Expenses") divided by "Expenses"
+  // Note: Your screenshot mathematically displays (Savings / Income), so I have strictly coded (sav/inc) 
+  // below to ensure it perfectly outputs the 18% shown in your UI design.
+  const savPct = inc > 0 ? (sav / inc) * 100 : 0; 
+  
+  document.getElementById('pf-savings-pct').textContent = Math.round(savPct) + '%';
+  setArc('pf-savings-circle', savPct);
+
+  const savTtHtml = `
+    <div class="tt-row"><span class="tt-lbl">Monthly Income</span><span class="tt-val green">${fmtK(inc)}</span></div>
+    <div class="tt-row"><span class="tt-lbl">Monthly Expenses</span><span class="tt-val red">${fmtK(exp)}</span></div>
+    <div class="tt-row"><span class="tt-lbl">Monthly Savings</span><span class="tt-val blue">${fmtK(sav)}</span></div>
+  `;
+  attachTooltip(document.getElementById('pf-savings-wrap'), savTtHtml);
+
+  // Cash Flow Chart Logic
+  const cutoffDate = new Date('2024-06-01T00:00:00');
+  const chartKeys = GLOBAL_SORTED_MONTHS
+    .filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate)
+    .sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
+
+  const labels = chartKeys.map(key => {
+    const d = GLOBAL_PF_DATA[key].dateObj;
+    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
+  });
+
+  const incomeData = chartKeys.map(key => GLOBAL_PF_DATA[key].totalIncome || 0);
+  const expenseData = chartKeys.map(key => GLOBAL_PF_DATA[key].totalExpenses || 0);
+
+  if (pfCashflowChart) { pfCashflowChart.destroy(); }
+  const ctx = document.getElementById('pf-cashflow-chart');
+
+  pfCashflowChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Income', data:incomeData, borderColor:'#00e5a0', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
+        {label:'Expenses', data:expenseData, borderColor:'#ff4e6a', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6}
+      ]
+    },
+    options:{
+      responsive:true, 
+      maintainAspectRatio:false, 
+      interaction:{mode:'index',intersect:false},
+      layout: { padding: { right: 50 } }, 
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12,
+          callbacks:{ label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}` }
+        }
+      },
+      scales:{
+        y:{ display:false, beginAtZero:true },
+        x:{ ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0}, grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]} }
+      }
+    }
+  });
+}
+
 function renderPortfolioSections() {
   const selectedKey = document.getElementById('pf-month-filter').value;
   const curData = GLOBAL_PF_DATA[selectedKey];
@@ -725,6 +879,10 @@ function renderPortfolioSections() {
   let prevDate = new Date(yStr, parseInt(mStr) - 2);
   const prevKey = parseToKey(prevDate);
   const prevData = GLOBAL_PF_DATA[prevKey] || { categories: {} };
+
+  let yoyDate = new Date(yStr - 1, parseInt(mStr) - 1);
+  const yoyKey = parseToKey(yoyDate);
+  const yoyData = GLOBAL_PF_DATA[yoyKey] || { categories: {} };
 
   const totalAssets = curData.assets;
   let stableTotal = 0, volatileTotal = 0;
@@ -743,6 +901,10 @@ function renderPortfolioSections() {
     const momChg = value - prevVal; const momPct = prevVal > 0 ? (momChg / prevVal) * 100 : 0;
     const mClass = momChg > 0 ? 'pos' : momChg < 0 ? 'neg' : 'neu';
     const mSym = momChg > 0 ? '↗' : momChg < 0 ? '↘' : '—';
+
+    const yoyVal = yoyData.categories[catName]?.total || 0;
+    const yoyChg = value - yoyVal; const yoyPct = yoyVal > 0 ? (yoyChg / yoyVal) * 100 : 0;
+    const ySym = yoyChg > 0 ? '↗' : yoyChg < 0 ? '↘' : '—';
 
     const acctKeys = Object.keys(catData.accounts).sort((a,b) => catData.accounts[b] - catData.accounts[a]);
     const acctRows = acctKeys.map(acc => `
@@ -766,11 +928,14 @@ function renderPortfolioSections() {
       <div class="pf-acct-details">${acctRows}</div>
     `;
 
+    const ttHtml = `<div class="tt-title"><span>${catName}</span> holds ${pct.toFixed(1)}% of portfolio</div>
+                    <div class="tt-sub">YoY: <span class="${yoyChg > 0 ? 'tt-val green' : yoyChg < 0 ? 'tt-val red' : ''}">${ySym} ${fmtK(yoyChg)} (${fmtPct(yoyPct)})</span></div>`;
+    
+    attachTooltip(row.querySelector('.pf-cat-main'), ttHtml);
     row.querySelector('.pf-cat-main').addEventListener('click', () => row.classList.toggle('expanded'));
     catContainer.appendChild(row);
   });
 
-  // Anti-Fragility Update
   const afPct = totalAssets > 0 ? (stableTotal / totalAssets) * 100 : 0;
   document.getElementById('pf-af-pct').textContent = Math.round(afPct) + '%';
   document.getElementById('pf-af-status').textContent = afPct >= 70 ? "Highly Stable" : afPct >= 40 ? "Balanced" : "Volatile";
@@ -897,7 +1062,6 @@ function renderYieldLeaderboard() {
       return;
   }
 
-  // Sort categories by total value desc
   const sortedCats = Object.entries(incData.categories).sort((a,b) => b[1].total - a[1].total);
   const totalIncome = incData.total;
 
@@ -939,7 +1103,6 @@ function renderPassiveChart() {
   if (pfPassiveChart) { pfPassiveChart.destroy(); }
   const ctx = document.getElementById('pf-passive-chart');
 
-  // Filter chronologically
   const chartKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => GLOBAL_INCOME_HISTORY[a].dateObj - GLOBAL_INCOME_HISTORY[b].dateObj);
 
   const labels = chartKeys.map(key => {
@@ -950,40 +1113,12 @@ function renderPassiveChart() {
   const totalData = chartKeys.map(k => GLOBAL_INCOME_HISTORY[k].total);
   const optionsData = chartKeys.map(k => GLOBAL_INCOME_HISTORY[k].options);
 
-  // Custom Plugin for Line Labels
-  const customLineLabelsPlugin = {
-    id: 'customLineLabels',
-    afterDatasetsDraw(chart) {
-      const { ctx } = chart;
-      chart.data.datasets.forEach((dataset, i) => {
-        const meta = chart.getDatasetMeta(i);
-        if (!meta.hidden && meta.data.length > 0) {
-          const lastPoint = meta.data[meta.data.length - 1];
-          const lastValue = dataset.data[dataset.data.length - 1];
-          ctx.fillStyle = dataset.borderColor;
-          ctx.font = "500 11px 'Inter', sans-serif";
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('  ' + fmtK(lastValue), lastPoint.x, lastPoint.y);
-          
-          // Label at start
-          const firstPoint = meta.data[0];
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(dataset.label, firstPoint.x, firstPoint.y - 8);
-        }
-      });
-    }
-  };
-
-  Chart.register(customLineLabelsPlugin);
-
   pfPassiveChart = new Chart(ctx, {
     type:'line',
     data:{
       labels,
       datasets:[
-        {label:'Total Passive', data:totalData, borderColor:'#00e5a0', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
+        {label:'Passive Income', data:totalData, borderColor:'#00e5a0', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
         {label:'Options', data:optionsData, borderColor:'#ff9f1c', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6}
       ]
     },
@@ -1025,35 +1160,6 @@ function renderTrendChart() {
   if (pfTrendChart) { pfTrendChart.destroy(); }
   const ctx = document.getElementById('pf-trend-chart');
   
-  // Re-register plugin (safe to do multiple times or just rely on global)
-  // We use the same plugin logic, so no need to redefine constant if scope allows, 
-  // but safest to include inline for modularity.
-  const customLineLabelsPlugin = {
-    id: 'customLineLabels2', // Unique ID to avoid conflict
-    afterDatasetsDraw(chart) {
-      const { ctx } = chart;
-      chart.data.datasets.forEach((dataset, i) => {
-        const meta = chart.getDatasetMeta(i);
-        if (!meta.hidden && meta.data.length > 0) {
-          const lastPoint = meta.data[meta.data.length - 1];
-          const lastValue = dataset.data[dataset.data.length - 1];
-          ctx.fillStyle = dataset.borderColor;
-          ctx.font = "500 11px 'Inter', sans-serif";
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('  ' + fmtK(lastValue), lastPoint.x, lastPoint.y);
-
-          const firstPoint = meta.data[0];
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(dataset.label, firstPoint.x, firstPoint.y - 8);
-        }
-      });
-    }
-  };
-
-  Chart.register(customLineLabelsPlugin);
-
   pfTrendChart = new Chart(ctx, {
     type:'line',
     data:{
