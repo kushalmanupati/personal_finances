@@ -146,18 +146,40 @@ select.asset-select:focus{border-color:var(--green);}
 .pday-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px;}
 
 /* Insights */
-.insights{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
-.insight{padding:14px 16px;border-radius:8px;border-left:3px solid;font-size:12px;line-height:1.6;color:var(--muted2);}
-.insight.good{background:var(--green-dim);border-color:var(--green);}
-.insight.warn{background:var(--yellow-dim);border-color:var(--yellow);}
-.insight.info{background:var(--blue-dim);border-color:var(--blue);}
-.insight strong{display:block;margin-bottom:3px;}
+.insights{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:800px){.insights{grid-template-columns:1fr;}}
+.insight{padding:16px 20px;border-radius:8px;border-left:4px solid;font-size:13px;line-height:1.6;color:var(--muted2);background:var(--surface2);}
+.insight.good{border-color:var(--green);}
+.insight.warn{border-color:var(--yellow);}
+.insight.info{border-color:var(--blue);}
+.insight strong{display:block;margin-bottom:8px;font-family:'DM Mono',monospace;font-weight:600;font-size:13px;}
 .insight.good strong{color:var(--green);}
 .insight.warn strong{color:var(--yellow);}
 .insight.info strong{color:var(--blue);}
 
 .no-data{text-align:center;padding:20px;font-size:12px;color:var(--muted);}
 .section-gap{margin-bottom:16px;}
+
+/* Controls & Bottom Tabs */
+.refresh-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: none; color: var(--muted2);
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: color 0.2s; margin: 32px auto 0;
+}
+.refresh-btn:hover { color: var(--text); }
+.refresh-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+.bottom-tabs {
+  display: flex; justify-content: center; gap: 16px; margin-top: 48px; margin-bottom: 24px;
+}
+.btm-tab {
+  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  padding: 14px 24px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--muted); text-decoration: none; transition: all 0.2s;
+}
+.btm-tab:hover { border-color: var(--muted); color: var(--text); }
+.btm-tab.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
 </style>
 </head>
 <body>
@@ -307,6 +329,18 @@ select.asset-select:focus{border-color:var(--green);}
         <div class="insight info"><strong>💡 Annualized ROC Opportunity</strong>At ~2% per cycle (~2 weeks), potential 50–100% annualized if frequency and win rate are sustained.</div>
       </div>
     </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button class="refresh-btn" onclick="fetchData()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20q-3.35 0-5.675-2.325Q4 15.35 4 12q0-3.35 2.325-5.675Q8.65 4 12 4q1.725 0 3.3.712T18 6.75V4h2v7h-7V9h3.2q-1.05-1.8-2.825-2.9Q13.6 5 12 5 9.075 5 7.038 7.038 5 9.075 5 12q0 2.925 2.038 4.962Q9.075 19 12 19q2.5 0 4.388-1.5T18.8 13h2.05q-.5 3.45-3.175 5.725Q15.05 20 12 20Z"/></svg>
+      Refresh Data
+    </button>
+  </div>
+
+  <div class="bottom-tabs">
+    <a href="options_dashboard.html" class="btm-tab active">Options Dashboard</a>
+    <a href="personal_finances.html" class="btm-tab">Personal Finances</a>
   </div>
 
   <div style="text-align:center;margin-top:16px;font-size:10px;color:var(--muted);letter-spacing:1px;padding-bottom:24px">
