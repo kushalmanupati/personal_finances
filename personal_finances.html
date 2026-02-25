@@ -34,21 +34,21 @@ body::before{content:'';position:fixed;inset:0;
   background-size:40px 40px;pointer-events:none;z-index:0;}
 
 /* Scrollbar styles */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px;}
+.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 16px;}
 
 /* Header */
-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
 .logo{display:flex;flex-direction:column;gap:4px;}
-.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.5px;color:var(--text);}
+.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.5px;color:var(--text);}
 .logo-title span{color:var(--blue);} 
-.logo-sub{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;}
 .header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
-.date-str{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.date-str{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
 
 /* Setup / Load screen */
 .pf-setup{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:520px;margin:80px auto;text-align:center;}
@@ -61,89 +61,90 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .hidden{display:none !important;}
 
 /* PF KPI */
-.pf-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:24px;}
-.pf-kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.pf-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:20px;}
+.pf-kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .pf-kpi-card:hover{border-color:var(--muted);}
 .pf-kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
 .pf-kpi-card.green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
 .pf-kpi-card.blue::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
 .pf-kpi-card.red::before{background:linear-gradient(90deg,transparent,var(--red),transparent);}
-.pf-kpi-label{font-size:12px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
-.pf-kpi-value{font-size:42px;font-weight:800;margin-bottom:6px;font-family:'Syne',sans-serif;letter-spacing:-1px;}
+.pf-kpi-label{font-size:11px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
+.pf-kpi-value{font-size:32px;font-weight:800;margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:-1px;}
 .pf-kpi-value.green{color:var(--green);}
 .pf-kpi-value.blue{color:var(--blue);}
 .pf-kpi-value.red{color:var(--red);}
-.pf-kpi-sub{font-size:12px;color:var(--muted2);min-height:16px;}
+.pf-kpi-sub{font-size:11px;color:var(--muted2);min-height:14px;}
 
 /* Chart */
-.pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;}
-.pf-chart-title{font-size:20px;font-weight:700;margin-bottom:24px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.pf-chart-title{font-size:16px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
 .pf-chart-title span {color:var(--green);}
 
 /* Portfolio & Anti-Fragility Grids */
-.pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:32px;}
+.pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;}
 @media(max-width:900px){.pf-portfolio-grid{grid-template-columns:1fr;}}
-.pf-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;}
-.pf-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-.pf-card-title-wrap {display:flex;align-items:center;gap:10px;}
-.pf-card-title{font-size:18px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;}
-.pf-card-icon { width:18px; height:18px; color:var(--green); }
+.pf-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.pf-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pf-card-title-wrap {display:flex;align-items:center;gap:8px;}
+.pf-card-title{font-size:16px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;}
+.pf-card-icon { width:16px; height:16px; color:var(--green); }
 .pf-card-icon.blue { color:var(--blue); }
 
 /* Month Dropdown */
-.month-select-wrap{position:relative;display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0 12px;transition:border-color 0.2s;}
+.month-select-wrap{position:relative;display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0 10px;transition:border-color 0.2s;}
 .month-select-wrap:hover {border-color:var(--muted);}
-.month-select-wrap svg {width:14px;height:14px;color:var(--muted);margin-right:8px;}
-select.pf-month-select{appearance:none;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:10px 20px 10px 0;outline:none;cursor:pointer;}
-.month-select-wrap::after{content:'▾';position:absolute;right:12px;color:var(--muted);pointer-events:none;font-size:12px;}
+.month-select-wrap svg {width:12px;height:12px;color:var(--muted);margin-right:6px;}
+select.pf-month-select{appearance:none;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 16px 8px 0;outline:none;cursor:pointer;}
+.month-select-wrap::after{content:'▾';position:absolute;right:10px;color:var(--muted);pointer-events:none;font-size:10px;}
 
-/* Category rows */
-.pf-categories{display:flex;flex-direction:column;gap:16px;}
-.pf-cat-row{display:flex;flex-direction:column;gap:8px;}
-.pf-cat-main{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:6px;border-radius:8px;transition:background 0.2s;}
-.pf-cat-main:hover{background:rgba(255,255,255,0.02);}
-.pf-cat-left{display:flex;align-items:center;gap:12px;}
-.pf-cat-expand{width:16px;height:16px;color:var(--muted);transition:transform 0.3s;}
+/* Category rows (Compacted) */
+.pf-categories{display:flex;flex-direction:column;gap:8px;}
+.pf-cat-row{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:8px 12px;border-radius:8px;background:var(--surface2);border:1px solid transparent;transition:all 0.2s;position:relative;}
+.pf-cat-row:hover{border-color:var(--border);background:rgba(255,255,255,0.02);}
+.pf-cat-row.expanded{border-color:var(--blue);background:var(--blue-dim);}
+.pf-cat-main{display:flex;align-items:center;justify-content:space-between;}
+.pf-cat-left{display:flex;align-items:center;gap:8px;}
+.pf-cat-expand{width:14px;height:14px;color:var(--muted);transition:transform 0.3s;}
 .pf-cat-row.expanded .pf-cat-expand{transform:rotate(90deg);color:var(--text);}
-.pf-cat-name{font-size:15px;font-weight:500;color:var(--text);}
-.pf-cat-count{background:transparent;border:1px solid var(--green);color:var(--text);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;font-family:'Inter',sans-serif;}
+.pf-cat-name{font-size:13px;font-weight:500;color:var(--text);}
+.pf-cat-count{background:transparent;border:1px solid var(--green);color:var(--text);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;font-family:'Inter',sans-serif;margin-left:4px;}
 .pf-cat-right{text-align:right;}
-.pf-cat-amount{font-size:16px;font-weight:700;color:var(--text);}
-.pf-cat-change{font-size:11px;font-weight:500;margin-top:2px;}
+.pf-cat-amount{font-size:14px;font-weight:700;color:var(--text);}
+.pf-cat-change{font-size:10px;font-weight:500;margin-top:2px;}
 .pf-cat-change.pos{color:var(--green);}
 .pf-cat-change.neg{color:var(--red);}
 .pf-cat-change.neu{color:var(--muted);}
 
 /* Inline Progress Bar */
-.pf-cat-bar-wrap{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-left:28px;}
-.pf-cat-bar{height:100%;background:var(--green);border-radius:3px;transition:width 0.5s ease;}
+.pf-cat-bar-wrap{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-left:22px;}
+.pf-cat-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.5s ease;}
 
 /* Account details (Nested table) */
-.pf-acct-details{margin:8px 0 8px 28px;background:var(--surface2);border-radius:8px;padding:16px;display:none;border:1px solid var(--border);}
+.pf-acct-details{margin:6px 0 4px 22px;background:var(--bg);border-radius:6px;padding:12px;display:none;border:1px solid var(--border);}
 .pf-cat-row.expanded .pf-acct-details{display:block;}
-.pf-acct-table-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(30,37,48,0.5);font-size:13px;}
+.pf-acct-table-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(30,37,48,0.5);font-size:12px;}
 .pf-acct-table-row:last-child{border-bottom:none;padding-bottom:0;}
 .pf-acct-name{color:var(--muted2);font-weight:400;}
 .pf-acct-bal{color:var(--text);font-weight:600;font-family:'DM Mono',monospace;}
 
 /* Anti-fragility */
-.pf-circle-wrap{position:relative;width:100%;max-width:240px;aspect-ratio:1;margin:40px auto 0; cursor:pointer;}
+.pf-circle-wrap{position:relative;width:100%;max-width:180px;aspect-ratio:1;margin:24px auto 0; cursor:pointer;}
 .pf-circle-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-.pf-circle-pct{font-size:52px;font-weight:800;color:var(--green);line-height:1;font-family:'Inter',sans-serif;letter-spacing:-1px;}
-.pf-circle-lbl{font-size:14px;color:var(--muted);margin-top:6px;}
+.pf-circle-pct{font-size:42px;font-weight:800;color:var(--green);line-height:1;font-family:'Inter',sans-serif;letter-spacing:-1px;}
+.pf-circle-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
 
 /* Tooltips */
 .rich-tooltip {
   position: absolute; background: var(--surface2); border: 1px solid var(--border);
-  padding: 16px; border-radius: 12px; font-size: 13px; color: var(--text);
+  padding: 14px; border-radius: 10px; font-size: 12px; color: var(--text);
   pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 1000;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.5); white-space: nowrap; font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5); white-space: nowrap; font-family: 'Inter', sans-serif;
 }
-.tt-title { font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+.tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
 .tt-title span { color: var(--green); }
-.tt-sub { color: var(--muted2); font-size: 12px; margin-bottom: 8px; }
-.tt-action { color: var(--green); font-size: 11px; margin-top: 12px; font-weight: 500; }
-.tt-row { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 6px; }
+.tt-sub { color: var(--muted2); font-size: 11px; margin-bottom: 8px; }
+.tt-action { color: var(--green); font-size: 10px; margin-top: 10px; font-weight: 500; }
+.tt-row { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 4px; }
 .tt-row:last-child { margin-bottom: 0; }
 .tt-lbl { color: var(--muted2); font-weight: 500; }
 .tt-val.green { color: var(--green); font-weight: 600; }
@@ -153,19 +154,19 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .refresh-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
-  cursor: pointer; transition: all 0.2s; margin: 16px auto 0;
-  padding: 12px 24px; border-radius: 8px; width: 100%; max-width: 300px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; margin: 12px auto 0;
+  padding: 10px 20px; border-radius: 8px; width: 100%; max-width: 260px;
 }
 .refresh-btn:hover { border-color: var(--muted); }
-.refresh-btn svg { width: 18px; height: 18px; fill: currentColor; }
+.refresh-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
-.bottom-tabs { display: flex; flex-direction: column; gap: 12px; margin-top: 48px; margin-bottom: 24px; }
+.bottom-tabs { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; margin-bottom: 24px; }
 @media(min-width: 600px) { .bottom-tabs { flex-direction: row; justify-content: center; } }
 .btm-tab {
-  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-  padding: 14px 24px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px; text-align: center;
-  background: var(--surface); color: var(--muted); text-decoration: none; transition: all 0.2s; flex: 1; max-width: 300px; margin: 0 auto;
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  padding: 12px 20px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px; text-align: center;
+  background: var(--surface); color: var(--muted); text-decoration: none; transition: all 0.2s; flex: 1; max-width: 260px; margin: 0 auto;
 }
 .btm-tab:hover { border-color: var(--muted); color: var(--text); }
 .btm-tab.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
@@ -206,7 +207,8 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
         <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
         <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
       </div>
-      <div class="pf-kpi-card red" style="display:none;"> <div class="pf-kpi-label">Liabilities</div>
+      <div class="pf-kpi-card red" style="display:none;"> 
+        <div class="pf-kpi-label">Liabilities</div>
         <div class="pf-kpi-value red" id="pf-liabilities">—</div>
         <div class="pf-kpi-sub">Total negative balances</div>
       </div>
@@ -214,7 +216,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 
     <div class="pf-chart-card">
       <div class="pf-chart-title"><span style="color:var(--green)">↗</span> Trend</div>
-      <div style="position:relative;height:380px;">
+      <div style="position:relative;height:240px;">
         <canvas id="pf-trend-chart"></canvas>
       </div>
     </div>
@@ -284,8 +286,8 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 const PF_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwfy3qzMBgmINz8ekI26juWmND8TeOSjZhUNhtCn3LIiEfID3pvOVKdxtwRO7GvdL6T/exec';
 
 let pfTrendChart = null;
-let GLOBAL_PF_DATA = {};       // Stores parsed data mapped by YYYY-MM
-let GLOBAL_SORTED_MONTHS = []; // Array of YYYY-MM strings descending
+let GLOBAL_PF_DATA = {};       
+let GLOBAL_SORTED_MONTHS = []; 
 
 // Definition of what is "Stable" for Anti-Fragility
 const STABLE_CATEGORIES = ['low interest', 'active savings', 'real estate', 'growth fund'];
@@ -418,16 +420,14 @@ function pfProcessData(detailsRaw) {
     if (!GLOBAL_PF_DATA[monthKey]) {
       GLOBAL_PF_DATA[monthKey] = { 
         dateObj: d, assets: 0, cash: 0, liabilities: 0, 
-        categories: {} // Structure: { "Equities": { total: 0, accounts: { "Vanguard": 100 } } }
+        categories: {}
       };
     }
 
     if (value > 0) {
-      // Top line metrics
       GLOBAL_PF_DATA[monthKey].assets += value;
       if (isLiquidCash(category)) GLOBAL_PF_DATA[monthKey].cash += value;
       
-      // Categorization for Portfolio
       if (!GLOBAL_PF_DATA[monthKey].categories[category]) {
         GLOBAL_PF_DATA[monthKey].categories[category] = { total: 0, accounts: {} };
       }
@@ -443,7 +443,6 @@ function pfProcessData(detailsRaw) {
   
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // Render Top KPIs (Latest Month)
   const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
   const curData = GLOBAL_PF_DATA[currentMonthKey];
   
@@ -451,14 +450,10 @@ function pfProcessData(detailsRaw) {
   document.getElementById('pf-assets-month').textContent = 'For ' + keyToLabel(currentMonthKey);
   document.getElementById('pf-net-cash').textContent = '$' + Math.round(curData.cash).toLocaleString();
 
-  // Populate Dropdown
   const monthSelect = document.getElementById('pf-month-filter');
   monthSelect.innerHTML = GLOBAL_SORTED_MONTHS.map(m => `<option value="${m}">${keyToLabel(m)}</option>`).join('');
   
-  // Render Chart
   renderTrendChart();
-
-  // Render Portfolios for initially selected month
   renderPortfolioSections();
   
   document.getElementById('pf-setup').classList.add('hidden');
@@ -467,249 +462,9 @@ function pfProcessData(detailsRaw) {
 
 // ── PORTFOLIO & ANTI-FRAGILITY RENDERING ──
 
-// Tooltip setup
 const pfTooltip = document.createElement('div');
 pfTooltip.className = 'rich-tooltip';
 document.body.appendChild(pfTooltip);
 
 function attachTooltip(el, html) {
-  el.addEventListener('mouseover', e => {
-    pfTooltip.innerHTML = html;
-    pfTooltip.style.opacity = 1;
-  });
-  el.addEventListener('mousemove', e => {
-    // Ensure tooltip stays on screen
-    let x = e.pageX + 15;
-    let y = e.pageY + 15;
-    if (x + pfTooltip.offsetWidth > window.innerWidth) x = e.pageX - pfTooltip.offsetWidth - 15;
-    pfTooltip.style.left = x + 'px';
-    pfTooltip.style.top = y + 'px';
-  });
-  el.addEventListener('mouseout', () => pfTooltip.style.opacity = 0);
-}
-
-function renderPortfolioSections() {
-  const selectedKey = document.getElementById('pf-month-filter').value;
-  const curData = GLOBAL_PF_DATA[selectedKey];
-  if (!curData) return;
-
-  // Find previous month (for MoM)
-  const [yStr, mStr] = selectedKey.split('-');
-  let prevDate = new Date(yStr, parseInt(mStr) - 2); // -1 for previous month, -1 for 0-index
-  const prevKey = parseToKey(prevDate);
-  const prevData = GLOBAL_PF_DATA[prevKey] || { categories: {} };
-
-  // Find year ago month (for YoY)
-  let yoyDate = new Date(yStr - 1, parseInt(mStr) - 1);
-  const yoyKey = parseToKey(yoyDate);
-  const yoyData = GLOBAL_PF_DATA[yoyKey] || { categories: {} };
-
-  const totalAssets = curData.assets;
-  let stableTotal = 0;
-  let volatileTotal = 0;
-  let volatileCatNames = [];
-  let stableCatNames = [];
-
-  // Sort categories by total value descending
-  const sortedCats = Object.entries(curData.categories).sort((a,b) => b[1].total - a[1].total);
-  const catContainer = document.getElementById('pf-categories');
-  catContainer.innerHTML = '';
-
-  sortedCats.forEach(([catName, catData]) => {
-    const value = catData.total;
-    const pct = totalAssets > 0 ? (value / totalAssets) * 100 : 0;
-    
-    // Anti-Fragility Sorting
-    if (isStableAsset(catName)) {
-      stableTotal += value;
-      stableCatNames.push(catName);
-    } else {
-      volatileTotal += value;
-      volatileCatNames.push(catName);
-    }
-
-    // MoM Math
-    const prevVal = prevData.categories[catName]?.total || 0;
-    const momChg = value - prevVal;
-    const momPct = prevVal > 0 ? (momChg / prevVal) * 100 : 0;
-    const mClass = momChg > 0 ? 'pos' : momChg < 0 ? 'neg' : 'neu';
-    const mSym = momChg > 0 ? '↗' : momChg < 0 ? '↘' : '—';
-    const mChgStr = `${mSym} ${fmtK(momChg)} (${fmtPct(momPct)})`;
-
-    // YoY Math
-    const yoyVal = yoyData.categories[catName]?.total || 0;
-    const yoyChg = value - yoyVal;
-    const yoyPct = yoyVal > 0 ? (yoyChg / yoyVal) * 100 : 0;
-    const ySym = yoyChg > 0 ? '↗' : yoyChg < 0 ? '↘' : '—';
-
-    // Account rows html
-    const acctKeys = Object.keys(catData.accounts).sort((a,b) => catData.accounts[b] - catData.accounts[a]);
-    const acctRows = acctKeys.map(acc => `
-      <div class="pf-acct-table-row">
-        <div class="pf-acct-name">${acc}</div>
-        <div class="pf-acct-bal">$${Math.round(catData.accounts[acc]).toLocaleString()}</div>
-      </div>
-    `).join('');
-
-    // Create Row Element
-    const row = document.createElement('div');
-    row.className = 'pf-cat-row';
-    row.innerHTML = `
-      <div class="pf-cat-main">
-        <div class="pf-cat-left">
-          <svg class="pf-cat-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          <div class="pf-cat-name">${catName} <span class="pf-cat-count">${acctKeys.length} accts</span></div>
-        </div>
-        <div class="pf-cat-right">
-          <div class="pf-cat-amount">${fmtK(value)}</div>
-          <div class="pf-cat-change ${mClass}">${mChgStr}</div>
-        </div>
-      </div>
-      <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct}%"></div></div>
-      <div class="pf-acct-details">${acctRows}</div>
-    `;
-
-    // Tooltip HTML for this row
-    const ttHtml = `
-      <div class="tt-title"><span>${catName}</span> holds ${pct.toFixed(1)}% of portfolio</div>
-      <div class="tt-sub">YoY: <span class="${yoyChg > 0 ? 'tt-val green' : yoyChg < 0 ? 'tt-val red' : ''}">${ySym} ${fmtK(yoyChg)} (${fmtPct(yoyPct)})</span></div>
-      <div class="tt-action">Click to view accounts</div>
-    `;
-    
-    // Ensure tooltip attaches to the main row part, not the hidden accounts
-    const mainArea = row.querySelector('.pf-cat-main');
-    attachTooltip(mainArea, ttHtml);
-
-    // Expand logic
-    mainArea.addEventListener('click', () => row.classList.toggle('expanded'));
-
-    catContainer.appendChild(row);
-  });
-
-  // Render Anti-Fragility Donut
-  const afPct = totalAssets > 0 ? (stableTotal / totalAssets) * 100 : 0;
-  document.getElementById('pf-af-pct').textContent = Math.round(afPct) + '%';
-  
-  // Update status word based on %
-  const afStatus = document.getElementById('pf-af-status');
-  if (afPct >= 70) afStatus.textContent = "Highly Stable";
-  else if (afPct >= 40) afStatus.textContent = "Balanced";
-  else afStatus.textContent = "Volatile";
-
-  // SVG Math
-  const circ = 2 * Math.PI * 80;
-  document.getElementById('pf-af-circle').style.strokeDashoffset = circ - (afPct / 100) * circ;
-
-  // Anti-Fragility Tooltip
-  const afTtHtml = `
-    <div class="tt-row">
-      <span class="tt-lbl">Stable Assets</span>
-      <span class="tt-val green">${fmtK(stableTotal)} (${afPct.toFixed(0)}%)</span>
-    </div>
-    <div class="tt-sub" style="margin-bottom:16px;">${stableCatNames.join(', ')}</div>
-    <div class="tt-row">
-      <span class="tt-lbl">Volatile Assets</span>
-      <span class="tt-val red">${fmtK(volatileTotal)} (${(100-afPct).toFixed(0)}%)</span>
-    </div>
-    <div class="tt-sub" style="margin-bottom:0;">${volatileCatNames.join(', ')}</div>
-  `;
-  attachTooltip(document.getElementById('pf-af-wrap'), afTtHtml);
-}
-
-// ── TREND CHART ──
-
-function renderTrendChart() {
-  const cutoffDate = new Date('2024-06-01T00:00:00');
-  
-  // Filter and sort chronologically for chart
-  const chartKeys = GLOBAL_SORTED_MONTHS
-    .filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate)
-    .sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
-
-  const labels = chartKeys.map(key => {
-    const d = GLOBAL_PF_DATA[key].dateObj;
-    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
-  });
-
-  const assetsData = chartKeys.map(key => GLOBAL_PF_DATA[key].assets);
-  const cashData = chartKeys.map(key => GLOBAL_PF_DATA[key].cash);
-
-  if (pfTrendChart) { pfTrendChart.destroy(); }
-  const ctx = document.getElementById('pf-trend-chart');
-  
-  // Custom Plugin to draw text labels at ends of lines
-  const customLineLabelsPlugin = {
-    id: 'customLineLabels',
-    afterDatasetsDraw(chart) {
-      const { ctx } = chart;
-      chart.data.datasets.forEach((dataset, i) => {
-        const meta = chart.getDatasetMeta(i);
-        if (!meta.hidden && meta.data.length > 0) {
-          // Right Side Value
-          const lastPoint = meta.data[meta.data.length - 1];
-          const lastValue = dataset.data[dataset.data.length - 1];
-          ctx.fillStyle = dataset.borderColor;
-          ctx.font = "500 11px 'Inter', sans-serif";
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('  ' + fmtK(lastValue), lastPoint.x, lastPoint.y);
-
-          // Left Side Category
-          const firstPoint = meta.data[0];
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(dataset.label, firstPoint.x, firstPoint.y - 8);
-        }
-      });
-    }
-  };
-
-  Chart.register(customLineLabelsPlugin);
-
-  pfTrendChart = new Chart(ctx, {
-    type:'line',
-    data:{
-      labels,
-      datasets:[
-        {label:'Assets', data:assetsData, borderColor:'#00e5a0', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
-        {label:'Cash', data:cashData, borderColor:'#4eb5ff', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6}
-      ]
-    },
-    options:{
-      responsive:true, 
-      maintainAspectRatio:false, 
-      interaction:{mode:'index',intersect:false},
-      layout: { padding: { right: 50 } }, // Room for the M/K text labels
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12,
-          callbacks:{
-            label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}`
-          }
-        }
-      },
-      scales:{
-        y:{ display:false, beginAtZero:false },
-        x:{
-          ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0},
-          grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]}
-        }
-      }
-    }
-  });
-}
-
-// Init dashboard on load
-pfLoadData();
-
-// Service Worker for offline capability
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .catch(err => console.log('SW registration failed:', err));
-  });
-}
-</script>
-</body>
-</html>
+  el
