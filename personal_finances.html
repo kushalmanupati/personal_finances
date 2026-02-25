@@ -68,10 +68,12 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
 .pf-kpi-card.green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
 .pf-kpi-card.blue::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.pf-kpi-card.red::before{background:linear-gradient(90deg,transparent,var(--red),transparent);}
 .pf-kpi-label{font-size:11px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
 .pf-kpi-value{font-size:32px;font-weight:800;margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:-1px;}
 .pf-kpi-value.green{color:var(--green);}
 .pf-kpi-value.blue{color:var(--blue);}
+.pf-kpi-value.red{color:var(--red);}
 .pf-kpi-sub{font-size:11px;color:var(--muted2);min-height:14px;}
 
 /* Chart */
@@ -103,6 +105,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-cat-row{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:8px 12px;border-radius:8px;background:var(--surface2);border:1px solid transparent;transition:all 0.2s;position:relative;}
 .pf-cat-row:hover{border-color:var(--border);background:rgba(255,255,255,0.02);}
 .pf-cat-row.expanded{border-color:var(--border);background:var(--surface);}
+.pf-cat-row.goal-row.expanded{border-color:var(--yellow);background:var(--yellow-dim);}
 .pf-cat-main{display:flex;align-items:center;justify-content:space-between;}
 .pf-cat-left{display:flex;align-items:center;gap:8px;}
 .pf-cat-expand{width:14px;height:14px;color:var(--muted);transition:transform 0.3s;}
@@ -110,6 +113,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-cat-name{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;}
 .pf-cat-subtext {font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
 .pf-cat-count{background:transparent;border:1px solid var(--green);color:var(--text);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;font-family:'Inter',sans-serif;margin-left:4px;}
+.pf-cat-count.yellow { border-color: var(--yellow); }
 .pf-cat-right{text-align:right;}
 .pf-cat-amount{font-size:14px;font-weight:700;color:var(--text);}
 .pf-goal-topval{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
@@ -122,6 +126,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 /* Inline Progress Bar */
 .pf-cat-bar-wrap{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-left:22px;}
 .pf-cat-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.5s ease;}
+.pf-cat-bar.yellow { background: var(--yellow); }
 
 /* Account details (Nested table) */
 .pf-acct-details{margin:6px 0 4px 22px;background:var(--bg);border-radius:6px;padding:12px;display:none;border:1px solid var(--border);}
@@ -147,6 +152,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 }
 .tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
 .tt-title span { color: var(--green); }
+.tt-title span.yellow { color: var(--yellow); }
 .tt-sub { color: var(--muted2); font-size: 11px; margin-bottom: 8px; }
 .tt-action { color: var(--green); font-size: 10px; margin-top: 10px; font-weight: 500; }
 .tt-row { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 6px; }
@@ -213,6 +219,11 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
         <div class="pf-kpi-label">Net Cash</div>
         <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
         <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
+      </div>
+      <div class="pf-kpi-card red" style="display:none;"> 
+        <div class="pf-kpi-label">Liabilities</div>
+        <div class="pf-kpi-value red" id="pf-liabilities">—</div>
+        <div class="pf-kpi-sub">Total negative balances</div>
       </div>
     </div>
 
@@ -316,13 +327,17 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 // PERSONAL FINANCE JAVASCRIPT LOGIC
 // ════════════════════════════════════════════════════════
 
-const PF_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwfy3qzMBgmINz8ekI26juWmND8TeOSjZhUNhtCn3LIiEfID3pvOVKdxtwRO7GvdL6T/exec';
+// WEBHOOK URLS
+const PF_WEBHOOK_DETAILS = 'https://script.google.com/macros/s/AKfycbz7yPg5-MP8GA0hcM-eHrQ5CH8WU09uAwZP0uVU8jCRRrEa2TLezliSEZIg9TpSoG3F/exec';
+const PF_WEBHOOK_EXPENSES = 'https://script.google.com/macros/s/AKfycbx--EJ22tenXx4yUsVGUIOlCjNLd6uDNHFP_sASk0BBrVAMEm1dGvmziwaqGOwdGLim/exec';
+const PF_WEBHOOK_GOALS = 'https://script.google.com/macros/s/AKfycbw7Lqs-QkW4BVVIp584u-5KRvo4passTz5vLCbSH1c2Vn5UrFoNPDd-FclZ2HfIaGjwIw/exec';
+const PF_WEBHOOK_INCOMES = 'https://script.google.com/macros/s/AKfycbxGfZVYSOZR6RX0Yw4sOCDSPYNgvA5uSJKsCPA9U-WIqYuUjPY0j6J5iudQN8V1XpPYXw/exec';
 
 let pfTrendChart = null;
 let GLOBAL_PF_DATA = {};       
 let GLOBAL_SORTED_MONTHS = []; 
-let GLOBAL_AVG_EXPENSE = 0; // For Freedom Math
-let GLOBAL_GOALS = [];      // For Goals Math
+let GLOBAL_AVG_EXPENSE = 0; 
+let GLOBAL_GOALS = [];      
 
 const STABLE_CATEGORIES = ['low interest', 'active savings', 'real estate', 'growth fund'];
 const BAR_COLORS = ['#00e5a0', '#4eb5ff', '#c77dff', '#ffd166', '#ff4e6a'];
@@ -338,17 +353,14 @@ const fmtPct = val => (val > 0 ? '+' : '') + val.toFixed(1) + '%';
 const parseToKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 const keyToLabel = key => {
   const [y, m] = key.split('-');
-  const d = new Date(y, m - 1);
-  return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  return new Date(y, m - 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
 };
 
-// SVG Math Helper
 function setArc(id, pct) {
   const el = document.getElementById(id);
   if(!el) return;
-  const c = 2 * Math.PI * 80; // circumference
-  const dash = (pct / 100) * c;
-  el.setAttribute('stroke-dasharray', `${dash} ${c}`);
+  const c = 2 * Math.PI * 80;
+  el.setAttribute('stroke-dasharray', `${(pct / 100) * c} ${c}`);
 }
 
 function isLiquidCash(category) {
@@ -361,56 +373,72 @@ function isStableAsset(category) {
   return STABLE_CATEGORIES.some(stable => String(category).toLowerCase().trim().includes(stable));
 }
 
-// ── DATA FETCHING ──
+// ── PARALLEL DATA FETCHING ──
 
 function pfLoadData() {
   document.getElementById('pf-setup').classList.remove('hidden');
   document.getElementById('pf-dashboard').classList.add('hidden');
   document.getElementById('pf-error').classList.add('hidden');
 
-  const cb = 'pfCb_' + Date.now();
-  const sc = document.createElement('script');
+  let completedReqs = 0;
+  let hasFailed = false;
+  let allFetchedData = { details: [], expenses: [], goals: [], incomes: [] };
 
   const fallbackTimer = setTimeout(() => {
-    delete window[cb];
-    if(document.body.contains(sc)) document.body.removeChild(sc);
-    console.warn("API timeout, loading fallback data.");
-    pfLoadFallback();
-  }, 15000);
-
-  window[cb] = function(json) {
-    clearTimeout(fallbackTimer);
-    delete window[cb];
-    document.body.removeChild(sc);
-
-    if (json.error) {
-      console.warn("API Error:", json.error);
+    if(completedReqs < 4 && !hasFailed) {
+      hasFailed = true;
+      console.warn("API timeout, loading fallback data.");
       pfLoadFallback();
-      return;
     }
+  }, 10000); 
+
+  function fetchTab(url, key) {
+    const cb = 'pfCb_' + key + '_' + Date.now() + Math.floor(Math.random()*1000);
+    const sc = document.createElement('script');
     
-    const lu = new Date(json.lastUpdated);
-    document.getElementById('pf-date-str').textContent = 'Live · ' +
-      lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
-      lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    window[cb] = function(json) {
+      if(hasFailed) return; 
+      delete window[cb];
+      document.body.removeChild(sc);
+      
+      if (json.error) { hasFailed = true; pfLoadFallback(); return; }
+      
+      allFetchedData[key] = json.data || [];
+      completedReqs++;
+      
+      if(key === 'details' && json.lastUpdated) {
+        const lu = new Date(json.lastUpdated);
+        document.getElementById('pf-date-str').textContent = 'Live · ' +
+          lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
+          lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      }
 
-    pfProcessData(json.data);
-  };
+      if (completedReqs === 4) {
+        clearTimeout(fallbackTimer);
+        pfProcessData(allFetchedData);
+      }
+    };
 
-  sc.onerror = function() {
-    clearTimeout(fallbackTimer);
-    delete window[cb];
-    if(document.body.contains(sc)) document.body.removeChild(sc);
-    pfLoadFallback();
-  };
+    sc.onerror = function() {
+      if(hasFailed) return;
+      hasFailed = true;
+      delete window[cb];
+      document.body.removeChild(sc);
+      pfLoadFallback();
+    };
 
-  sc.src = PF_WEBHOOK + '?callback=' + cb;
-  document.body.appendChild(sc);
+    sc.src = url + '?callback=' + cb;
+    document.body.appendChild(sc);
+  }
+
+  fetchTab(PF_WEBHOOK_DETAILS, 'details');
+  fetchTab(PF_WEBHOOK_EXPENSES, 'expenses');
+  fetchTab(PF_WEBHOOK_GOALS, 'goals');
+  fetchTab(PF_WEBHOOK_INCOMES, 'incomes');
 }
 
 function pfLoadFallback() {
   document.getElementById('pf-date-str').textContent = 'Offline Mode';
-  
   const mockDates = ['Jun 2024','Jul 2024','Aug 2024','Sep 2024','Oct 2024','Nov 2024','Dec 2024',
     'Jan 2025','Feb 2025','Mar 2025','Apr 2025','May 2025','Jun 2025','Jul 2025',
     'Aug 2025','Sep 2025','Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026'];
@@ -428,15 +456,16 @@ function pfLoadFallback() {
     ['A University', '2031', '529 Plan', 97000, 1000000],
     ['Retirement House', '2035', 'Brokerage', 78000, 500000]
   ];
+  let inc = [['Date', 'Type', 'Amount'], ['Feb 2026', 'Dividend', 500]];
 
-  pfProcessData({ "Details in Raw Format": details, "Expenses details": exp, "Goal Mapper": goals });
+  pfProcessData({ details: details, expenses: exp, goals: goals, incomes: inc });
 }
 
 // ── DATA PARSING ──
 
 function pfProcessData(allData) {
-  // 1. Process Main Portfolio (Details in Raw Format)
-  const detailsRaw = allData["Details in Raw Format"] || [];
+  // 1. Process Main Portfolio
+  const detailsRaw = allData.details || [];
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : detailsRaw;
   GLOBAL_PF_DATA = {};
 
@@ -468,19 +497,18 @@ function pfProcessData(allData) {
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
   // 2. Process Expenses (Calculate Average for Freedom Math)
-  const expRaw = allData["Expenses details"] || [];
+  const expRaw = allData.expenses || [];
   const expRows = expRaw.length > 1 ? expRaw.slice(1) : expRaw;
   let totalExp = 0, expCount = 0;
   
-  // Calculate avg of the last 3 entered months for accurate run-rate
   expRows.slice(0, 3).forEach(row => {
     let val = parseFloat(String(row[1]||row[2]||0).replace(/[^0-9.-]+/g,"")); 
     if(!isNaN(val) && val > 0) { totalExp += val; expCount++; }
   });
-  GLOBAL_AVG_EXPENSE = expCount > 0 ? (totalExp / expCount) : 10000; // Fallback to 10k if empty
+  GLOBAL_AVG_EXPENSE = expCount > 0 ? (totalExp / expCount) : 10000; 
 
-  // 3. Process Goals (Goal Mapper)
-  const goalsRaw = allData["Goal Mapper"] || [];
+  // 3. Process Goals
+  const goalsRaw = allData.goals || [];
   const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : goalsRaw;
   let goalMap = {};
 
@@ -519,7 +547,7 @@ function pfProcessData(allData) {
   document.getElementById('pf-dashboard').classList.remove('hidden');
 }
 
-// Tooltip setup
+// Tooltips
 const pfTooltip = document.createElement('div');
 pfTooltip.className = 'rich-tooltip';
 document.body.appendChild(pfTooltip);
@@ -622,8 +650,6 @@ function renderPortfolioSections() {
 
 // ── RENDER GOALS & FREEDOM CROSSOVER ──
 function renderGoalsAndFreedom() {
-  // 1. Freedom Crossover Math
-  // Formula: Target Assets = (Monthly Exp * 12) / 4%
   const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
   const curAssets = GLOBAL_PF_DATA[currentMonthKey]?.assets || 0;
   
@@ -645,7 +671,6 @@ function renderGoalsAndFreedom() {
   `;
   attachTooltip(document.getElementById('pf-freedom-wrap'), frTtHtml);
 
-  // 2. Goal Progress List
   const goalContainer = document.getElementById('pf-goals-container');
   goalContainer.innerHTML = '';
   
@@ -654,7 +679,6 @@ function renderGoalsAndFreedom() {
     return;
   }
 
-  // Sort by closest year
   GLOBAL_GOALS.sort((a,b) => parseInt(a.year) - parseInt(b.year)).forEach((goal, idx) => {
     const pct = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
     const color = BAR_COLORS[idx % BAR_COLORS.length];
@@ -679,13 +703,12 @@ function renderGoalsAndFreedom() {
           <div class="pf-goal-pct">${pct.toFixed(1)}%</div>
         </div>
       </div>
-      <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct}%; background:${color};"></div></div>
+      <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct > 100 ? 100 : pct}%; background:${color};"></div></div>
       <div class="pf-acct-details">${acctRows}</div>
     `;
 
     row.querySelector('.pf-cat-main').addEventListener('click', () => {
       row.classList.toggle('expanded');
-      // Tint the border of the expanded row to match the goal's color
       row.style.borderColor = row.classList.contains('expanded') ? color : 'transparent';
       row.style.background = row.classList.contains('expanded') ? 'rgba(255,255,255,0.03)' : 'var(--surface2)';
     });
@@ -770,4 +793,11 @@ function renderTrendChart() {
 pfLoadData();
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', ()
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
