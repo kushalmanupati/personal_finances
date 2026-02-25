@@ -334,7 +334,7 @@ function pfLoadData() {
     if(document.body.contains(sc)) document.body.removeChild(sc);
     console.warn("API timeout, loading fallback data.");
     pfLoadFallback();
-  }, 6000);
+  }, 15000);
 
   window[cb] = function(json) {
     clearTimeout(fallbackTimer);
