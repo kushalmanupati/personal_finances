@@ -25,6 +25,12 @@ body::before{content:'';position:fixed;inset:0;
   background-image:linear-gradient(rgba(0,229,160,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.03) 1px,transparent 1px);
   background-size:40px 40px;pointer-events:none;z-index:0;}
 
+/* Scrollbar styles */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
 .wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px;}
 
 /* Header */
@@ -34,9 +40,6 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .logo-title span{color:var(--green);}
 .logo-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
 .header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
-.live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(0,229,160,0.3);padding:4px 10px;border-radius:20px;font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .date-str{font-size:11px;color:var(--muted);}
 
 /* Filter Bar */
@@ -75,7 +78,7 @@ select.asset-select:focus{border-color:var(--green);}
 .kpi-card.red .kpi-value{color:var(--red);}
 .kpi-card.yellow .kpi-value{color:var(--yellow);}
 .kpi-card.blue .kpi-value{color:var(--blue);}
-.kpi-sub{font-size:11px;color:var(--muted2);}
+.kpi-sub{font-size:11px;color:var(--muted2);min-height:14px;}
 
 /* Grids */
 .grid-donut-bar{display:grid;grid-template-columns:2fr 3fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
@@ -114,6 +117,7 @@ select.asset-select:focus{border-color:var(--green);}
 .badge.blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(78,181,255,0.2);}
 .badge.yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
 .badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,78,106,0.2);}
+.badge.closed{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
 
 /* Donut */
 .donut-wrap{display:flex;align-items:center;justify-content:center;padding:10px 0;}
@@ -165,7 +169,6 @@ select.asset-select:focus{border-color:var(--green);}
       <div class="logo-sub">Covered Call Strategy Tracker</div>
     </div>
     <div class="header-right">
-      <div class="live-badge"><div class="live-dot"></div>Live Tracker</div>
       <div class="date-str" id="opt-date-str">Last updated: —</div>
     </div>
   </header>
@@ -200,11 +203,11 @@ select.asset-select:focus{border-color:var(--green);}
   </div>
 
   <div class="kpi-row">
-    <div class="kpi-card green"><div class="kpi-label">Total Premium Received</div><div class="kpi-value" id="kpi-premium">—</div><div class="kpi-sub">Filtered selection</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Total Premium Received</div><div class="kpi-value" id="kpi-premium">—</div></div>
     <div class="kpi-card green"><div class="kpi-label">Total Money Made</div><div class="kpi-value" id="kpi-made">—</div><div class="kpi-sub">Premium + Stock P/L</div></div>
     <div class="kpi-card red"><div class="kpi-label">Stock P/L (Realized)</div><div class="kpi-value" id="kpi-stockpl">—</div><div class="kpi-sub">Net realized stock moves</div></div>
     <div class="kpi-card yellow"><div class="kpi-label">Return on Capital</div><div class="kpi-value" id="kpi-roc">—</div><div class="kpi-sub" id="kpi-roc-sub">On filtered capital</div></div>
-    <div class="kpi-card blue"><div class="kpi-label">Total Capital Deployed</div><div class="kpi-value" id="kpi-capital">—</div><div class="kpi-sub" id="kpi-capital-sub">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Total Capital Deployed</div><div class="kpi-value" id="kpi-capital">—</div><div class="kpi-sub" id="kpi-capital-sub"></div></div>
   </div>
 
   <div class="grid-full section-gap" id="trend-chart-row">
@@ -234,6 +237,7 @@ select.asset-select:focus{border-color:var(--green);}
           <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="20"/>
           <circle id="donut-assigned" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#4eb5ff" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
           <circle id="donut-expired" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#00e5a0" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+          <circle id="donut-closed" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#8892a4" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
           <circle id="donut-active" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#ffd166" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
           <circle id="donut-loss" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#ff4e6a" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
           <text id="donut-count" x="100" y="94" text-anchor="middle" font-size="34" font-family="Syne" font-weight="700" fill="#e8edf3">0</text>
@@ -243,8 +247,8 @@ select.asset-select:focus{border-color:var(--green);}
     </div>
     <div class="card">
       <div class="card-title"><span></span>Profit Per Trade (Premium)</div>
-      <div class="bar-chart" id="premium-bars"></div>
-      <div style="margin-top:10px;font-size:10px;color:var(--muted)">⚡ = Active/Open &nbsp;·&nbsp; ✗ = Net Loss</div>
+      <div class="bar-chart" id="premium-bars" style="max-height: 250px; overflow-y: auto; padding-right: 8px;"></div>
+      <div style="margin-top:14px;font-size:10px;color:var(--muted)">⚡ = Active/Open &nbsp;·&nbsp; ✗ = Net Loss</div>
     </div>
   </div>
 
@@ -281,6 +285,13 @@ select.asset-select:focus{border-color:var(--green);}
         <tbody id="trade-tbody"></tbody>
       </table>
       <div id="trade-empty" class="no-data" style="display:none">No trades match current filters.</div>
+      
+      <div style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">Show</div>
+        <div class="chip log-limit active" onclick="setLogLimit(10, this)">Top-10</div>
+        <div class="chip log-limit" onclick="setLogLimit(20, this)">Top-20</div>
+        <div class="chip log-limit" onclick="setLogLimit('all', this)">All</div>
+      </div>
     </div>
   </div>
 
@@ -308,6 +319,7 @@ const OPT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxBd1UrtpB9iFc7iNV0
 
 let TRADES   = [];
 let DEPOSITS = {};
+let logLimit = 10; // Default trades to show in log
 
 const COLOR_PALETTE = ['var(--blue)','var(--green)','var(--yellow)','#c77dff','#ff9f1c','var(--red)','#2ec4b6'];
 const COLORS_MAP    = {};
@@ -316,14 +328,16 @@ function getColor(asset) {
   return COLORS_MAP[asset];
 }
 
+// Formatting strictly without decimals
 const fmtNum = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(Math.round(v)).toLocaleString() : '$' + Math.round(v).toLocaleString());
-const fmtDec = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(v).toFixed(2) : '$' + parseFloat(v).toFixed(2));
+const fmtDec = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(Math.round(v)).toLocaleString() : '$' + Math.round(v).toLocaleString());
 const fmtK   = v => Math.abs(v) >= 1000 ? (v<0?'-':'')+'$'+(Math.abs(v)/1000).toFixed(0)+'K' : '$'+Math.round(v);
 
 function badge(s) {
   if(s==='assigned') return '<span class="badge blue">Assigned ✓</span>';
   if(s==='expired')  return '<span class="badge green">Expired ✓</span>';
   if(s==='loss')     return '<span class="badge red">Net Loss ✗</span>';
+  if(s==='closed')   return '<span class="badge closed">Closed</span>';
   return '<span class="badge yellow">Active ⚡</span>';
 }
 
@@ -334,8 +348,7 @@ function parseStatus(indicator, totalPL) {
   if (/Assignment|Assigned/i.test(ind))    return 'assigned';
   if (/Expired|Worthless/i.test(ind))      return 'expired';
   if (/Active/i.test(ind))                 return 'active';
-  if (/Closed/i.test(ind) && totalPL==null) return 'active';
-  if (/Closed/i.test(ind) && totalPL!=null) return 'expired';
+  if (/Closed/i.test(ind))                 return 'closed'; 
   return totalPL != null ? 'expired' : 'active';
 }
 
@@ -397,7 +410,7 @@ function loadFallback() {
     {date:'2026-02-13',asset:'QQQ',name:'QQQ 602 20Feb',expiry:'20 Feb',days:7,premium:838,totalPL:938,ppd:134,status:'assigned',stockPL:100,capitalLocked:60100},
     {date:'2026-02-18',asset:'QQQ',name:'QQQ 606 19Feb',expiry:'19 Feb',days:1,premium:296,totalPL:296,ppd:296,status:'expired',stockPL:0,capitalLocked:60650},
     {date:'2026-02-20',asset:'QQQ',name:'QQQ 604 23Feb',expiry:'23 Feb',days:3,premium:407,totalPL:null,ppd:136,status:'active',stockPL:0,capitalLocked:60350},
-    {date:'2026-02-12',asset:'GRAB',name:'GRAB $4.5 13Feb',expiry:'13 Feb',days:1,premium:14,totalPL:14,ppd:14,status:'expired',stockPL:0,capitalLocked:440},
+    {date:'2026-02-12',asset:'GRAB',name:'GRAB $4.5 13Feb',expiry:'13 Feb',days:1,premium:14,totalPL:14,ppd:14,status:'closed',stockPL:0,capitalLocked:440},
     {date:'2026-02-22',asset:'USAS',name:'USAS $8',expiry:'17 Apr',days:54,premium:190,totalPL:null,ppd:4,status:'active',stockPL:0,capitalLocked:744},
   ];
   DEPOSITS={QQQ:180750,GRAB:838,USAS:744};
@@ -451,8 +464,6 @@ function renderTrendChart(data) {
     dayMap[d].net += (t.premium || 0) + (t.stockPL || 0);
   });
 
-  const from = document.getElementById('date-from').value;
-  const to   = document.getElementById('date-to').value;
   const allDays = Object.keys(dayMap).sort();
 
   const labels = [], cumPremium = [], cumNet = [];
@@ -461,8 +472,8 @@ function renderTrendChart(data) {
     sumP += dayMap[d].premium;
     sumN += dayMap[d].net;
     labels.push(d);
-    cumPremium.push(parseFloat(sumP.toFixed(2)));
-    cumNet.push(parseFloat(sumN.toFixed(2)));
+    cumPremium.push(Math.round(sumP));
+    cumNet.push(Math.round(sumN));
   });
 
   const fmtLabel = d => {
@@ -527,7 +538,7 @@ function renderTrendChart(data) {
           bodyColor: '#8892a4',
           padding: 12,
           callbacks: {
-            label: c => ' ' + c.dataset.label + ': $' + c.parsed.y.toFixed(2)
+            label: c => ' ' + c.dataset.label + ': $' + Math.round(c.parsed.y).toLocaleString()
           }
         }
       },
@@ -537,13 +548,8 @@ function renderTrendChart(data) {
           grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false }
         },
         y: {
-          beginAtZero: true,
-          ticks: {
-            color: '#5a6478',
-            font: { size: 11, family: "'DM Mono', monospace" },
-            callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'K' : v)
-          },
-          grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false }
+          display: false, // Y-axis hidden
+          beginAtZero: true
         }
       }
     }
@@ -556,14 +562,15 @@ function renderKPI(data) {
   const made=premium+stockPL;
   const af=document.getElementById('asset-filter').value;
   const totalCap=af==='ALL'?Object.values(DEPOSITS).reduce((s,v)=>s+v,0):(DEPOSITS[af]||0);
-  const capAssets=af==='ALL'?Object.keys(DEPOSITS):[af];
-  const roc=totalCap>0?((premium/totalCap)*100).toFixed(2):'0.00';
+  
+  const roc = totalCap > 0 ? ((premium/totalCap)*100).toFixed(2) : '0.00';
+  
   document.getElementById('kpi-premium').textContent=fmtDec(premium);
   document.getElementById('kpi-made').textContent=fmtDec(made);
   document.getElementById('kpi-roc').textContent=roc+'%';
   document.getElementById('kpi-roc-sub').textContent='On '+fmtNum(totalCap)+' capital';
   document.getElementById('kpi-capital').textContent=fmtK(totalCap);
-  document.getElementById('kpi-capital-sub').textContent=capAssets.join(' · ');
+  
   const spEl=document.getElementById('kpi-stockpl');
   spEl.textContent=fmtDec(stockPL);
   spEl.style.color=stockPL<0?'var(--red)':stockPL>0?'var(--green)':'var(--muted2)';
@@ -594,16 +601,18 @@ function renderDonut(data) {
   const n = data.length || 1;
   const a = data.filter(t => t.status === 'assigned').length;
   const e = data.filter(t => t.status === 'expired').length;
+  const cl = data.filter(t => t.status === 'closed').length;
   const ac = data.filter(t => t.status === 'active').length;
   const l = data.filter(t => t.status === 'loss').length;
   
   const C = 2 * Math.PI * 80;
-  const aL = (a / n) * C, eL = (e / n) * C, acL = (ac / n) * C, lL = (l / n) * C;
+  const aL = (a / n) * C, eL = (e / n) * C, clL = (cl / n) * C, acL = (ac / n) * C, lL = (l / n) * C;
   
   setArc('donut-assigned', aL, C, 0); 
   setArc('donut-expired', eL, C, -aL);
-  setArc('donut-active', acL, C, -(aL + eL)); 
-  setArc('donut-loss', lL, C, -(aL + eL + acL));
+  setArc('donut-closed', clL, C, -(aL + eL)); 
+  setArc('donut-active', acL, C, -(aL + eL + clL)); 
+  setArc('donut-loss', lL, C, -(aL + eL + clL + acL));
   
   document.getElementById('donut-count').textContent = data.length;
 
@@ -614,6 +623,7 @@ function renderDonut(data) {
 
   setTip('donut-assigned', 'Perfect Assignment', a);
   setTip('donut-expired', 'Expired Worthless', e);
+  setTip('donut-closed', 'Closed', cl);
   setTip('donut-active', 'Active / Open', ac);
   setTip('donut-loss', 'Net Loss', l);
 }
@@ -628,32 +638,36 @@ function renderPremiumBars(data) {
   const sorted=[...data].sort((a,b)=>b.premium-a.premium);
   const max=Math.max(...sorted.map(t=>t.premium),1);
   document.getElementById('premium-bars').innerHTML=sorted.length
-    ?sorted.map(t=>`<div class="bar-row"><div class="bar-label">${t.name}</div><div class="bar-track"><div class="bar-fill" style="width:${(t.premium/max*100).toFixed(1)}%;background:${getColor(t.asset)}"></div></div><div class="bar-val">${fmtDec(t.premium)}${t.status==='active'?' ⚡':t.status==='loss'?' ✗':''}</div></div>`).join('')
+    ?sorted.map(t=>`<div class="bar-row"><div class="bar-label">${t.name}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(t.premium/max*100)}%;background:${getColor(t.asset)}"></div></div><div class="bar-val">${fmtDec(t.premium)}${t.status==='active'?' ⚡':t.status==='loss'?' ✗':''}</div></div>`).join('')
     :'<div class="no-data">No data</div>';
 }
 
 function renderRatios(data) {
   if(!data.length){document.getElementById('ratio-grid').innerHTML='<div class="no-data">No data</div>';return;}
-  const premium=data.reduce((s,t)=>s+(t.premium||0),0);
-  const closed=data.filter(t=>t.status!=='active');
-  const wins=data.filter(t=>t.status==='assigned'||t.status==='expired');
-  const losses=data.filter(t=>t.status==='loss');
-  const winRate=closed.length?Math.round((wins.length/closed.length)*100):0;
-  const ppds=data.map(t=>t.ppd).filter(v=>v>0);
-  const bestPPD=ppds.length?Math.max(...ppds).toFixed(2):0;
-  const avgPrem=(premium/data.length).toFixed(2);
-  const stockPL=data.reduce((s,t)=>s+(t.stockPL||0),0);
-  const af=document.getElementById('asset-filter').value;
-  const totalCap=af==='ALL'?Object.values(DEPOSITS).reduce((s,v)=>s+v,0):(DEPOSITS[af]||0);
-  const rocPct=totalCap>0?((premium/totalCap)*100).toFixed(2):'0.00';
-  const annROC=totalCap>0?((premium/totalCap)*52*100).toFixed(1):'0.0';
-  const effPct=totalCap>0?((stockPL/totalCap)*100).toFixed(2):'0.00';
+  const premium = data.reduce((s,t)=>s+(t.premium||0),0);
+  const closed = data.filter(t=>t.status!=='active');
+  const wins = data.filter(t=>t.status==='assigned'||t.status==='expired'||t.status==='closed');
+  const losses = data.filter(t=>t.status==='loss');
+  const winRate = closed.length ? Math.round((wins.length/closed.length)*100) : 0;
+  const avgPrem = Math.round(premium/data.length);
+  const stockPL = data.reduce((s,t)=>s+(t.stockPL||0),0);
+  const af = document.getElementById('asset-filter').value;
+  const totalCap = af==='ALL'?Object.values(DEPOSITS).reduce((s,v)=>s+v,0):(DEPOSITS[af]||0);
+  
+  // Calculate Annualized ROC
+  const minTime = Math.min(...data.map(t=>new Date(t.date).getTime()));
+  const maxTime = Math.max(...data.map(t=>new Date(t.date).getTime()));
+  const activeDays = (data.length > 1 && maxTime > minTime) ? (maxTime - minTime) / (1000 * 3600 * 24) : 1;
+  const rocPctVal = totalCap > 0 ? (premium / totalCap) : 0;
+  const annROC = Math.round((rocPctVal / activeDays) * 365 * 100);
+  
+  const effPct = totalCap>0 ? ((stockPL/totalCap)*100).toFixed(2) : '0.00';
+  
   document.getElementById('ratio-grid').innerHTML=`
     <div class="ratio-item"><div><div class="ratio-name">Win Rate (closed)</div><div class="ratio-sub">${wins.length} wins / ${closed.length} closed</div></div><div class="ratio-value" style="color:var(--green)">${winRate}%</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Loss Rate (closed)</div><div class="ratio-sub">${losses.length} net loss / ${closed.length} closed</div></div><div class="ratio-value" style="color:${losses.length>0?'var(--red)':'var(--muted2)'}">${closed.length?Math.round((losses.length/closed.length)*100):0}%</div></div>
-    <div class="ratio-item"><div><div class="ratio-name">Annualized ROC</div><div class="ratio-sub">${rocPct}% × 52 wks</div></div><div class="ratio-value" style="color:var(--yellow)">~${annROC}%</div></div>
-    <div class="ratio-item"><div><div class="ratio-name">Avg Premium / Trade</div><div class="ratio-sub">$${parseFloat(premium).toFixed(0)} / ${data.length} trades</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPrem}</div></div>
-    <div class="ratio-item"><div><div class="ratio-name">Best Profit/Day</div></div><div class="ratio-value" style="color:var(--green)">$${bestPPD}/d</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Annualized ROC</div><div class="ratio-sub">Based on ${Math.round(activeDays)} active days</div></div><div class="ratio-value" style="color:var(--yellow)">~${annROC}%</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Avg Premium / Trade</div><div class="ratio-sub">$${Math.round(premium)} / ${data.length} trades</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPrem}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Capital Efficiency</div><div class="ratio-sub">Stock P/L vs capital</div></div><div class="ratio-value" style="color:${stockPL<0?'var(--red)':'var(--green)'}">${effPct}%</div></div>`;
 }
 
@@ -662,7 +676,7 @@ function renderCapitalBars(data) {
   const src=af==='ALL'?DEPOSITS:{[af]:DEPOSITS[af]||0};
   const max=Math.max(...Object.values(src),1);
   document.getElementById('capital-bars').innerHTML=Object.entries(src).sort((a,b)=>b[1]-a[1])
-    .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtK(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
+    .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtK(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
 }
 
 function renderTickerBars(data) {
@@ -670,22 +684,23 @@ function renderTickerBars(data) {
   data.forEach(t=>{byAsset[t.asset]=(byAsset[t.asset]||0)+(t.premium||0);});
   const max=Math.max(...Object.values(byAsset),1);
   document.getElementById('ticker-bars').innerHTML=Object.entries(byAsset).sort((a,b)=>b[1]-a[1])
-    .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtDec(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
+    .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtDec(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
 }
 
 function renderTradeSummary(data) {
   const n=data.length;
   const asgn=data.filter(t=>t.status==='assigned').length;
   const exp=data.filter(t=>t.status==='expired').length;
+  const cl=data.filter(t=>t.status==='closed').length;
   const act=data.filter(t=>t.status==='active').length;
   const loss=data.filter(t=>t.status==='loss').length;
   const ppds=data.map(t=>t.ppd).filter(v=>v>0);
-  const avgPPD=ppds.length?(ppds.reduce((s,v)=>s+v,0)/ppds.length).toFixed(2):0;
+  const avgPPD=ppds.length?Math.round(ppds.reduce((s,v)=>s+v,0)/ppds.length):0;
   
   document.getElementById('trade-summary').innerHTML=n?`
     <div class="ratio-item"><div><div class="ratio-name">Total Trades</div></div><div class="ratio-value" style="color:var(--text)">${n}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Perfect Assignments</div></div><div class="ratio-value" style="color:var(--blue)">${asgn}</div></div>
-    <div class="ratio-item"><div><div class="ratio-name">Expired Worthless</div></div><div class="ratio-value" style="color:var(--green)">${exp}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Expired / Closed</div></div><div class="ratio-value" style="color:var(--green)">${exp + cl}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Active / Open</div></div><div class="ratio-value" style="color:var(--yellow)">${act}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Net Loss Trades</div></div><div class="ratio-value" style="color:${loss>0?'var(--red)':'var(--muted2)'}">${loss}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Avg P/Day</div><div class="ratio-sub">Positive trades only</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPPD}/d</div></div>`
@@ -703,35 +718,50 @@ function renderPdayGrid(data) {
       return `<div class="pday-cell" style="${isLoss?'border-color:rgba(255,78,106,0.3);background:rgba(255,78,106,0.04)':''}">
         <div class="pday-header"><div class="pday-asset" style="color:${col}">${t.asset}</div>${badge(t.status)}</div>
         <div class="pday-expiry">Expiry: <strong style="color:var(--text)">${t.expiry}</strong> · ${t.days}d</div>
-        <div class="pday-rate" style="color:${col}">${isLoss?'-':''}$${Math.abs(t.ppd).toFixed(2)}<span style="font-size:12px;font-weight:400;color:var(--muted2)">/day</span></div>
+        <div class="pday-rate" style="color:${col}">${isLoss?'-':''}$${Math.round(Math.abs(t.ppd))}<span style="font-size:12px;font-weight:400;color:var(--muted2)">/day</span></div>
         <div style="font-size:10px;color:var(--muted)">Premium: ${fmtDec(t.premium)}</div>
-        <div class="pday-bar-wrap"><div class="pday-bar-inner" style="width:${isLoss?0:(t.ppd/maxPPD*100).toFixed(1)}%;background:${col}"></div></div>
+        <div class="pday-bar-wrap"><div class="pday-bar-inner" style="width:${isLoss?0:Math.round((t.ppd/maxPPD)*100)}%;background:${col}"></div></div>
         <div class="pday-meta"><span>${t.name}</span><span>${t.status==='active'?'Open':'Closed'}</span></div>
       </div>`;
     }).join('')
     :'<div class="no-data">No trades match filters.</div>';
   if(posPPDs.length){
-    document.getElementById('ppd-best').textContent='$'+Math.max(...posPPDs).toFixed(2)+'/d';
-    document.getElementById('ppd-avg').textContent='$'+(posPPDs.reduce((s,v)=>s+v,0)/posPPDs.length).toFixed(2)+'/d';
-    document.getElementById('ppd-worst').textContent='$'+Math.min(...posPPDs).toFixed(2)+'/d';
+    document.getElementById('ppd-best').textContent='$'+Math.round(Math.max(...posPPDs))+'/d';
+    document.getElementById('ppd-avg').textContent='$'+Math.round(posPPDs.reduce((s,v)=>s+v,0)/posPPDs.length)+'/d';
+    document.getElementById('ppd-worst').textContent='$'+Math.round(Math.min(...posPPDs))+'/d';
   }
+}
+
+// Function to handle switching row count limit in trade log table
+function setLogLimit(val, el) {
+  logLimit = val;
+  document.querySelectorAll('.log-limit').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
 }
 
 function renderTradeLog(data) {
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('trade-tbody').innerHTML=sorted.map(t=>{
-    const ia=t.status==='assigned',iac=t.status==='active',il=t.status==='loss';
-    const nc=ia?'var(--blue)':iac?'var(--yellow)':il?'var(--red)':'var(--muted2)';
+  const limited = logLimit === 'all' ? sorted : sorted.slice(0, logLimit);
+  
+  document.getElementById('trade-tbody').innerHTML=limited.map(t=>{
+    const ia=t.status==='assigned',iac=t.status==='active',il=t.status==='loss',icl=t.status==='closed';
+    const nc=ia?'var(--blue)':iac?'var(--yellow)':il?'var(--red)':icl?'var(--text)':'var(--muted2)';
     const plC=t.totalPL==null?'c-yellow':ia?'c-blue':il?'c-red':'c-green';
     const ppdC=iac?'c-yellow':ia?'c-blue':il?'c-red':'c-green';
+    
+    // Format to "DD MMM"
+    const dObj = new Date(t.date);
+    const dateStr = isNaN(dObj) ? t.date : dObj.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+
     return `<tr style="background:${il?'rgba(255,78,106,0.06)':''}">
-      <td>${t.date?t.date.slice(5).replace('-',' '):'—'}</td>
+      <td>${dateStr}</td>
       <td style="color:${getColor(t.asset)};font-weight:500">${t.asset}</td>
       <td style="color:${nc}">${t.name}</td>
       <td>${t.days}</td>
       <td class="${ia?'c-blue':il?'c-red':'c-green'}">${fmtDec(t.premium)}</td>
       <td class="${plC}">${fmtDec(t.totalPL)}</td>
-      <td class="${ppdC}">${t.ppd<0?'-$'+Math.abs(t.ppd).toFixed(2):'$'+parseFloat(t.ppd).toFixed(2)}</td>
+      <td class="${ppdC}">${t.ppd<0?'-$'+Math.round(Math.abs(t.ppd)):'$'+Math.round(t.ppd)}</td>
       <td>${t.expiry}</td>
       <td>${badge(t.status)}</td>
     </tr>`;
