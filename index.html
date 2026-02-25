@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance Hub</title>
+<title>Options Alpha - Strategy Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <style>
 /* ══════════════════════════════════════════════════════
-   SHARED / TAB CHROME
+   GLOBAL CHROME & THEME
 ══════════════════════════════════════════════════════ */
 :root {
   --bg:#0a0c0f; --surface:#111418; --surface2:#181c22; --border:#1e2530;
@@ -25,21 +25,10 @@ body::before{content:'';position:fixed;inset:0;
   background-image:linear-gradient(rgba(0,229,160,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.03) 1px,transparent 1px);
   background-size:40px 40px;pointer-events:none;z-index:0;}
 
-/* ── Tab bar ── */
-.tab-bar{position:relative;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:4px;}
-.tab-btn{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:16px 20px;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;}
-.tab-btn:hover{color:var(--text);}
-.tab-btn.active{color:var(--green);border-bottom-color:var(--green);}
-.tab-badge{display:inline-block;background:var(--green-dim);color:var(--green);border:1px solid rgba(0,229,160,0.3);border-radius:20px;font-size:9px;padding:1px 7px;margin-left:6px;letter-spacing:0.5px;}
-.tab-panel{display:none;}
-.tab-panel.active{display:block;}
+.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px;}
 
-/* ══════════════════════════════════════════════════════
-   OPTIONS DASHBOARD STYLES
-══════════════════════════════════════════════════════ */
-#tab-options .wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px;}
 /* Header */
-#tab-options header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
 .logo{display:flex;flex-direction:column;gap:4px;}
 .logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.5px;}
 .logo-title span{color:var(--green);}
@@ -49,6 +38,7 @@ body::before{content:'';position:fixed;inset:0;
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .date-str{font-size:11px;color:var(--muted);}
+
 /* Filter Bar */
 .filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:24px;animation:fadeUp 0.4s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -69,6 +59,7 @@ select.asset-select:focus{border-color:var(--green);}
 .filter-clear{font-size:10px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid transparent;transition:all 0.15s;white-space:nowrap;margin-left:auto;font-family:'DM Mono',monospace;background:none;}
 .filter-clear:hover{color:var(--red);border-color:var(--red-dim);background:var(--red-dim);}
 #filter-status{font-size:10px;color:var(--green);background:var(--green-dim);border:1px solid rgba(0,229,160,0.2);border-radius:20px;padding:3px 10px;display:none;}
+
 /* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px;animation:fadeUp 0.5s ease both;}
 .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:border-color 0.2s;}
@@ -85,6 +76,7 @@ select.asset-select:focus{border-color:var(--green);}
 .kpi-card.yellow .kpi-value{color:var(--yellow);}
 .kpi-card.blue .kpi-value{color:var(--blue);}
 .kpi-sub{font-size:11px;color:var(--muted2);}
+
 /* Grids */
 .grid-donut-bar{display:grid;grid-template-columns:2fr 3fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
 @media(max-width:900px){.grid-donut-bar{grid-template-columns:1fr;}}
@@ -92,9 +84,11 @@ select.asset-select:focus{border-color:var(--green);}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.65s ease both;}
 .grid-full{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.7s ease both;}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;}
 .card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
 .card-title span{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;}
+
 /* Bar chart */
 .bar-chart{display:flex;flex-direction:column;gap:10px;}
 .bar-row{display:flex;align-items:center;gap:12px;}
@@ -102,6 +96,7 @@ select.asset-select:focus{border-color:var(--green);}
 .bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
 .bar-val{font-size:11px;color:var(--text);width:70px;text-align:right;flex-shrink:0;}
+
 /* Trades table */
 .trades-table{width:100%;border-collapse:collapse;font-size:12px;}
 .trades-table th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:500;}
@@ -112,24 +107,28 @@ select.asset-select:focus{border-color:var(--green);}
 .trades-table td.c-blue{color:var(--blue);}
 .trades-table td.c-yellow{color:var(--yellow);}
 .trades-table td.c-red{color:var(--red);}
+
 /* Badges */
 .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;letter-spacing:0.5px;}
 .badge.green{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,229,160,0.2);}
 .badge.blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(78,181,255,0.2);}
 .badge.yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
 .badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,78,106,0.2);}
+
 /* Donut */
 .donut-wrap{display:flex;align-items:center;justify-content:center;padding:10px 0;}
 .donut-wrap svg{width:100%;max-width:240px;height:auto;overflow:visible;}
 .donut-arc{transition:opacity 0.2s, stroke-width 0.2s;cursor:pointer;}
 .donut-arc:hover{opacity:0.8;stroke-width:24;}
 .chart-tooltip{position:absolute;background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:11px;color:var(--text);pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-family:'DM Mono',monospace;white-space:nowrap;}
+
 /* Ratios */
 .ratio-grid{display:flex;flex-direction:column;gap:10px;}
 .ratio-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
 .ratio-name{font-size:11px;color:var(--muted2);}
 .ratio-sub{font-size:10px;color:var(--muted);}
 .ratio-value{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+
 /* P/Day grid */
 .pday-grid-wide{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
 .pday-cell{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color 0.2s,background 0.2s;}
@@ -141,6 +140,7 @@ select.asset-select:focus{border-color:var(--green);}
 .pday-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:8px;}
 .pday-bar-inner{height:100%;border-radius:2px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
 .pday-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px;}
+
 /* Insights */
 .insights{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
 .insight{padding:14px 16px;border-radius:8px;border-left:3px solid;font-size:12px;line-height:1.6;color:var(--muted2);}
@@ -151,113 +151,14 @@ select.asset-select:focus{border-color:var(--green);}
 .insight.good strong{color:var(--green);}
 .insight.warn strong{color:var(--yellow);}
 .insight.info strong{color:var(--blue);}
+
 .no-data{text-align:center;padding:20px;font-size:12px;color:var(--muted);}
 .section-gap{margin-bottom:16px;}
-
-/* ══════════════════════════════════════════════════════
-   PERSONAL FINANCE STYLES
-══════════════════════════════════════════════════════ */
-#tab-finance{font-family:'Inter',sans-serif;}
-#tab-finance .pf-wrap{max-width:1400px;margin:0 auto;padding:32px 24px;position:relative;z-index:1;}
-#tab-finance h1{font-size:32px;font-weight:700;color:#10b981;margin-bottom:28px;font-family:'Syne',sans-serif;}
-
-/* PF KPI */
-#tab-finance .pf-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px;}
-#tab-finance .pf-kpi-card{background:#111418;border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s;}
-#tab-finance .pf-kpi-card:hover{border-color:#374151;}
-#tab-finance .pf-kpi-label{font-size:13px;color:#888;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-#tab-finance .pf-kpi-value{font-size:38px;font-weight:800;color:#10b981;margin-bottom:4px;font-family:'Syne',sans-serif;}
-#tab-finance .pf-kpi-value.blue{color:#3b82f6;}
-#tab-finance .pf-kpi-value.bright{color:#00ff88;}
-#tab-finance .pf-kpi-sub{font-size:12px;color:#666;}
-#tab-finance .runway-badge{display:inline-block;background:#00ff88;color:#000;padding:6px 14px;border-radius:8px;font-weight:700;font-size:17px;}
-
-/* PF Portfolio grid */
-#tab-finance .pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:32px;}
-@media(max-width:900px){#tab-finance .pf-portfolio-grid{grid-template-columns:1fr;}}
-#tab-finance .pf-card{background:#111418;border:1px solid var(--border);border-radius:16px;padding:28px;}
-#tab-finance .pf-card-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
-#tab-finance .pf-card-title{font-size:18px;font-weight:700;color:#fff;font-family:'Syne',sans-serif;}
-#tab-finance .pf-card-sub{font-size:13px;color:#666;margin-top:3px;}
-
-/* Category rows */
-#tab-finance .pf-categories{display:flex;flex-direction:column;gap:16px;}
-#tab-finance .pf-cat-row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px;border-radius:12px;transition:all 0.2s;position:relative;}
-#tab-finance .pf-cat-row:hover{background:#1a1a1a;}
-#tab-finance .pf-cat-row.expanded{background:#1a1a1a;border:1px solid #10b981;padding:11px;}
-#tab-finance .pf-cat-expand{width:18px;height:18px;color:#666;flex-shrink:0;transition:transform 0.3s;}
-#tab-finance .pf-cat-row.expanded .pf-cat-expand{transform:rotate(90deg);}
-#tab-finance .pf-cat-info{flex:1;}
-#tab-finance .pf-cat-name{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-#tab-finance .pf-cat-label{font-size:14px;font-weight:600;color:#fff;}
-#tab-finance .pf-cat-count{background:#1a1a1a;border:1px solid #333;padding:2px 8px;border-radius:12px;font-size:10px;color:#888;}
-#tab-finance .pf-cat-bar-wrap{height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;}
-#tab-finance .pf-cat-bar{height:100%;background:#10b981;border-radius:3px;transition:width 0.5s ease;}
-#tab-finance .pf-cat-vals{display:flex;justify-content:space-between;margin-top:6px;}
-#tab-finance .pf-cat-amount{font-size:15px;font-weight:700;color:#fff;}
-#tab-finance .pf-cat-change{font-size:12px;font-weight:600;}
-#tab-finance .pf-cat-change.pos{color:#10b981;}
-#tab-finance .pf-cat-change.neg{color:#ef4444;}
-#tab-finance .pf-cat-change.neu{color:#666;}
-
-/* Tooltip */
-#tab-finance .pf-tooltip{position:absolute;top:-90px;left:50%;transform:translateX(-50%);background:#000;border:1px solid #333;border-radius:12px;padding:14px;min-width:280px;z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.2s;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
-#tab-finance .pf-cat-row:hover .pf-tooltip{opacity:1;}
-#tab-finance .tt-header{font-size:13px;font-weight:600;color:#fff;margin-bottom:6px;}
-#tab-finance .tt-pct{color:#10b981;font-weight:700;}
-#tab-finance .tt-yoy{font-size:12px;color:#888;margin-top:3px;}
-#tab-finance .tt-link{font-size:11px;color:#10b981;margin-top:6px;}
-
-/* Account details */
-#tab-finance .pf-acct-details{margin-top:14px;background:#0a0a0a;border-radius:8px;padding:14px;display:none;}
-#tab-finance .pf-cat-row.expanded .pf-acct-details{display:block;}
-#tab-finance .pf-acct-table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:6px 0;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.05em;}
-#tab-finance .pf-acct-table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:10px 0;border-top:1px solid #1a1a1a;font-size:13px;}
-#tab-finance .pf-acct-name{color:#fff;}
-#tab-finance .pf-acct-bal{color:#fff;font-weight:600;}
-#tab-finance .pf-acct-mom,.pf-acct-yoy{font-size:12px;font-weight:600;}
-#tab-finance .pf-acct-total{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:10px 0;margin-top:6px;border-top:2px solid #1a1a1a;font-size:13px;font-weight:700;}
-#tab-finance .pos{color:#10b981;}
-#tab-finance .neg{color:#ef4444;}
-#tab-finance .neu{color:#666;}
-
-/* Anti-fragility */
-#tab-finance .pf-circle-wrap{position:relative;width:260px;height:260px;margin:0 auto;}
-#tab-finance .pf-circle-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-#tab-finance .pf-circle-pct{font-size:52px;font-weight:800;color:#10b981;line-height:1;font-family:'Syne',sans-serif;}
-#tab-finance .pf-circle-lbl{font-size:14px;color:#888;margin-top:6px;}
-
-/* Chart */
-#tab-finance .pf-chart-card{background:#111418;border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px;}
-#tab-finance .pf-chart-title{font-size:18px;font-weight:700;margin-bottom:20px;font-family:'Syne',sans-serif;color:#fff;}
-#tab-finance canvas{max-height:360px;}
-
-/* PF setup / load screen */
-#tab-finance .pf-setup{background:#111418;border:1px solid var(--border);border-radius:16px;padding:40px;max-width:520px;margin:80px auto;text-align:center;}
-#tab-finance .pf-setup-title{font-size:22px;font-weight:700;color:#10b981;margin-bottom:16px;font-family:'Syne',sans-serif;}
-#tab-finance .pf-setup-sub{font-size:13px;color:#888;margin-bottom:24px;line-height:1.6;}
-#tab-finance .pf-load-btn{background:#10b981;color:#000;border:none;border-radius:8px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:background 0.2s;font-family:'Inter',sans-serif;}
-#tab-finance .pf-load-btn:hover{background:#059669;}
-#tab-finance .pf-load-btn:disabled{opacity:0.5;cursor:not-allowed;}
-#tab-finance .pf-loading{text-align:center;color:#888;margin-top:14px;font-size:13px;}
-#tab-finance .pf-error{background:#7f1d1d;border:1px solid #991b1b;border-radius:8px;padding:12px;color:#fca5a5;font-size:13px;margin-top:14px;}
-.hidden{display:none;}
 </style>
 </head>
 <body>
 
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('options')">
-    Options Dashboard<span class="tab-badge">LIVE</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('finance')">
-    Personal Finance
-  </button>
-</div>
-
-<div id="tab-options" class="tab-panel active">
 <div class="wrapper">
-
   <header>
     <div class="logo">
       <div class="logo-title">OPTIONS <span>ALPHA</span></div>
@@ -305,7 +206,6 @@ select.asset-select:focus{border-color:var(--green);}
     <div class="kpi-card yellow"><div class="kpi-label">Return on Capital</div><div class="kpi-value" id="kpi-roc">—</div><div class="kpi-sub" id="kpi-roc-sub">On filtered capital</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Total Capital Deployed</div><div class="kpi-value" id="kpi-capital">—</div><div class="kpi-sub" id="kpi-capital-sub">—</div></div>
   </div>
-
 
   <div class="grid-full section-gap" id="trend-chart-row">
     <div class="card">
@@ -402,84 +302,8 @@ select.asset-select:focus{border-color:var(--green);}
     OPTIONS ALPHA · COVERED CALL STRATEGY TRACKER · LIVE DATA
   </div>
 </div>
-</div><div id="tab-finance" class="tab-panel">
-  <div id="pf-setup" class="pf-setup">
-    <div class="pf-setup-title">Personal Finance</div>
-    <p class="pf-setup-sub">Fetching your financial data from Google Sheets…</p>
-    <button class="pf-load-btn" id="pf-load-btn" onclick="pfLoadData()" style="display:none">Reload</button>
-    <div id="pf-loading" class="pf-loading hidden">Loading financial data…</div>
-    <div id="pf-error" class="pf-error hidden"></div>
-  </div>
 
-  <div id="pf-dashboard" class="pf-wrap hidden">
-    <h1>Personal Finance</h1>
-
-    <div class="pf-kpi-grid">
-      <div class="pf-kpi-card">
-        <div class="pf-kpi-label">💼 Total Assets</div>
-        <div class="pf-kpi-value" id="pf-total-assets">$0</div>
-        <div class="pf-kpi-sub">Current month total</div>
-      </div>
-      <div class="pf-kpi-card">
-        <div class="pf-kpi-label">💳 Net Cash</div>
-        <div class="pf-kpi-value blue" id="pf-net-cash">$0</div>
-        <div class="pf-kpi-sub">Liquid assets</div>
-      </div>
-      <div class="pf-kpi-card">
-        <div class="pf-kpi-label">⚡ Runway</div>
-        <div class="pf-kpi-value bright"><span class="runway-badge" id="pf-runway">0 MO</span></div>
-        <div class="pf-kpi-sub">Months of expenses covered</div>
-      </div>
-    </div>
-
-    <div class="pf-portfolio-grid">
-      <div class="pf-card">
-        <div class="pf-card-header">
-          <div>
-            <div class="pf-card-title">Portfolio</div>
-            <div class="pf-card-sub" id="pf-portfolio-month">—</div>
-          </div>
-        </div>
-        <div class="pf-categories" id="pf-categories"></div>
-      </div>
-
-      <div class="pf-card">
-        <div class="pf-card-header">
-          <div class="pf-card-title">Anti-Fragility</div>
-        </div>
-        <div class="pf-circle-wrap">
-          <svg viewBox="0 0 200 200" width="100%" height="100%">
-            <circle cx="100" cy="100" r="80" fill="none" stroke="#1a1a1a" stroke-width="20"/>
-            <circle id="pf-af-circle" cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="20"
-                    stroke-dasharray="502.4" stroke-dashoffset="502.4"
-                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
-          </svg>
-          <div class="pf-circle-val">
-            <div class="pf-circle-pct" id="pf-af-pct">0%</div>
-            <div class="pf-circle-lbl">Stable Assets</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="pf-chart-card">
-      <div class="pf-chart-title">📈 Trend — Assets & Cash</div>
-      <canvas id="pf-trend-chart"></canvas>
-    </div>
-  </div>
-</div><script>
-// ════════════════════════════════════════════════════════
-// TAB SWITCHING
-// ════════════════════════════════════════════════════════
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='options')||(i===1&&tab==='finance')));
-  document.getElementById('tab-options').classList.toggle('active', tab==='options');
-  document.getElementById('tab-finance').classList.toggle('active', tab==='finance');
-}
-
-// ════════════════════════════════════════════════════════
-// TAB 1 — OPTIONS DASHBOARD
-// ════════════════════════════════════════════════════════
+<script>
 const OPT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxBd1UrtpB9iFc7iNV0zPC2ey3ZAOCgp26lBf8gio9hPhD1x1hsiYicP3OxOIebKKw0gA/exec';
 
 let TRADES   = [];
@@ -616,11 +440,9 @@ function applyFilters() {
 let optTrendChart = null;
 
 function renderTrendChart(data) {
-  // Sort trades by date
   const sorted = [...data].filter(t=>t.date).sort((a,b)=>a.date.localeCompare(b.date));
   if (!sorted.length) return;
 
-  // Build per-day cumulative premium and net income
   const dayMap = {};
   sorted.forEach(t => {
     const d = t.date;
@@ -629,12 +451,10 @@ function renderTrendChart(data) {
     dayMap[d].net += (t.premium || 0) + (t.stockPL || 0);
   });
 
-  // Get all unique dates across the range (fill gaps)
   const from = document.getElementById('date-from').value;
   const to   = document.getElementById('date-to').value;
   const allDays = Object.keys(dayMap).sort();
 
-  // Build cumulative arrays
   const labels = [], cumPremium = [], cumNet = [];
   let sumP = 0, sumN = 0;
   allDays.forEach(d => {
@@ -645,13 +465,11 @@ function renderTrendChart(data) {
     cumNet.push(parseFloat(sumN.toFixed(2)));
   });
 
-  // Format labels as "13 Feb"
   const fmtLabel = d => {
     const dt = new Date(d);
     return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
   };
 
-  // Update totals in legend
   document.getElementById('trend-total-premium').textContent = fmtDec(sumP);
   document.getElementById('trend-total-net').textContent = fmtDec(sumN);
 
@@ -751,7 +569,7 @@ function renderKPI(data) {
   spEl.style.color=stockPL<0?'var(--red)':stockPL>0?'var(--green)':'var(--muted2)';
 }
 
-// Global tooltip setup for Donut Chart
+// Tooltip setup for Donut Chart
 const donutTt = document.createElement('div');
 donutTt.className = 'chart-tooltip';
 document.body.appendChild(donutTt);
@@ -863,7 +681,7 @@ function renderTradeSummary(data) {
   const loss=data.filter(t=>t.status==='loss').length;
   const ppds=data.map(t=>t.ppd).filter(v=>v>0);
   const avgPPD=ppds.length?(ppds.reduce((s,v)=>s+v,0)/ppds.length).toFixed(2):0;
-  const maxD=n?Math.max(...data.map(t=>t.days)):0, minD=n?Math.min(...data.map(t=>t.days)):0;
+  
   document.getElementById('trade-summary').innerHTML=n?`
     <div class="ratio-item"><div><div class="ratio-name">Total Trades</div></div><div class="ratio-value" style="color:var(--text)">${n}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Perfect Assignments</div></div><div class="ratio-value" style="color:var(--blue)">${asgn}</div></div>
@@ -937,412 +755,9 @@ function resetFilters(){
   applyFilters();
 }
 
-// Init options tab
+// Init dashboard
 fetchData();
 
-// Auto-fetch personal finance on page load
-function pfLoadData() {
-  document.getElementById('pf-loading').classList.remove('hidden');
-  document.getElementById('pf-error').classList.add('hidden');
-  document.getElementById('pf-load-btn').disabled = true;
-  
-  document.getElementById('pf-setup').classList.remove('hidden');
-  document.getElementById('pf-dashboard').classList.add('hidden');
-
-  const cb = 'pfCb_' + Date.now();
-  const sc = document.createElement('script');
-
-  window[cb] = function(json) {
-    delete window[cb];
-    document.body.removeChild(sc);
-    document.getElementById('pf-loading').classList.add('hidden');
-
-    if (json.error) {
-      console.warn('Webhook error, loading fallback:', json.error);
-      pfLoadFallback();
-      return;
-    }
-
-    pfProcessData(json.details, json.expenses);
-    document.getElementById('pf-setup').classList.add('hidden');
-    document.getElementById('pf-dashboard').classList.remove('hidden');
-  };
-
-  sc.onerror = function() {
-    delete window[cb];
-    if(document.body.contains(sc)) document.body.removeChild(sc);
-    document.getElementById('pf-loading').classList.add('hidden');
-    console.warn('Failed to reach Google Sheets. Loading fallback data.');
-    pfLoadFallback();
-  };
-
-  if (PF_WEBHOOK === 'YOUR_PF_APPS_SCRIPT_URL_HERE') {
-    delete window[cb];
-    document.getElementById('pf-loading').classList.add('hidden');
-    pfLoadFallback();
-    return;
-  }
-
-  // 15-second timeout — fallback if Apps Script is too slow
-  const timeout = setTimeout(() => {
-    if (window[cb]) {
-      delete window[cb];
-      if(document.body.contains(sc)) document.body.removeChild(sc);
-      document.getElementById('pf-loading').classList.add('hidden');
-      console.warn('Timed out after 15s. Loading fallback data.');
-      pfLoadFallback();
-    }
-  }, 15000);
-
-  const origCb = window[cb];
-  window[cb] = function(json) {
-    clearTimeout(timeout);
-    origCb(json);
-  };
-
-  sc.src = PF_WEBHOOK + '?callback=' + cb;
-  document.body.appendChild(sc);
-}
-
-// Fallback data so the dashboard always renders (matches Options tab behavior)
-function pfLoadFallback() {
-  const details = [
-    ['Month', 'Account', 'Category', 'Value'],
-    // Current Month (Feb 2026)
-    ['Feb 2026', 'Chase Checking', 'Active Savings', 45000],
-    ['Feb 2026', 'Marcus HYSA', 'Active Savings', 125000],
-    ['Feb 2026', 'Vanguard S&P', 'Growth Fund', 680000],
-    ['Feb 2026', 'Fidelity 401k', 'Growth Fund', 320000],
-    ['Feb 2026', 'Primary Home', 'Real Estate', 950000],
-    ['Feb 2026', 'Coinbase', 'High Risk', 58000],
-    // Previous Month (Jan 2026)
-    ['Jan 2026', 'Chase Checking', 'Active Savings', 42000],
-    ['Jan 2026', 'Marcus HYSA', 'Active Savings', 120000],
-    ['Jan 2026', 'Vanguard S&P', 'Growth Fund', 665000],
-    ['Jan 2026', 'Fidelity 401k', 'Growth Fund', 315000],
-    ['Jan 2026', 'Primary Home', 'Real Estate', 950000],
-    ['Jan 2026', 'Coinbase', 'High Risk', 62000],
-    // Year Ago Month (Feb 2025)
-    ['Feb 2025', 'Chase Checking', 'Active Savings', 25000],
-    ['Feb 2025', 'Marcus HYSA', 'Active Savings', 80000],
-    ['Feb 2025', 'Vanguard S&P', 'Growth Fund', 550000],
-    ['Feb 2025', 'Fidelity 401k', 'Growth Fund', 250000],
-    ['Feb 2025', 'Primary Home', 'Real Estate', 900000],
-    ['Feb 2025', 'Coinbase', 'High Risk', 35000]
-  ];
-  
-  const expenses = [
-    ['ID', 'Month', 'Amount'],
-    [1, 'Feb 2026', 8200],
-    [2, 'Jan 2026', 9100],
-    [3, 'Dec 2025', 10500]
-  ];
-  
-  pfProcessData(details, expenses);
-  document.getElementById('pf-setup').classList.add('hidden');
-  document.getElementById('pf-dashboard').classList.remove('hidden');
-}
-
-
-// ════════════════════════════════════════════════════════
-// TAB 2 — PERSONAL FINANCE
-// ════════════════════════════════════════════════════════
-const PF_WEBHOOK = 'https://script.google.com/macros/s/AKfycbx0pWODt2uFo4GQ-pYedSnGr7Ufry6nCd4PyOa7AhzXysgcr49JZHHRynQodmkNPRX2Fw/exec';
-
-const PF_EXCLUDED = [
-  'A - Growth Fund','E - FCNR ICICI','K - Invest Private Credit',
-  'K - Project Batam','K - Project Binance','K - Project MM',
-  'BLR Flat','Land-1 (E)','Land-2 (K 1/4)','Land -3 (K 1/2)'
-];
-
-let pfTrendChart = null;
-
-function pfLoadData() {
-  document.getElementById('pf-loading').classList.remove('hidden');
-  document.getElementById('pf-error').classList.add('hidden');
-  document.getElementById('pf-load-btn').disabled = true;
-  // Show setup screen with spinner while loading
-  document.getElementById('pf-setup').classList.remove('hidden');
-  document.getElementById('pf-dashboard').classList.add('hidden');
-
-  const cb = 'pfCb_' + Date.now();
-  const sc = document.createElement('script');
-
-  window[cb] = function(json) {
-    delete window[cb];
-    document.body.removeChild(sc);
-    document.getElementById('pf-loading').classList.add('hidden');
-
-    if (json.error) {
-      pfShowError('Error: ' + json.error);
-      document.getElementById('pf-load-btn').disabled = false;
-      return;
-    }
-
-    pfProcessData(json.details, json.expenses);
-    document.getElementById('pf-setup').classList.add('hidden');
-    document.getElementById('pf-dashboard').classList.remove('hidden');
-  };
-
-  sc.onerror = function() {
-    delete window[cb];
-    if(document.body.contains(sc)) document.body.removeChild(sc);
-    document.getElementById('pf-loading').classList.add('hidden');
-    pfShowError('Failed to reach Google Sheets. Check that the Apps Script is deployed with "Anyone" access.');
-    document.getElementById('pf-load-btn').disabled = false;
-  };
-
-  if (PF_WEBHOOK === 'YOUR_PF_APPS_SCRIPT_URL_HERE') {
-    delete window[cb];
-    document.getElementById('pf-loading').classList.add('hidden');
-    pfShowError('Personal Finance webhook not configured yet. Paste your Apps Script URL into PF_WEBHOOK in the HTML.');
-    document.getElementById('pf-load-btn').style.display = 'inline-block';
-    document.getElementById('pf-load-btn').disabled = false;
-    return;
-  }
-
-  // 15-second timeout — Apps Script can be slow on cold start
-  const timeout = setTimeout(() => {
-    if (window[cb]) {
-      delete window[cb];
-      if(document.body.contains(sc)) document.body.removeChild(sc);
-      document.getElementById('pf-loading').classList.add('hidden');
-      pfShowError('Timed out after 15s. The Apps Script may need authorization. Open this URL in your browser to authorize it, then reload: ' + PF_WEBHOOK);
-      document.getElementById('pf-load-btn').style.display = 'inline-block';
-      document.getElementById('pf-load-btn').disabled = false;
-    }
-  }, 15000);
-
-  const origCb = window[cb];
-  window[cb] = function(json) {
-    clearTimeout(timeout);
-    origCb(json);
-  };
-
-  sc.src = PF_WEBHOOK + '?callback=' + cb;
-  document.body.appendChild(sc);
-}
-
-function pfProcessData(detailsRaw, expensesRaw) {
-  // ── Parse details ──
-  const detailsRows = detailsRaw.slice(1);
-  const monthlyData = {};
-
-  const _monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function normDetMonth(raw) {
-    if (!raw) return null;
-    const s = String(raw).trim();
-    if (/^[A-Za-z]{3} \d{4}$/.test(s)) return s;
-    const d = new Date(s);
-    if (!isNaN(d)) return _monthNames[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-    return s; // fallback
-  }
-
-  detailsRows.forEach(row => {
-    const month = normDetMonth(row[0]), account = String(row[1]||'').trim(), category = String(row[2]||'').trim();
-    let value = parseFloat(String(row[3]).replace(/[$,]/g,'') || 0);
-    if (!month || !account || isNaN(value)) return;
-    if (!monthlyData[month]) monthlyData[month] = { totalAssets:0, netCash:0 };
-    monthlyData[month].totalAssets += value;
-    if (!PF_EXCLUDED.includes(account)) monthlyData[month].netCash += value;
-  });
-
-  // ── Parse expenses ──
-  const expRows = expensesRaw.slice(1);
-  const monthlyExpenses = {};
-  // Build a map from expense month key → details month key
-  // Expense month column can be "2025-12-01" (date string) or "Mon YYYY"
-  // We need to normalize both to the same "Mon YYYY" format used in details
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function normalizeExpMonth(raw) {
-    if (!raw) return null;
-    const s = String(raw).trim();
-    // Already in "Mon YYYY" format
-    if (/^[A-Za-z]{3} \d{4}$/.test(s)) return s;
-    // Date string like "2025-12-01" or "2026-12-01"
-    const d = new Date(s);
-    if (!isNaN(d)) return monthNames[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-    return null;
-  }
-
-  expRows.forEach(row => {
-    const month = normalizeExpMonth(row[1]);
-    let amt = parseFloat(String(row[2]).replace(/[$,]/g,'') || 0);
-    if (!month || isNaN(amt)) return;
-    monthlyExpenses[month] = (monthlyExpenses[month]||0) + amt;
-  });
-
-  // ── Sort months descending ── handle "Mon YYYY" format like "Feb 2026"
-  function parseMonthStr(s) {
-    // Handles "Feb 2026", "Jan 2025", etc.
-    const d = new Date(s + ' 01');
-    return isNaN(d) ? new Date(s) : d;
-  }
-  const months = Object.keys(monthlyData).sort((a,b) => parseMonthStr(b) - parseMonthStr(a));
-  const currentMonth = months[0];
-  const prevMonth    = months[1];
-  const curData      = monthlyData[currentMonth];
-
-  // ── Runway ──
-  const recent3 = months.slice(0,3);
-  let totalExp=0, expCount=0;
-  recent3.forEach(m => { if(monthlyExpenses[m]) { totalExp+=monthlyExpenses[m]; expCount++; } });
-  const avgExp = expCount>0 ? totalExp/expCount : 0;
-  const runway = avgExp>0 ? curData.netCash/avgExp : 0;
-
-  // ── KPIs ──
-  document.getElementById('pf-total-assets').textContent = '$'+(curData.totalAssets/1000000).toFixed(2)+'M';
-  document.getElementById('pf-net-cash').textContent     = '$'+(curData.netCash/1000000).toFixed(2)+'M';
-  document.getElementById('pf-runway').textContent       = '⚡ '+runway.toFixed(1)+' MO';
-  document.getElementById('pf-portfolio-month').textContent = currentMonth;
-
-  // ── Category totals ──
-  const catTotals={}, catPrev={}, catYoy={}, catAccounts={}, acctDetails={}, acctPrev={}, acctYoy={};
-
-  // year-ago month
-  const yearAgoMonth = months.find(m => {
-    const c=new Date(currentMonth), cand=new Date(m);
-    return cand.getFullYear()===c.getFullYear()-1 && cand.getMonth()===c.getMonth();
-  });
-
-  detailsRows.forEach(row => {
-    const month=normDetMonth(row[0]), account=String(row[1]||'').trim(), category=String(row[2]||'').trim();
-    let value=parseFloat(String(row[3]).replace(/[$,]/g,'')||0);
-    if(!month||!category||isNaN(value)) return;
-
-    if(month===currentMonth) {
-      catTotals[category]  = (catTotals[category]||0)+value;
-      catAccounts[category]= (catAccounts[category]||0)+1;
-      if(!acctDetails[category]) acctDetails[category]=[];
-      acctDetails[category].push({account,value});
-    }
-    if(month===prevMonth) {
-      catPrev[category]=(catPrev[category]||0)+value;
-      if(!acctPrev[category]) acctPrev[category]={};
-      acctPrev[category][account]=value;
-    }
-    if(month===yearAgoMonth) {
-      catYoy[category]=(catYoy[category]||0)+value;
-      if(!acctYoy[category]) acctYoy[category]={};
-      acctYoy[category][account]=value;
-    }
-  });
-
-  // ── Render categories ──
-  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
-  const catContainer = document.getElementById('pf-categories');
-  catContainer.innerHTML='';
-
-  sorted.forEach(([cat, value]) => {
-    const pct      = (value/curData.totalAssets)*100;
-    const prevVal  = catPrev[cat]||0;
-    const change   = value-prevVal;
-    const chgPct   = prevVal>0?((change/prevVal)*100):0;
-    const yoyVal   = catYoy[cat]||0;
-    const yoyChg   = value-yoyVal;
-    const yoyPct   = yoyVal>0?((yoyChg/yoyVal)*100):0;
-    const count    = catAccounts[cat]||0;
-
-    const chgClass = change>0?'pos':change<0?'neg':'neu';
-    const chgSym   = change>0?'↗':change<0?'↘':'—';
-    const yoyClass = yoyChg>0?'pos':yoyChg<0?'neg':'neu';
-    const yoySym   = yoyChg>0?'↗':'↘';
-
-    const row = document.createElement('div');
-    row.className='pf-cat-row';
-
-    const acctRows = (acctDetails[cat]||[]).map(({account,value:av}) => {
-      const pm = (acctPrev[cat]||{})[account]||0;
-      const momChg=av-pm, momPct=pm>0?((momChg/pm)*100):0;
-      const ya=(acctYoy[cat]||{})[account]||0;
-      const yoyChgA=av-ya, yoyPctA=ya>0?((yoyChgA/ya)*100):0;
-      const mc=momChg>0?'pos':momChg<0?'neg':'neu', ms=momChg>0?'↗':momChg<0?'↘':'—';
-      const yc=yoyChgA>0?'pos':yoyChgA<0?'neg':'neu', ys=yoyChgA>0?'↗':'↘';
-      return `<div class="pf-acct-table-row">
-        <div class="pf-acct-name">${account}</div>
-        <div class="pf-acct-bal">$${(av/1000).toFixed(1)}K</div>
-        <div class="pf-acct-mom ${mc}">${ms} (${momPct>=0?'+':''}${momPct.toFixed(1)}%)</div>
-        <div class="pf-acct-yoy ${yc}">${ys} (${yoyPctA>=0?'+':''}${yoyPctA.toFixed(1)}%)</div>
-      </div>`;
-    }).join('');
-
-    row.innerHTML=`
-      <svg class="pf-cat-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      <div class="pf-cat-info">
-        <div class="pf-cat-name">
-          <span class="pf-cat-label">${cat}</span>
-          <span class="pf-cat-count">${count} accts</span>
-        </div>
-        <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct.toFixed(1)}%"></div></div>
-        <div class="pf-cat-vals">
-          <span class="pf-cat-amount">$${(value/1000).toFixed(1)}K</span>
-          <span class="pf-cat-change ${chgClass}">${chgSym} $${Math.abs(change/1000).toFixed(1)}K (${chgPct>=0?'+':''}${chgPct.toFixed(1)}%)</span>
-        </div>
-      </div>
-      <div class="pf-tooltip">
-        <div class="tt-header">${cat} holds <span class="tt-pct">${pct.toFixed(1)}%</span> of portfolio</div>
-        <div class="tt-yoy ${yoyClass}">YoY: ${yoySym} $${Math.abs(yoyChg/1000).toFixed(1)}K (${yoyPct>=0?'+':''}${yoyPct.toFixed(0)}%)</div>
-        <div class="tt-link">Click to expand accounts</div>
-      </div>
-      <div class="pf-acct-details">
-        <div class="pf-acct-table-header"><div>Account</div><div>Balance</div><div>MoM</div><div>YoY</div></div>
-        ${acctRows}
-        <div class="pf-acct-total"><div style="color:#888">Total</div><div>$${(value/1000).toFixed(1)}K</div><div></div><div></div></div>
-      </div>`;
-
-    row.addEventListener('click', e => {
-      if(e.target.closest('.pf-acct-details')) return;
-      row.classList.toggle('expanded');
-    });
-    catContainer.appendChild(row);
-  });
-
-  // ── Anti-Fragility ──
-  const stableCats=['Low Interest','Active Savings','Real Estate','Growth Fund'];
-  const stableTotal = stableCats.reduce((s,c)=>s+(catTotals[c]||0),0);
-  const afPct = curData.totalAssets>0 ? (stableTotal/curData.totalAssets)*100 : 0;
-  document.getElementById('pf-af-pct').textContent = afPct.toFixed(0)+'%';
-  const circ=2*Math.PI*80;
-  document.getElementById('pf-af-circle').style.strokeDashoffset = circ - (afPct/100)*circ;
-
-  // ── Trend chart ──
-  const trendMonths = months.slice(0,18).reverse();
-  const assetsData  = trendMonths.map(m=>(monthlyData[m]?.totalAssets||0)/1000000);
-  const cashData    = trendMonths.map(m=>(monthlyData[m]?.netCash||0)/1000000);
-  pfRenderChart(trendMonths, assetsData, cashData);
-}
-
-function pfRenderChart(labels, assetsData, cashData) {
-  if (pfTrendChart) { pfTrendChart.destroy(); pfTrendChart=null; }
-  const ctx = document.getElementById('pf-trend-chart');
-  pfTrendChart = new Chart(ctx, {
-    type:'line',
-    data:{
-      labels,
-      datasets:[
-        {label:'Assets',data:assetsData,borderColor:'#10b981',backgroundColor:'transparent',borderWidth:3,tension:0.4,pointRadius:0,pointHoverRadius:6},
-        {label:'Cash',  data:cashData,  borderColor:'#3b82f6',backgroundColor:'transparent',borderWidth:3,tension:0.4,pointRadius:0,pointHoverRadius:6}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{display:true,position:'bottom',labels:{color:'#888',padding:20,font:{size:12,family:'Inter'}}},
-        tooltip:{mode:'index',intersect:false,backgroundColor:'#000',borderColor:'#333',borderWidth:1,titleColor:'#fff',bodyColor:'#fff',padding:12,callbacks:{label:c=>`${c.dataset.label}: $${c.parsed.y.toFixed(2)}M`}}
-      },
-      scales:{
-        y:{beginAtZero:false,ticks:{color:'#666',font:{size:11,family:'Inter'},callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'#1a1a1a'}},
-        x:{ticks:{color:'#666',font:{size:11,family:'Inter'},maxRotation:45,minRotation:45},grid:{display:false}}
-      },
-      interaction:{mode:'nearest',axis:'x',intersect:false}
-    }
-  });
-}
-
-function pfShowError(msg) {
-  const el=document.getElementById('pf-error');
-  el.textContent=msg; el.classList.remove('hidden');
-}
 </script>
 </body>
 </html>
