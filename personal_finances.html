@@ -30,7 +30,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden; -webkit-tap-highlight-color: transparent;}
 body::before{content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(78,181,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(78,181,255,0.03) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(78,181,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(78,181,255,0.02) 1px,transparent 1px);
   background-size:40px 40px;pointer-events:none;z-index:0;}
 
 /* Scrollbar styles */
@@ -39,14 +39,16 @@ body::before{content:'';position:fixed;inset:0;
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 16px;}
+.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px;}
 
 /* Header */
 header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid var(--border);}
 .logo{display:flex;flex-direction:column;gap:4px;}
-.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.5px;color:var(--text);}
+.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.5px;color:var(--text);}
 .logo-title span{color:var(--blue);} 
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.date-str{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
 
 /* Setup / Load screen */
 .pf-setup{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:520px;margin:80px auto;text-align:center;}
@@ -63,65 +65,20 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .pf-kpi-card:hover{border-color:var(--muted);}
 .pf-kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.pf-kpi-card:nth-child(1)::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
-.pf-kpi-card:nth-child(2)::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
-.pf-kpi-card:nth-child(3)::before{background:linear-gradient(90deg,transparent,var(--yellow),transparent);}
+.pf-kpi-card.green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.pf-kpi-card.blue::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.pf-kpi-card.red::before{background:linear-gradient(90deg,transparent,var(--red),transparent);}
 .pf-kpi-label{font-size:12px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
-.pf-kpi-value{font-size:36px;font-weight:800;margin-bottom:4px;font-family:'Syne',sans-serif;}
+.pf-kpi-value{font-size:42px;font-weight:800;margin-bottom:6px;font-family:'Syne',sans-serif;letter-spacing:-1px;}
 .pf-kpi-value.green{color:var(--green);}
 .pf-kpi-value.blue{color:var(--blue);}
-.pf-kpi-value.yellow{color:var(--yellow);}
-.pf-kpi-sub{font-size:12px;color:var(--muted2);}
-.runway-badge{display:inline-block;background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,209,102,0.3);padding:4px 12px;border-radius:8px;font-weight:700;font-size:24px;}
-
-/* PF Portfolio grid */
-.pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;}
-@media(max-width:900px){.pf-portfolio-grid{grid-template-columns:1fr;}}
-.pf-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;}
-.pf-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-.pf-card-title{font-size:16px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;letter-spacing:0.5px;}
-.pf-card-sub{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;text-transform:uppercase;}
-
-/* Category rows */
-.pf-categories{display:flex;flex-direction:column;gap:12px;}
-.pf-cat-row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px;border-radius:12px;background:var(--surface2);border:1px solid transparent;transition:all 0.2s;position:relative;}
-.pf-cat-row:hover{border-color:var(--border);background:rgba(255,255,255,0.02);}
-.pf-cat-row.expanded{border-color:var(--blue);background:var(--blue-dim);}
-.pf-cat-expand{width:18px;height:18px;color:var(--muted);flex-shrink:0;transition:transform 0.3s;}
-.pf-cat-row.expanded .pf-cat-expand{transform:rotate(90deg);color:var(--blue);}
-.pf-cat-info{flex:1;}
-.pf-cat-name{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.pf-cat-label{font-size:14px;font-weight:600;color:var(--text);}
-.pf-cat-count{background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:12px;font-size:10px;color:var(--muted2);font-family:'DM Mono',monospace;}
-.pf-cat-bar-wrap{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;}
-.pf-cat-bar{height:100%;background:var(--blue);border-radius:2px;transition:width 0.5s ease;}
-.pf-cat-vals{display:flex;justify-content:space-between;margin-top:8px;}
-.pf-cat-amount{font-size:14px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;}
-.pf-cat-change{font-size:11px;font-weight:600;font-family:'DM Mono',monospace;}
-.pf-cat-change.pos{color:var(--green);}
-.pf-cat-change.neg{color:var(--red);}
-.pf-cat-change.neu{color:var(--muted);}
-
-/* Account details */
-.pf-acct-details{margin-top:12px;background:var(--bg);border-radius:8px;padding:16px;display:none;}
-.pf-cat-row.expanded .pf-acct-details{display:block;}
-.pf-acct-table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding-bottom:8px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);}
-.pf-acct-table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;padding:12px 0;border-bottom:1px solid rgba(30,37,48,0.5);font-size:12px;font-family:'DM Mono',monospace;}
-.pf-acct-table-row:last-child{border-bottom:none;padding-bottom:0;}
-.pf-acct-name{color:var(--text);font-family:'Inter',sans-serif;}
-.pf-acct-bal{color:var(--text);font-weight:500;}
-.pf-acct-mom,.pf-acct-yoy{font-size:11px;font-weight:500;}
-.pos{color:var(--green);} .neg{color:var(--red);} .neu{color:var(--muted);}
-
-/* Anti-fragility */
-.pf-circle-wrap{position:relative;width:100%;max-width:240px;aspect-ratio:1;margin:20px auto 0;}
-.pf-circle-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-.pf-circle-pct{font-size:48px;font-weight:800;color:var(--green);line-height:1;font-family:'Syne',sans-serif;}
-.pf-circle-lbl{font-size:12px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;text-transform:uppercase;}
+.pf-kpi-value.red{color:var(--red);}
+.pf-kpi-sub{font-size:12px;color:var(--muted2);min-height:16px;}
 
 /* Chart */
-.pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;}
-.pf-chart-title{font-size:16px;font-weight:700;margin-bottom:20px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:0.5px;}
+.pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:32px;}
+.pf-chart-title{font-size:22px;font-weight:700;margin-bottom:24px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.pf-chart-title span {color:var(--green);}
 
 /* Controls & Bottom Tabs */
 .refresh-btn {
@@ -134,7 +91,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .refresh-btn:hover { border-color: var(--muted); }
 .refresh-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
-.bottom-tabs { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; margin-bottom: 24px; }
+.bottom-tabs { display: flex; flex-direction: column; gap: 12px; margin-top: 48px; margin-bottom: 24px; }
 @media(min-width: 600px) { .bottom-tabs { flex-direction: row; justify-content: center; } }
 .btm-tab {
   font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
@@ -151,7 +108,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
   <header>
     <div class="logo">
       <div class="logo-title">PERSONAL <span>FINANCES</span></div>
-      <div class="logo-sub">Net Worth & Runway Tracker</div>
+      <div class="logo-sub">Net Worth & Asset Tracker</div>
     </div>
     <div class="header-right">
       <div class="date-str" id="pf-date-str">Last updated: —</div>
@@ -170,55 +127,26 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
   <div id="pf-dashboard" class="hidden">
     
     <div class="pf-kpi-grid">
-      <div class="pf-kpi-card">
-        <div class="pf-kpi-label">💼 Total Assets</div>
-        <div class="pf-kpi-value green" id="pf-total-assets">$0</div>
-        <div class="pf-kpi-sub">Current month total</div>
+      <div class="pf-kpi-card green">
+        <div class="pf-kpi-label">Total Assets</div>
+        <div class="pf-kpi-value green" id="pf-total-assets">—</div>
+        <div class="pf-kpi-sub" id="pf-assets-month">Latest Month</div>
       </div>
-      <div class="pf-kpi-card">
-        <div class="pf-kpi-label">💳 Net Cash</div>
-        <div class="pf-kpi-value blue" id="pf-net-cash">$0</div>
-        <div class="pf-kpi-sub">Liquid & accessible</div>
+      <div class="pf-kpi-card blue">
+        <div class="pf-kpi-label">Net Cash</div>
+        <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
+        <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
       </div>
-      <div class="pf-kpi-card">
-        <div class="pf-kpi-label">⚡ Runway</div>
-        <div class="pf-kpi-value yellow"><span class="runway-badge" id="pf-runway">0 MO</span></div>
-        <div class="pf-kpi-sub">Months of average expenses covered</div>
-      </div>
-    </div>
-
-    <div class="pf-portfolio-grid">
-      <div class="pf-card">
-        <div class="pf-card-header">
-          <div class="pf-card-title">Portfolio Allocation</div>
-          <div class="pf-card-sub" id="pf-portfolio-month">—</div>
-        </div>
-        <div class="pf-categories" id="pf-categories"></div>
-      </div>
-
-      <div class="pf-card">
-        <div class="pf-card-header">
-          <div class="pf-card-title">Anti-Fragility</div>
-        </div>
-        <div style="font-size:12px;color:var(--muted2);text-align:center;line-height:1.5;">Percentage of portfolio held in stable, low-volatility assets.</div>
-        <div class="pf-circle-wrap">
-          <svg viewBox="0 0 200 200" width="100%" height="100%">
-            <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="16"/>
-            <circle id="pf-af-circle" cx="100" cy="100" r="80" fill="none" stroke="#00e5a0" stroke-width="16"
-                    stroke-dasharray="502.4" stroke-dashoffset="502.4"
-                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
-          </svg>
-          <div class="pf-circle-val">
-            <div class="pf-circle-pct" id="pf-af-pct">0%</div>
-            <div class="pf-circle-lbl">Stable</div>
-          </div>
-        </div>
+      <div class="pf-kpi-card red">
+        <div class="pf-kpi-label">Liabilities</div>
+        <div class="pf-kpi-value red" id="pf-liabilities">—</div>
+        <div class="pf-kpi-sub">Total negative balances</div>
       </div>
     </div>
 
     <div class="pf-chart-card">
-      <div class="pf-chart-title">Net Worth Trend</div>
-      <div style="position:relative;height:300px;">
+      <div class="pf-chart-title"><span>↗</span> Trend</div>
+      <div style="position:relative;height:380px;">
         <canvas id="pf-trend-chart"></canvas>
       </div>
     </div>
@@ -236,7 +164,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
     <a href="personal_finances.html" class="btm-tab active">Personal Finances</a>
   </div>
   
-  <div style="text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;padding-bottom:32px">
+  <div style="text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;padding-bottom:32px;font-family:'DM Mono',monospace;">
     PERSONAL FINANCES · LIVE DATA
   </div>
 </div>
@@ -246,17 +174,18 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 // PERSONAL FINANCE JAVASCRIPT LOGIC
 // ════════════════════════════════════════════════════════
 
-// ⚠️ YOUR NEW WEBHOOK URL GOES HERE:
 const PF_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwfy3qzMBgmINz8ekI26juWmND8TeOSjZhUNhtCn3LIiEfID3pvOVKdxtwRO7GvdL6T/exec';
 
-// Accounts that shouldn't be counted in "Liquid Net Cash"
-const PF_EXCLUDED = [
-  'A - Growth Fund','E - FCNR ICICI','K - Invest Private Credit',
-  'K - Project Batam','K - Project Binance','K - Project MM',
-  'BLR Flat','Land-1 (E)','Land-2 (K 1/4)','Land -3 (K 1/2)'
-];
-
 let pfTrendChart = null;
+
+// Function to determine if an account should be included in "Net Cash"
+function isLiquidCash(account, category) {
+  const str = (String(account) + ' ' + String(category)).toLowerCase();
+  if (str.includes('real estate') || str.includes('growth fund') || str.includes('project')) {
+    return false;
+  }
+  return true;
+}
 
 function pfLoadData() {
   document.getElementById('pf-setup').classList.remove('hidden');
@@ -272,7 +201,7 @@ function pfLoadData() {
     if(document.body.contains(sc)) document.body.removeChild(sc);
     console.warn("API timeout, loading fallback data.");
     pfLoadFallback();
-  }, 5000);
+  }, 6000);
 
   window[cb] = function(json) {
     clearTimeout(fallbackTimer);
@@ -290,13 +219,9 @@ function pfLoadData() {
       lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
       lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
-    // Extract exactly from the tab names the Apps Script returned
+    // Pass the raw data to the processor
     const detailsRaw = json.data["Details in Raw Format"] || [];
-    const expensesRaw = json.data["Expenses details"] || [];
-
-    pfProcessData(detailsRaw, expensesRaw);
-    document.getElementById('pf-setup').classList.add('hidden');
-    document.getElementById('pf-dashboard').classList.remove('hidden');
+    pfProcessData(detailsRaw);
   };
 
   sc.onerror = function() {
@@ -310,228 +235,202 @@ function pfLoadData() {
   document.body.appendChild(sc);
 }
 
-// Fallback Mock Data if offline
+// Fallback Mock Data matching realistic chart structure (Jun '24 - Feb '26)
 function pfLoadFallback() {
   document.getElementById('pf-date-str').textContent = 'Offline Mode';
-  const details = [
-    ['Month', 'Account', 'Category', 'Value'],
-    ['Feb 2026', 'Chase Checking', 'Active Savings', 45000],
-    ['Feb 2026', 'Marcus HYSA', 'Active Savings', 125000],
-    ['Feb 2026', 'Vanguard S&P', 'Growth Fund', 680000],
-    ['Feb 2026', 'Primary Home', 'Real Estate', 950000],
-    ['Jan 2026', 'Chase Checking', 'Active Savings', 42000],
-    ['Jan 2026', 'Marcus HYSA', 'Active Savings', 120000],
-    ['Jan 2026', 'Vanguard S&P', 'Growth Fund', 665000],
-    ['Jan 2026', 'Primary Home', 'Real Estate', 950000],
-    ['Feb 2025', 'Chase Checking', 'Active Savings', 25000],
-    ['Feb 2025', 'Marcus HYSA', 'Active Savings', 80000],
-    ['Feb 2025', 'Vanguard S&P', 'Growth Fund', 550000],
-    ['Feb 2025', 'Primary Home', 'Real Estate', 900000]
+  
+  const mockDates = [
+    'Jun 2024','Jul 2024','Aug 2024','Sep 2024','Oct 2024','Nov 2024','Dec 2024',
+    'Jan 2025','Feb 2025','Mar 2025','Apr 2025','May 2025','Jun 2025','Jul 2025',
+    'Aug 2025','Sep 2025','Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026'
   ];
-  const expenses = [
-    ['ID', 'Month', 'Amount'],
-    [1, 'Feb 2026', 8200], [2, 'Jan 2026', 9100], [3, 'Dec 2025', 10500]
-  ];
-  pfProcessData(details, expenses);
-  document.getElementById('pf-setup').classList.add('hidden');
-  document.getElementById('pf-dashboard').classList.remove('hidden');
+  
+  let details = [['Month', 'Account', 'Category', 'Value']];
+  
+  // Generating a smooth curve dataset similar to the screenshot
+  mockDates.forEach((month, index) => {
+    // Math logic to simulate the chart's rise
+    let baseAsset = 1000000 + (index * 15000);
+    if (index > 6) baseAsset += 200000; // Jump in Jan 2025
+    if (index > 14) baseAsset += 150000; // Jump in Sep 2025
+    
+    let baseCash = 300000 + (index * 10000);
+    if (index > 6) baseCash += 400000; // Correlating jump
+    
+    let baseLiab = -120000 + (index * 2000); // Slowly paying off debt
+    
+    // Push simulated rows
+    details.push([month, 'Primary Home', 'Real Estate', baseAsset - baseCash]);
+    details.push([month, 'Chase Bank', 'Active Savings', baseCash]);
+    details.push([month, 'Mortgage', 'Debt', baseLiab]);
+  });
+
+  pfProcessData(details);
 }
 
-function pfProcessData(detailsRaw, expensesRaw) {
+function pfProcessData(detailsRaw) {
   // Ignore header rows
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : detailsRaw;
   const monthlyData = {};
 
-  const _monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function normDetMonth(raw) {
-    if (!raw) return null;
-    const s = String(raw).trim();
-    if (/^[A-Za-z]{3} \d{4}$/.test(s)) return s;
-    const d = new Date(s);
-    if (!isNaN(d)) return _monthNames[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-    return s;
-  }
-
   // Parse Details (Expected: A=Month, B=Account, C=Category, D=Value)
   detailsRows.forEach(row => {
-    const month = normDetMonth(row[0]), account = String(row[1]||'').trim(), category = String(row[2]||'').trim();
-    let value = parseFloat(String(row[3]).replace(/[$,]/g,'') || 0);
-    if (!month || !account || isNaN(value)) return;
-    if (!monthlyData[month]) monthlyData[month] = { totalAssets:0, netCash:0 };
-    monthlyData[month].totalAssets += value;
-    if (!PF_EXCLUDED.includes(account)) monthlyData[month].netCash += value;
+    const rawMonth = String(row[0]||'').trim();
+    const account = String(row[1]||'').trim();
+    const category = String(row[2]||'').trim();
+    let value = parseFloat(String(row[3]).replace(/[$,]/g,''));
+
+    if (!rawMonth || isNaN(value)) return;
+
+    // Convert string "Feb 2026" or "2026-02-01" to Date object for proper sorting
+    const d = new Date(rawMonth + (rawMonth.length <= 8 ? ' 01' : ''));
+    if (isNaN(d)) return;
+
+    // Create a normalized YYYY-MM key for grouping
+    const monthKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = { dateObj: d, assets: 0, cash: 0, liabilities: 0 };
+    }
+
+    if (value >= 0) {
+      monthlyData[monthKey].assets += value;
+      // Filter Logic for Net Cash
+      if (isLiquidCash(account, category)) {
+        monthlyData[monthKey].cash += value;
+      }
+    } else {
+      monthlyData[monthKey].liabilities += value; // Keep as negative to match chart representation
+    }
   });
 
-  // Parse Expenses (Expected: B=Month, C=Amount)
-  const expRows = expensesRaw.length > 1 ? expensesRaw.slice(1) : expensesRaw;
-  const monthlyExpenses = {};
+  // Sort dates newest to oldest to grab the latest month for KPIs
+  const sortedKeysDesc = Object.keys(monthlyData).sort((a,b) => monthlyData[b].dateObj - monthlyData[a].dateObj);
   
-  expRows.forEach(row => {
-    // Assuming month is column B (index 1) and amount is C (index 2)
-    const month = normDetMonth(row[1]);
-    let amt = parseFloat(String(row[2]).replace(/[$,]/g,'') || 0);
-    if (!month || isNaN(amt)) return;
-    monthlyExpenses[month] = (monthlyExpenses[month]||0) + amt;
-  });
+  if (sortedKeysDesc.length === 0) return;
 
-  // Sort months descending ("Feb 2026", "Jan 2026")
-  function parseMonthStr(s) {
-    const d = new Date(s + ' 01');
-    return isNaN(d) ? new Date(s) : d;
+  // ── UPDATE TOP KPI CARDS ──
+  const currentMonthKey = sortedKeysDesc[0];
+  const curData = monthlyData[currentMonthKey];
+  
+  // Format top KPI month name nicely
+  const curDateLabel = curData.dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  
+  document.getElementById('pf-total-assets').textContent = '$' + (curData.assets / 1000000).toFixed(2) + 'M';
+  document.getElementById('pf-assets-month').textContent = 'For ' + curDateLabel;
+  document.getElementById('pf-net-cash').textContent = '$' + (curData.cash / 1000000).toFixed(2) + 'M';
+  
+  // Format liabilities (handle negative sign visually)
+  let formattedLiab = Math.abs(curData.liabilities);
+  if (formattedLiab >= 1000000) {
+    document.getElementById('pf-liabilities').textContent = '-$' + (formattedLiab / 1000000).toFixed(2) + 'M';
+  } else {
+    document.getElementById('pf-liabilities').textContent = '-$' + (formattedLiab / 1000).toFixed(1) + 'K';
   }
-  const months = Object.keys(monthlyData).sort((a,b) => parseMonthStr(b) - parseMonthStr(a));
-  if(months.length === 0) return; // No data
 
-  const currentMonth = months[0];
-  const prevMonth    = months.length > 1 ? months[1] : null;
-  const curData      = monthlyData[currentMonth];
-
-  // Runway Calculation
-  const recent3 = months.slice(0,3);
-  let totalExp=0, expCount=0;
-  recent3.forEach(m => { if(monthlyExpenses[m]) { totalExp+=monthlyExpenses[m]; expCount++; } });
-  const avgExp = expCount>0 ? totalExp/expCount : 0;
-  const runway = avgExp>0 ? curData.netCash/avgExp : 0;
-
-  // Render Top KPIs (Rounding to nearest whole numbers)
-  document.getElementById('pf-total-assets').textContent = '$'+(Math.round(curData.totalAssets)/1000000).toFixed(2)+'M';
-  document.getElementById('pf-net-cash').textContent     = '$'+(Math.round(curData.netCash)/1000000).toFixed(2)+'M';
-  document.getElementById('pf-runway').textContent       = '⚡ '+runway.toFixed(1)+' MO';
-  document.getElementById('pf-portfolio-month').textContent = currentMonth;
-
-  // Category & Account Breakdown
-  const catTotals={}, catPrev={}, catYoy={}, catAccounts={}, acctDetails={}, acctPrev={}, acctYoy={};
-
-  // Find Year-Ago Month
-  const yearAgoMonth = months.find(m => {
-    const c=new Date(currentMonth), cand=new Date(m);
-    return cand.getFullYear() === c.getFullYear()-1 && cand.getMonth() === c.getMonth();
-  });
-
-  detailsRows.forEach(row => {
-    const month=normDetMonth(row[0]), account=String(row[1]||'').trim(), category=String(row[2]||'').trim();
-    let value=parseFloat(String(row[3]).replace(/[$,]/g,'')||0);
-    if(!month||!category||isNaN(value)) return;
-
-    if(month===currentMonth) {
-      catTotals[category]  = (catTotals[category]||0)+value;
-      catAccounts[category]= (catAccounts[category]||0)+1;
-      if(!acctDetails[category]) acctDetails[category]=[];
-      acctDetails[category].push({account,value});
-    }
-    if(month===prevMonth) {
-      catPrev[category]=(catPrev[category]||0)+value;
-      if(!acctPrev[category]) acctPrev[category]={};
-      acctPrev[category][account]=value;
-    }
-    if(month===yearAgoMonth) {
-      catYoy[category]=(catYoy[category]||0)+value;
-      if(!acctYoy[category]) acctYoy[category]={};
-      acctYoy[category][account]=value;
-    }
-  });
-
-  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
-  const catContainer = document.getElementById('pf-categories');
-  catContainer.innerHTML='';
-
-  sorted.forEach(([cat, value]) => {
-    const pct      = (value/curData.totalAssets)*100;
-    const prevVal  = catPrev[cat]||0;
-    const change   = value-prevVal;
-    const chgPct   = prevVal>0?((change/prevVal)*100):0;
-    const yoyVal   = catYoy[cat]||0;
-    const yoyChg   = value-yoyVal;
-    const yoyPct   = yoyVal>0?((yoyChg/yoyVal)*100):0;
-    const count    = catAccounts[cat]||0;
-
-    const chgClass = change>0?'pos':change<0?'neg':'neu';
-    const chgSym   = change>0?'↗':change<0?'↘':'—';
-    const yoyClass = yoyChg>0?'pos':yoyChg<0?'neg':'neu';
-    const yoySym   = yoyChg>0?'↗':'↘';
-
-    const row = document.createElement('div');
-    row.className='pf-cat-row';
-
-    const acctRows = (acctDetails[cat]||[]).map(({account,value:av}) => {
-      const pm = (acctPrev[cat]||{})[account]||0;
-      const momChg=av-pm, momPct=pm>0?((momChg/pm)*100):0;
-      const ya=(acctYoy[cat]||{})[account]||0;
-      const yoyChgA=av-ya, yoyPctA=ya>0?((yoyChgA/ya)*100):0;
-      
-      const mc=momChg>0?'pos':momChg<0?'neg':'neu', ms=momChg>0?'↗':momChg<0?'↘':'—';
-      const yc=yoyChgA>0?'pos':yoyChgA<0?'neg':'neu', ys=yoyChgA>0?'↗':'↘';
-      
-      return `<div class="pf-acct-table-row">
-        <div class="pf-acct-name">${account}</div>
-        <div class="pf-acct-bal">$${Math.round(av).toLocaleString()}</div>
-        <div class="pf-acct-mom ${mc}">${ms} (${momPct>=0?'+':''}${Math.round(momPct)}%)</div>
-        <div class="pf-acct-yoy ${yc}">${ys} (${yoyPctA>=0?'+':''}${Math.round(yoyPctA)}%)</div>
-      </div>`;
-    }).join('');
-
-    row.innerHTML=`
-      <svg class="pf-cat-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      <div class="pf-cat-info">
-        <div class="pf-cat-name">
-          <span class="pf-cat-label">${cat}</span>
-          <span class="pf-cat-count">${count} accts</span>
-        </div>
-        <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct.toFixed(1)}%"></div></div>
-        <div class="pf-cat-vals">
-          <span class="pf-cat-amount">$${Math.round(value).toLocaleString()}</span>
-          <span class="pf-cat-change ${chgClass}">${chgSym} $${Math.round(Math.abs(change)).toLocaleString()} (${chgPct>=0?'+':''}${Math.round(chgPct)}%)</span>
-        </div>
-      </div>
-      <div class="pf-acct-details">
-        <div class="pf-acct-table-header"><div>Account</div><div>Balance</div><div>MoM</div><div>YoY</div></div>
-        ${acctRows}
-      </div>`;
-
-    row.addEventListener('click', e => {
-      if(e.target.closest('.pf-acct-details')) return;
-      row.classList.toggle('expanded');
-    });
-    catContainer.appendChild(row);
-  });
-
-  // Anti-Fragility Calculation (Percentage in stable assets)
-  const stableCats=['Low Interest','Active Savings','Real Estate','Growth Fund'];
-  const stableTotal = stableCats.reduce((s,c)=>s+(catTotals[c]||0),0);
-  const afPct = curData.totalAssets>0 ? (stableTotal/curData.totalAssets)*100 : 0;
+  // ── BUILD CHART DATA (June 2024 onwards) ──
+  const cutoffDate = new Date('2024-06-01T00:00:00');
   
-  document.getElementById('pf-af-pct').textContent = Math.round(afPct)+'%';
-  const circ=2*Math.PI*80;
-  document.getElementById('pf-af-circle').style.strokeDashoffset = circ - (afPct/100)*circ;
+  // Filter and sort chronologically (oldest to newest) for chart plotting
+  const chartKeys = Object.keys(monthlyData)
+    .filter(key => monthlyData[key].dateObj >= cutoffDate)
+    .sort((a,b) => monthlyData[a].dateObj - monthlyData[b].dateObj);
 
-  // Trend chart
-  const trendMonths = months.slice(0,18).reverse();
-  const assetsData  = trendMonths.map(m=>(monthlyData[m]?.totalAssets||0)/1000000);
-  const cashData    = trendMonths.map(m=>(monthlyData[m]?.netCash||0)/1000000);
-  pfRenderChart(trendMonths, assetsData, cashData);
+  const labels = chartKeys.map(key => {
+    const d = monthlyData[key].dateObj;
+    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
+  });
+
+  const assetsData = chartKeys.map(key => monthlyData[key].assets);
+  const cashData = chartKeys.map(key => monthlyData[key].cash);
+  const liabData = chartKeys.map(key => monthlyData[key].liabilities);
+
+  pfRenderChart(labels, assetsData, cashData, liabData);
+  
+  document.getElementById('pf-setup').classList.add('hidden');
+  document.getElementById('pf-dashboard').classList.remove('hidden');
 }
 
-function pfRenderChart(labels, assetsData, cashData) {
+// Custom Chart.js Plugin to draw the labels at the beginning and end of the lines
+const customLineLabelsPlugin = {
+  id: 'customLineLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, i) => {
+      const meta = chart.getDatasetMeta(i);
+      if (!meta.hidden && meta.data.length > 0) {
+        
+        // Draw End Value Label (Right Side)
+        const lastPoint = meta.data[meta.data.length - 1];
+        const lastValue = dataset.data[dataset.data.length - 1];
+        const absVal = Math.abs(lastValue);
+        
+        // Format value to M or K
+        let valStr = absVal >= 1000000 ? '$' + (absVal/1000000).toFixed(2) + 'M' : '$' + (absVal/1000).toFixed(1) + 'K';
+        if (lastValue < 0) valStr = '-' + valStr;
+        
+        ctx.fillStyle = dataset.borderColor;
+        ctx.font = "500 11px 'Inter', sans-serif";
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('  ' + valStr, lastPoint.x, lastPoint.y);
+
+        // Draw Start Category Label (Left Side)
+        const firstPoint = meta.data[0];
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(dataset.label, firstPoint.x, firstPoint.y - 8);
+      }
+    });
+  }
+};
+
+function pfRenderChart(labels, assetsData, cashData, liabData) {
   if (pfTrendChart) { pfTrendChart.destroy(); pfTrendChart=null; }
   const ctx = document.getElementById('pf-trend-chart');
+  
+  Chart.register(customLineLabelsPlugin);
+
   pfTrendChart = new Chart(ctx, {
     type:'line',
     data:{
       labels,
       datasets:[
-        {label:'Total Assets',data:assetsData,borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.05)',fill:true,borderWidth:2.5,tension:0.4,pointRadius:3,pointBackgroundColor:'#00e5a0',pointBorderColor:'#0a0c0f'},
-        {label:'Net Cash',data:cashData,borderColor:'#4eb5ff',backgroundColor:'rgba(78,181,255,0.05)',fill:true,borderWidth:2.5,tension:0.4,pointRadius:3,pointBackgroundColor:'#4eb5ff',pointBorderColor:'#0a0c0f'}
+        {label:'Assets', data:assetsData, borderColor:'#00e5a0', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
+        {label:'Cash', data:cashData, borderColor:'#4eb5ff', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
+        {label:'Liabilities', data:liabData, borderColor:'#ff4e6a', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6}
       ]
     },
     options:{
-      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      responsive:true, 
+      maintainAspectRatio:false, 
+      interaction:{mode:'index',intersect:false},
+      layout: {
+        padding: { right: 60 } // Creates room on the right for the M/K text labels
+      },
       plugins:{
-        legend:{display:true,position:'bottom',labels:{color:'#8892a4',padding:20,font:{size:11,family:"'DM Mono', monospace"}}},
-        tooltip:{backgroundColor:'#111418',borderColor:'#1e2530',borderWidth:1,titleColor:'#e8edf3',bodyColor:'#8892a4',padding:12,callbacks:{label:c=>` ${c.dataset.label}: $${c.parsed.y.toFixed(2)}M`}}
+        legend:{display:false}, // Hidden because we use inline labels now
+        tooltip:{
+          backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12,
+          callbacks:{
+            label: c => {
+              const absVal = Math.abs(c.parsed.y);
+              let str = absVal >= 1000000 ? '$' + (absVal/1000000).toFixed(2) + 'M' : '$' + (absVal/1000).toFixed(1) + 'K';
+              if (c.parsed.y < 0) str = '-' + str;
+              return ` ${c.dataset.label}: ${str}`;
+            }
+          }
+        }
       },
       scales:{
-        y:{beginAtZero:false,ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"},callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'rgba(30,37,48,0.6)',drawBorder:false}},
-        x:{ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"},maxRotation:45,minRotation:45},grid:{display:false}}
+        y:{
+          display:false, // Hides the Y axis entirely to match screenshot
+          beginAtZero:false
+        },
+        x:{
+          ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0},
+          grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]}
+        }
       }
     }
   });
