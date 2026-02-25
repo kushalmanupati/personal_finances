@@ -73,4 +73,830 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-kpi-value{font-size:32px;font-weight:800;margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:-1px;}
 .pf-kpi-value.green{color:var(--green);}
 .pf-kpi-value.blue{color:var(--blue);}
-.pf
+.pf-kpi-value.red{color:var(--red);}
+.pf-kpi-sub{font-size:11px;color:var(--muted2);min-height:14px;}
+
+/* Chart */
+.pf-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.pf-chart-title{font-size:16px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif;color:var(--text);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.pf-chart-title span {color:var(--green);}
+
+/* Grids */
+.pf-portfolio-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+.pf-goals-grid{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:24px;}
+@media(max-width:900px){.pf-portfolio-grid, .pf-goals-grid{grid-template-columns:1fr;}}
+.pf-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.pf-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pf-card-title-wrap {display:flex;align-items:center;gap:8px;}
+.pf-card-title{font-size:16px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif;}
+.pf-card-icon { width:16px; height:16px; color:var(--green); }
+.pf-card-icon.blue { color:var(--blue); }
+.pf-card-icon.purple { color:var(--purple); }
+
+/* Month Dropdown */
+.month-select-wrap{position:relative;display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0 10px;transition:border-color 0.2s;}
+.month-select-wrap:hover {border-color:var(--muted);}
+.month-select-wrap svg {width:12px;height:12px;color:var(--muted);margin-right:6px;}
+select.pf-month-select{appearance:none;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 16px 8px 0;outline:none;cursor:pointer;}
+.month-select-wrap::after{content:'▾';position:absolute;right:10px;color:var(--muted);pointer-events:none;font-size:10px;}
+
+/* Category Rows */
+.pf-categories{display:flex;flex-direction:column;gap:8px;}
+.pf-cat-row{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:8px 12px;border-radius:8px;background:var(--surface2);border:1px solid transparent;transition:all 0.2s;position:relative;}
+.pf-cat-row:hover{border-color:var(--border);background:rgba(255,255,255,0.02);}
+.pf-cat-row.expanded{border-color:var(--border);background:var(--surface);}
+.pf-cat-main{display:flex;align-items:center;justify-content:space-between;}
+.pf-cat-left{display:flex;align-items:center;gap:8px;}
+.pf-cat-expand{width:14px;height:14px;color:var(--muted);transition:transform 0.3s;}
+.pf-cat-row.expanded > .pf-cat-main .pf-cat-expand{transform:rotate(90deg);color:var(--text);}
+.pf-cat-name{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;}
+.pf-cat-subtext {font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;font-weight:400;}
+.pf-cat-count{background:transparent;border:1px solid var(--green);color:var(--text);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;font-family:'Inter',sans-serif;margin-left:4px;}
+.pf-cat-right{text-align:right;}
+.pf-cat-amount{font-size:14px;font-weight:700;color:var(--text);}
+.pf-goal-topval{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.pf-cat-change{font-size:10px;font-weight:500;margin-top:2px;}
+.pf-goal-pct{font-size:13px;font-weight:700;color:var(--text);margin-top:2px;}
+.pf-cat-change.pos{color:var(--green);}
+.pf-cat-change.neg{color:var(--red);}
+.pf-cat-change.neu{color:var(--muted);}
+
+/* Progress Bars */
+.pf-cat-bar-wrap{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-left:22px;}
+.pf-cat-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.5s ease;}
+
+/* Portfolio Details Nested */
+.pf-acct-details{margin:6px 0 4px 22px;background:var(--bg);border-radius:6px;padding:12px;display:none;border:1px solid var(--border);}
+.pf-cat-row.expanded > .pf-acct-details{display:block;}
+.pf-acct-table-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(30,37,48,0.5);font-size:12px;}
+.pf-acct-table-row:last-child{border-bottom:none;padding-bottom:0;}
+.pf-acct-name{color:var(--muted2);font-weight:400;}
+.pf-acct-bal{color:var(--text);font-weight:600;font-family:'DM Mono',monospace;}
+
+/* GOAL DETAILS NESTED (The dark panel style) */
+.pf-goal-expanded-box { display:none; margin-top:12px; background:var(--surface); border-radius:8px; border:1px solid var(--border); overflow:hidden; cursor:default; }
+.pf-cat-row.expanded > .pf-goal-expanded-box { display:block; }
+.pf-gbox-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+.pf-gbox-title { font-size:13px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:8px; }
+.pf-gbox-badge { background:var(--surface2); border:1px solid var(--border); padding:2px 8px; border-radius:12px; font-size:10px; color:var(--text); }
+.pf-gbox-close { width:16px; height:16px; color:var(--muted); cursor:pointer; }
+.pf-gbox-close:hover { color:var(--text); }
+.pf-gbox-table { padding:0 16px; }
+.pf-gbox-th { display:grid; grid-template-columns: 2fr 1fr 1fr; padding:12px 0 8px; font-size:11px; color:var(--muted); font-weight:500; border-bottom:1px solid rgba(30,37,48,0.5); }
+.pf-gbox-tr { display:grid; grid-template-columns: 2fr 1fr 1fr; padding:12px 0; border-bottom:1px solid rgba(30,37,48,0.5); font-size:12px; color:var(--text); }
+.pf-gbox-tr:last-child { border-bottom:none; }
+.pf-gbox-td-right { text-align:right; font-family:'DM Mono',monospace; }
+.pf-gbox-footer { padding:12px 16px; background:var(--surface2); border-top:1px solid var(--border); font-size:11px; color:var(--muted2); }
+.pf-gbox-footer strong { color:var(--text); font-weight:600; font-family:'Inter',sans-serif; }
+
+/* Circle Charts */
+.pf-circle-wrap{position:relative;width:100%;max-width:180px;aspect-ratio:1;margin:24px auto 0; cursor:pointer;}
+.pf-circle-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.pf-circle-pct{font-size:42px;font-weight:800;color:var(--green);line-height:1;font-family:'Inter',sans-serif;letter-spacing:-1px;}
+.pf-circle-pct.blue { color: var(--blue); }
+.pf-circle-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* Tooltips */
+.rich-tooltip {
+  position: absolute; background: var(--surface2); border: 1px solid var(--border);
+  padding: 14px; border-radius: 10px; font-size: 12px; color: var(--text);
+  pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5); white-space: nowrap; font-family: 'Inter', sans-serif;
+}
+.tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+.tt-title span { color: var(--green); }
+.tt-title span.yellow { color: var(--yellow); }
+.tt-sub { color: var(--muted2); font-size: 11px; margin-bottom: 8px; }
+.tt-action { color: var(--green); font-size: 10px; margin-top: 10px; font-weight: 500; }
+.tt-row { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 6px; }
+.tt-row:last-child { margin-bottom: 0; }
+.tt-lbl { color: var(--muted2); font-weight: 500; }
+.tt-val { color: var(--text); font-weight: 600; font-family: 'DM Mono', monospace; }
+.tt-val.green { color: var(--green); }
+.tt-val.red { color: var(--red); }
+.tt-val.purple { color: var(--purple); }
+.tt-val.yellow { color: var(--yellow); }
+
+/* Controls & Bottom Tabs */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; margin: 12px auto 0;
+  padding: 10px 20px; border-radius: 8px; width: 100%; max-width: 260px;
+}
+.refresh-btn:hover { border-color: var(--muted); }
+.refresh-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+.bottom-tabs { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; margin-bottom: 24px; }
+@media(min-width: 600px) { .bottom-tabs { flex-direction: row; justify-content: center; } }
+.btm-tab {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  padding: 12px 20px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px; text-align: center;
+  background: var(--surface); color: var(--muted); text-decoration: none; transition: all 0.2s; flex: 1; max-width: 260px; margin: 0 auto;
+}
+.btm-tab:hover { border-color: var(--muted); color: var(--text); }
+.btm-tab.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <header>
+    <div class="logo">
+      <div class="logo-title">PERSONAL <span>FINANCES</span></div>
+      <div class="logo-sub">Net Worth & Asset Tracker</div>
+    </div>
+    <div class="header-right">
+      <div class="date-str" id="pf-date-str">Last updated: —</div>
+    </div>
+  </header>
+
+  <div id="pf-setup" class="pf-setup">
+    <div class="pf-setup-title">Syncing Financial Data</div>
+    <div id="pf-loading" class="pf-loading">
+      <div class="pf-spinner"></div>
+      <div class="pf-setup-sub" style="font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin:0;">Fetching from Sheet...</div>
+    </div>
+    <div id="pf-error" class="pf-error hidden"></div>
+  </div>
+
+  <div id="pf-dashboard" class="hidden">
+    
+    <div class="pf-kpi-grid">
+      <div class="pf-kpi-card green">
+        <div class="pf-kpi-label">Total Assets</div>
+        <div class="pf-kpi-value green" id="pf-total-assets">—</div>
+        <div class="pf-kpi-sub" id="pf-assets-month">Latest Month</div>
+      </div>
+      <div class="pf-kpi-card blue">
+        <div class="pf-kpi-label">Net Cash</div>
+        <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
+        <div class="pf-kpi-sub">Excludes Real Estate & Growth</div>
+      </div>
+      <div class="pf-kpi-card red" style="display:none;"> 
+        <div class="pf-kpi-label">Liabilities</div>
+        <div class="pf-kpi-value red" id="pf-liabilities">—</div>
+        <div class="pf-kpi-sub">Total negative balances</div>
+      </div>
+    </div>
+
+    <div class="pf-chart-card">
+      <div class="pf-chart-title"><span style="color:var(--green)">↗</span> Trend</div>
+      <div style="position:relative;height:240px;">
+        <canvas id="pf-trend-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="pf-portfolio-grid">
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+            <div class="pf-card-title">Portfolio</div>
+          </div>
+          <div class="month-select-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <select class="pf-month-select" id="pf-month-filter" onchange="renderPortfolioSections()"></select>
+          </div>
+        </div>
+        <div class="pf-categories" id="pf-categories"></div>
+      </div>
+
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div class="pf-card-title">Anti-Fragility</div>
+          </div>
+        </div>
+        <div class="pf-circle-wrap" id="pf-af-wrap">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="16"/>
+            <circle id="pf-af-circle" cx="100" cy="100" r="80" fill="none" stroke="#00e5a0" stroke-width="16"
+                    stroke-dasharray="0 502.4" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+          <div class="pf-circle-val">
+            <div class="pf-circle-pct" id="pf-af-pct">0%</div>
+            <div class="pf-circle-lbl" id="pf-af-status">Balanced</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-goals-grid">
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon purple" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <div class="pf-card-title">Freedom Crossover</div>
+          </div>
+        </div>
+        <div class="pf-circle-wrap" id="pf-freedom-wrap">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="16"/>
+            <circle id="pf-freedom-circle" cx="100" cy="100" r="80" fill="none" stroke="#4eb5ff" stroke-width="16"
+                    stroke-dasharray="0 502.4" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)" stroke-linecap="round"/>
+          </svg>
+          <div class="pf-circle-val">
+            <div class="pf-circle-pct blue" id="pf-freedom-pct">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pf-card">
+        <div class="pf-card-header">
+          <div class="pf-card-title-wrap">
+            <svg class="pf-card-icon green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            <div class="pf-card-title">Goal Progress</div>
+          </div>
+        </div>
+        <div class="pf-categories" id="pf-goals-container">
+          </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="refresh-btn" onclick="pfLoadData()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20q-3.35 0-5.675-2.325Q4 15.35 4 12q0-3.35 2.325-5.675Q8.65 4 12 4q1.725 0 3.3.712T18 6.75V4h2v7h-7V9h3.2q-1.05-1.8-2.825-2.9Q13.6 5 12 5 9.075 5 7.038 7.038 5 9.075 5 12q0 2.925 2.038 4.962Q9.075 19 12 19q2.5 0 4.388-1.5T18.8 13h2.05q-.5 3.45-3.175 5.725Q15.05 20 12 20Z"/></svg>
+        Refresh Data
+      </button>
+    </div>
+  </div>
+
+  <div class="bottom-tabs">
+    <a href="index.html" class="btm-tab">Options Dashboard</a>
+    <a href="personal_finances.html" class="btm-tab active">Personal Finances</a>
+  </div>
+  
+  <div style="text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;padding-bottom:32px;font-family:'DM Mono',monospace;">
+    PERSONAL FINANCES · LIVE DATA
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// PERSONAL FINANCE JAVASCRIPT LOGIC
+// ════════════════════════════════════════════════════════
+
+// WEBHOOK URLS
+const PF_WEBHOOK_DETAILS = 'https://script.google.com/macros/s/AKfycbz7yPg5-MP8GA0hcM-eHrQ5CH8WU09uAwZP0uVU8jCRRrEa2TLezliSEZIg9TpSoG3F/exec';
+const PF_WEBHOOK_EXPENSES = 'https://script.google.com/macros/s/AKfycbx--EJ22tenXx4yUsVGUIOlCjNLd6uDNHFP_sASk0BBrVAMEm1dGvmziwaqGOwdGLim/exec';
+const PF_WEBHOOK_GOALS = 'https://script.google.com/macros/s/AKfycbw7Lqs-QkW4BVVIp584u-5KRvo4passTz5vLCbSH1c2Vn5UrFoNPDd-FclZ2HfIaGjwIw/exec';
+const PF_WEBHOOK_INCOMES = 'https://script.google.com/macros/s/AKfycbxGfZVYSOZR6RX0Yw4sOCDSPYNgvA5uSJKsCPA9U-WIqYuUjPY0j6J5iudQN8V1XpPYXw/exec';
+
+let pfTrendChart = null;
+let GLOBAL_PF_DATA = {};       
+let GLOBAL_SORTED_MONTHS = []; 
+let GLOBAL_AVG_EXPENSE = 0; 
+let GLOBAL_PASSIVE_INC = 0;
+let GLOBAL_GOALS = [];      
+
+const STABLE_CATEGORIES = ['low interest', 'active savings', 'real estate', 'growth fund'];
+const BAR_COLORS = ['#00e5a0', '#4eb5ff', '#c77dff', '#ffd166', '#ff4e6a'];
+
+// Helper formatting
+const fmtK = val => {
+  const abs = Math.abs(val);
+  if (abs >= 1e6) return '$' + (abs/1e6).toFixed(2) + 'M';
+  if (abs >= 1e3) return '$' + (abs/1e3).toFixed(1) + 'K';
+  return '$' + Math.round(abs);
+};
+const fmtPct = val => (val > 0 ? '+' : '') + val.toFixed(1) + '%';
+const parseToKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+const keyToLabel = key => {
+  const [y, m] = key.split('-');
+  return new Date(y, m - 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
+};
+
+function setArc(id, pct) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const c = 2 * Math.PI * 80;
+  el.setAttribute('stroke-dasharray', `${(pct > 100 ? 100 : pct / 100) * c} ${c}`);
+}
+
+function isLiquidCash(category) {
+  const catLower = String(category).toLowerCase().trim();
+  if (catLower.includes('real estate') || catLower.includes('growth fund') || catLower.includes('project')) return false;
+  return true;
+}
+
+function isStableAsset(category) {
+  return STABLE_CATEGORIES.some(stable => String(category).toLowerCase().trim().includes(stable));
+}
+
+// ── PARALLEL DATA FETCHING ──
+function pfLoadData() {
+  document.getElementById('pf-setup').classList.remove('hidden');
+  document.getElementById('pf-dashboard').classList.add('hidden');
+  document.getElementById('pf-error').classList.add('hidden');
+
+  let completedReqs = 0;
+  let hasFailed = false;
+  let allFetchedData = { details: [], expenses: [], goals: [], incomes: [] };
+
+  const fallbackTimer = setTimeout(() => {
+    if(completedReqs < 4 && !hasFailed) {
+      hasFailed = true;
+      console.warn("API timeout, loading fallback data.");
+      pfLoadFallback();
+    }
+  }, 10000); 
+
+  function fetchTab(url, key) {
+    const cb = 'pfCb_' + key + '_' + Date.now() + Math.floor(Math.random()*1000);
+    const sc = document.createElement('script');
+    
+    window[cb] = function(json) {
+      if(hasFailed) return; 
+      delete window[cb];
+      document.body.removeChild(sc);
+      
+      if (json.error) { hasFailed = true; pfLoadFallback(); return; }
+      
+      allFetchedData[key] = json.data || [];
+      completedReqs++;
+      
+      if(key === 'details' && json.lastUpdated) {
+        const lu = new Date(json.lastUpdated);
+        document.getElementById('pf-date-str').textContent = 'Live · ' +
+          lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
+          lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      }
+
+      if (completedReqs === 4) {
+        clearTimeout(fallbackTimer);
+        pfProcessData(allFetchedData);
+      }
+    };
+
+    sc.onerror = function() {
+      if(hasFailed) return;
+      hasFailed = true;
+      delete window[cb];
+      document.body.removeChild(sc);
+      pfLoadFallback();
+    };
+
+    sc.src = url + '?callback=' + cb;
+    document.body.appendChild(sc);
+  }
+
+  fetchTab(PF_WEBHOOK_DETAILS, 'details');
+  fetchTab(PF_WEBHOOK_EXPENSES, 'expenses');
+  fetchTab(PF_WEBHOOK_GOALS, 'goals');
+  fetchTab(PF_WEBHOOK_INCOMES, 'incomes');
+}
+
+function pfLoadFallback() {
+  document.getElementById('pf-date-str').textContent = 'Offline Mode';
+  const mockDates = ['Jun 2024','Jul 2024','Aug 2024','Sep 2024','Oct 2024','Nov 2024','Dec 2024',
+    'Jan 2025','Feb 2025','Mar 2025','Apr 2025','May 2025','Jun 2025','Jul 2025',
+    'Aug 2025','Sep 2025','Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026'];
+  
+  let details = [['Month', 'Account', 'Category', 'Value']];
+  mockDates.forEach((m, i) => {
+    details.push([m, 'Primary Home', 'Real Estate', 300000 + (i*1000)]);
+    details.push([m, 'K - Invest Saxo', 'Equities', 330000 + (i*10000)]);
+    details.push([m, 'Global - Crypto Coinbase', 'Crypto', 220000 + (i*5000)]);
+  });
+
+  let exp = [['Month', 'Amount'], ['Jan 2026', 37300]];
+  let inc = [['Month', 'Amount'], ['Jan 2026', 8500]];
+  
+  let goals = [['Name', 'Category', 'Date', 'Target', 'Asset', 'Alloc'], 
+    ['Retirement House', 'House', '31 Dec 2035', 500000, 'K - Invest Saxo', 20],
+    ['Retirement House', 'House', '31 Dec 2035', 500000, 'Global - Crypto Coinbase', 5]
+  ];
+
+  pfProcessData({ details: details, expenses: exp, goals: goals, incomes: inc });
+}
+
+// ── DATA PARSING ──
+
+function pfProcessData(allData) {
+  // ════════════════════════════════════════════════════════
+  // ⚙️ COLUMN CONFIGURATION (0-Indexed: A=0, B=1, C=2, etc.)
+  // ════════════════════════════════════════════════════════
+  const EXP_COL_AMT = 1; 
+  
+  const GOAL_COL_NAME = 0;   // Col A (Goal Name)
+  const GOAL_COL_CAT = 1;    // Col B (Category)
+  const GOAL_COL_DATE = 2;   // Col C (Target Date)
+  const GOAL_COL_TARGET = 3; // Col D (Target Amount)
+  const GOAL_COL_ASSET = 4;  // Col E (Linked Asset)
+  const GOAL_COL_ALLOC = 5;  // Col F (Allocation %)
+  // ════════════════════════════════════════════════════════
+
+  // 1. Process Main Portfolio
+  const detailsRaw = allData.details || [];
+  const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : detailsRaw;
+  GLOBAL_PF_DATA = {};
+
+  detailsRows.forEach(row => {
+    const rawMonth = String(row[0]||'').trim();
+    const account = String(row[1]||'').trim();
+    const category = String(row[2]||'').trim();
+    let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
+
+    if (!rawMonth || isNaN(value)) return;
+
+    const d = new Date(rawMonth + (rawMonth.length <= 8 ? ' 01' : ''));
+    if (isNaN(d)) return;
+
+    const monthKey = parseToKey(d);
+    if (!GLOBAL_PF_DATA[monthKey]) GLOBAL_PF_DATA[monthKey] = { dateObj: d, assets: 0, cash: 0, categories: {} };
+
+    if (value > 0) {
+      GLOBAL_PF_DATA[monthKey].assets += value;
+      if (isLiquidCash(category)) GLOBAL_PF_DATA[monthKey].cash += value;
+      
+      if (!GLOBAL_PF_DATA[monthKey].categories[category]) GLOBAL_PF_DATA[monthKey].categories[category] = { total: 0, accounts: {} };
+      GLOBAL_PF_DATA[monthKey].categories[category].total += value;
+      
+      // Save for Goal lookup
+      GLOBAL_PF_DATA[monthKey].categories[category].accounts[account] = value;
+    }
+  });
+
+  GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
+  if (GLOBAL_SORTED_MONTHS.length === 0) return;
+
+  // 2. Process Expenses
+  const expRaw = allData.expenses || [];
+  const expRows = expRaw.length > 1 ? expRaw.slice(1) : expRaw;
+  let totalExp = 0, expCount = 0;
+  
+  expRows.slice(0, 3).forEach(row => {
+    let valRaw = String(row[EXP_COL_AMT] || row[row.length-1] || 0); 
+    let val = parseFloat(valRaw.replace(/[^0-9.-]+/g,"")); 
+    if(!isNaN(val) && val > 0) { totalExp += val; expCount++; }
+  });
+  GLOBAL_AVG_EXPENSE = expCount > 0 ? (totalExp / expCount) : 10000; 
+
+  // 3. Process Investment Incomes
+  const incRaw = allData.incomes || [];
+  const incRows = incRaw.length > 1 ? incRaw.slice(1) : incRaw;
+  let totalInc = 0, incCount = 0;
+  
+  incRows.slice(0, 3).forEach(row => {
+    let valRaw = String(row[row.length-1] || 0); 
+    let val = parseFloat(valRaw.replace(/[^0-9.-]+/g,"")); 
+    if(!isNaN(val) && val > 0) { totalInc += val; incCount++; }
+  });
+  GLOBAL_PASSIVE_INC = incCount > 0 ? (totalInc / incCount) : 0; 
+
+  // 4. Process Goals
+  const goalsRaw = allData.goals || [];
+  const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : goalsRaw;
+  let goalMap = {};
+  const latestMonthData = GLOBAL_PF_DATA[GLOBAL_SORTED_MONTHS[0]];
+
+  goalsRows.forEach(row => {
+    let name = String(row[GOAL_COL_NAME]||'').trim();
+    let category = String(row[GOAL_COL_CAT]||'').trim();
+    let dateStr = String(row[GOAL_COL_DATE]||'').trim();
+    let target = parseFloat(String(row[GOAL_COL_TARGET]).replace(/[^0-9.-]+/g,"")) || 0;
+    let mappedAsset = String(row[GOAL_COL_ASSET]||'').trim();
+    
+    // Parses percentages securely
+    let allocRaw = String(row[GOAL_COL_ALLOC]||'0').replace(/[^0-9.-]+/g,"");
+    let alloc = parseFloat(allocRaw);
+    if (alloc > 1) alloc = alloc / 100;
+
+    if(!name) return;
+    if(!goalMap[name]) goalMap[name] = { name, category, dateStr, current: 0, target: target, accounts: [] };
+    if (target > goalMap[name].target) goalMap[name].target = target;
+    
+    // Dynamic Balance Lookup based on exact Account Name
+    if (mappedAsset && latestMonthData) {
+       let acctBal = 0;
+       Object.values(latestMonthData.categories).forEach(cat => {
+          if (cat.accounts[mappedAsset]) { acctBal += cat.accounts[mappedAsset]; }
+       });
+       
+       let contribution = acctBal * alloc;
+       goalMap[name].current += contribution;
+       goalMap[name].accounts.push({ name: mappedAsset, allocPct: alloc * 100, value: contribution });
+    }
+  });
+  GLOBAL_GOALS = Object.values(goalMap);
+
+  // Init UI
+  const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
+  const curData = GLOBAL_PF_DATA[currentMonthKey];
+  
+  document.getElementById('pf-total-assets').textContent = '$' + Math.round(curData.assets).toLocaleString();
+  document.getElementById('pf-assets-month').textContent = 'For ' + keyToLabel(currentMonthKey);
+  document.getElementById('pf-net-cash').textContent = '$' + Math.round(curData.cash).toLocaleString();
+
+  const monthSelect = document.getElementById('pf-month-filter');
+  monthSelect.innerHTML = GLOBAL_SORTED_MONTHS.map(m => `<option value="${m}">${keyToLabel(m)}</option>`).join('');
+  
+  renderTrendChart();
+  renderPortfolioSections();
+  renderGoalsAndFreedom();
+  
+  document.getElementById('pf-setup').classList.add('hidden');
+  document.getElementById('pf-dashboard').classList.remove('hidden');
+}
+
+// Tooltips
+const pfTooltip = document.createElement('div');
+pfTooltip.className = 'rich-tooltip';
+document.body.appendChild(pfTooltip);
+
+function attachTooltip(el, html) {
+  el.addEventListener('mouseover', e => {
+    pfTooltip.innerHTML = html;
+    pfTooltip.style.opacity = 1;
+  });
+  el.addEventListener('mousemove', e => {
+    let x = e.pageX + 15; let y = e.pageY + 15;
+    if (x + pfTooltip.offsetWidth > window.innerWidth) x = e.pageX - pfTooltip.offsetWidth - 15;
+    pfTooltip.style.left = x + 'px'; pfTooltip.style.top = y + 'px';
+  });
+  el.addEventListener('mouseout', () => pfTooltip.style.opacity = 0);
+}
+
+// ── RENDER PORTFOLIO & ANTI-FRAGILITY ──
+function renderPortfolioSections() {
+  const selectedKey = document.getElementById('pf-month-filter').value;
+  const curData = GLOBAL_PF_DATA[selectedKey];
+  if (!curData) return;
+
+  const [yStr, mStr] = selectedKey.split('-');
+  let prevDate = new Date(yStr, parseInt(mStr) - 2);
+  const prevKey = parseToKey(prevDate);
+  const prevData = GLOBAL_PF_DATA[prevKey] || { categories: {} };
+
+  let yoyDate = new Date(yStr - 1, parseInt(mStr) - 1);
+  const yoyKey = parseToKey(yoyDate);
+  const yoyData = GLOBAL_PF_DATA[yoyKey] || { categories: {} };
+
+  const totalAssets = curData.assets;
+  let stableTotal = 0, volatileTotal = 0;
+  let volatileCatNames = [], stableCatNames = [];
+
+  const sortedCats = Object.entries(curData.categories).sort((a,b) => b[1].total - a[1].total);
+  const catContainer = document.getElementById('pf-categories');
+  catContainer.innerHTML = '';
+
+  sortedCats.forEach(([catName, catData], idx) => {
+    const value = catData.total;
+    const pct = totalAssets > 0 ? (value / totalAssets) * 100 : 0;
+    
+    if (isStableAsset(catName)) { stableTotal += value; stableCatNames.push(catName); } 
+    else { volatileTotal += value; volatileCatNames.push(catName); }
+
+    const prevVal = prevData.categories[catName]?.total || 0;
+    const momChg = value - prevVal; const momPct = prevVal > 0 ? (momChg / prevVal) * 100 : 0;
+    const mClass = momChg > 0 ? 'pos' : momChg < 0 ? 'neg' : 'neu';
+    const mSym = momChg > 0 ? '↗' : momChg < 0 ? '↘' : '—';
+
+    const yoyVal = yoyData.categories[catName]?.total || 0;
+    const yoyChg = value - yoyVal; const yoyPct = yoyVal > 0 ? (yoyChg / yoyVal) * 100 : 0;
+    const ySym = yoyChg > 0 ? '↗' : yoyChg < 0 ? '↘' : '—';
+
+    const acctKeys = Object.keys(catData.accounts).sort((a,b) => catData.accounts[b] - catData.accounts[a]);
+    const acctRows = acctKeys.map(acc => `
+      <div class="pf-acct-table-row"><div class="pf-acct-name">${acc}</div><div class="pf-acct-bal">$${Math.round(catData.accounts[acc]).toLocaleString()}</div></div>
+    `).join('');
+
+    const row = document.createElement('div');
+    row.className = 'pf-cat-row';
+    row.innerHTML = `
+      <div class="pf-cat-main">
+        <div class="pf-cat-left">
+          <svg class="pf-cat-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <div class="pf-cat-name">${catName} <span class="pf-cat-count">${acctKeys.length} accts</span></div>
+        </div>
+        <div class="pf-cat-right">
+          <div class="pf-cat-amount">${fmtK(value)}</div>
+          <div class="pf-cat-change ${mClass}">${mSym} ${fmtK(momChg)} (${fmtPct(momPct)})</div>
+        </div>
+      </div>
+      <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct}%"></div></div>
+      <div class="pf-acct-details">${acctRows}</div>
+    `;
+
+    const ttHtml = `<div class="tt-title"><span>${catName}</span> holds ${pct.toFixed(1)}% of portfolio</div>
+                    <div class="tt-sub">YoY: <span class="${yoyChg > 0 ? 'tt-val green' : yoyChg < 0 ? 'tt-val red' : ''}">${ySym} ${fmtK(yoyChg)} (${fmtPct(yoyPct)})</span></div>`;
+    
+    attachTooltip(row.querySelector('.pf-cat-main'), ttHtml);
+    row.querySelector('.pf-cat-main').addEventListener('click', () => row.classList.toggle('expanded'));
+    catContainer.appendChild(row);
+  });
+
+  const afPct = totalAssets > 0 ? (stableTotal / totalAssets) * 100 : 0;
+  document.getElementById('pf-af-pct').textContent = Math.round(afPct) + '%';
+  document.getElementById('pf-af-status').textContent = afPct >= 70 ? "Highly Stable" : afPct >= 40 ? "Balanced" : "Volatile";
+  setArc('pf-af-circle', afPct);
+
+  const afTtHtml = `
+    <div class="tt-row"><span class="tt-lbl">Stable Assets</span><span class="tt-val green">${fmtK(stableTotal)} (${afPct.toFixed(0)}%)</span></div>
+    <div class="tt-sub" style="margin-bottom:16px;white-space:normal;max-width:200px;">${stableCatNames.join(', ')}</div>
+    <div class="tt-row"><span class="tt-lbl">Volatile Assets</span><span class="tt-val red">${fmtK(volatileTotal)} (${(100-afPct).toFixed(0)}%)</span></div>
+    <div class="tt-sub" style="margin-bottom:0;white-space:normal;max-width:200px;">${volatileCatNames.join(', ')}</div>
+  `;
+  attachTooltip(document.getElementById('pf-af-wrap'), afTtHtml);
+}
+
+// ── RENDER GOALS & FREEDOM CROSSOVER ──
+function renderGoalsAndFreedom() {
+  
+  // 1. Freedom Crossover 
+  const targetAssets = 10000000; // Fixed visual Target
+  const withdrawalRate = 0.04;
+  
+  const passiveIncome = GLOBAL_PASSIVE_INC; 
+  const expenses = GLOBAL_AVG_EXPENSE;      
+  const gap = expenses - passiveIncome;
+  
+  const freedomPct = expenses > 0 ? (passiveIncome / expenses) * 100 : 0;
+
+  document.getElementById('pf-freedom-pct').textContent = Math.round(freedomPct) + '%';
+  setArc('pf-freedom-circle', freedomPct);
+
+  const frTtHtml = `
+    <div class="tt-row"><span class="tt-lbl">Target Assets (100% Freedom)</span><span class="tt-val yellow">${fmtK(targetAssets)}</span></div>
+    <div class="tt-row"><span class="tt-lbl">Monthly Passive Income</span><span class="tt-val green">${fmtK(passiveIncome)}</span></div>
+    <div class="tt-row"><span class="tt-lbl">Monthly Expenses</span><span class="tt-val red">${fmtK(expenses)}</span></div>
+    <div class="tt-row"><span class="tt-lbl">Gap to Cover</span><span class="tt-val purple">${gap > 0 ? fmtK(gap) : '$0'}</span></div>
+    <div class="tt-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;"><span class="tt-lbl">Withdrawal Rate</span><span class="tt-val purple">4%</span></div>
+  `;
+  attachTooltip(document.getElementById('pf-freedom-wrap'), frTtHtml);
+
+  // 2. Goal Progress List
+  const goalContainer = document.getElementById('pf-goals-container');
+  goalContainer.innerHTML = '';
+  
+  if (GLOBAL_GOALS.length === 0) {
+    goalContainer.innerHTML = '<div class="no-data" style="color:var(--muted); font-size:12px; text-align:center; padding:20px;">No goals mapped yet.</div>';
+    return;
+  }
+
+  GLOBAL_GOALS.sort((a,b) => a.current - b.current).forEach((goal, idx) => {
+    const pct = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
+    const color = BAR_COLORS[idx % BAR_COLORS.length];
+
+    const acctRows = goal.accounts.map(acc => `
+      <div class="pf-gbox-tr">
+        <div>${acc.name}</div>
+        <div>${Math.round(acc.allocPct)}%</div>
+        <div class="pf-gbox-td-right">$${Math.round(acc.value).toLocaleString()}</div>
+      </div>
+    `).join('');
+    
+    const leftToSave = goal.target - goal.current;
+
+    const row = document.createElement('div');
+    row.className = 'pf-cat-row goal-row';
+    
+    const subtext = goal.category ? `${goal.category} · ${goal.dateStr}` : goal.dateStr;
+
+    row.innerHTML = `
+      <div class="pf-cat-main">
+        <div class="pf-cat-left">
+          <svg class="pf-cat-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <div class="pf-cat-name" style="color:${color}; font-weight:600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            ${goal.name} <span class="pf-cat-subtext">· ${subtext}</span>
+          </div>
+        </div>
+        <div class="pf-cat-right">
+          <div class="pf-goal-topval">${fmtK(goal.current)} / ${fmtK(goal.target)}</div>
+          <div class="pf-goal-pct">${pct.toFixed(1)}%</div>
+        </div>
+      </div>
+      <div class="pf-cat-bar-wrap"><div class="pf-cat-bar" style="width:${pct > 100 ? 100 : pct}%; background:${color};"></div></div>
+      
+      <div class="pf-goal-expanded-box" onclick="event.stopPropagation()">
+        <div class="pf-gbox-header">
+          <div class="pf-gbox-title">
+            <svg width="14" height="14" style="color:${color}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            ${goal.name}
+            <span class="pf-gbox-badge">${goal.accounts.length} sources</span>
+          </div>
+          <svg class="pf-gbox-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="pf-gbox-table">
+          <div class="pf-gbox-th"><div>Asset</div><div>Allocation</div><div class="pf-gbox-td-right">Value</div></div>
+          ${acctRows}
+        </div>
+        <div class="pf-gbox-footer">
+          You need to save <strong>$${Math.round(leftToSave > 0 ? leftToSave/1000 : 0)}K</strong> more by <strong>${goal.dateStr}</strong>.
+        </div>
+      </div>
+    `;
+
+    row.querySelector('.pf-cat-main').addEventListener('click', () => {
+      const isExpanded = row.classList.contains('expanded');
+      document.querySelectorAll('.goal-row.expanded').forEach(r => {
+         r.classList.remove('expanded');
+         r.style.borderColor = 'transparent';
+      });
+      if (!isExpanded) {
+        row.classList.add('expanded');
+        row.style.borderColor = color;
+      }
+    });
+    
+    row.querySelector('.pf-gbox-close').addEventListener('click', (e) => {
+      e.stopPropagation();
+      row.classList.remove('expanded');
+      row.style.borderColor = 'transparent';
+    });
+
+    goalContainer.appendChild(row);
+  });
+}
+
+// ── TREND CHART ──
+function renderTrendChart() {
+  const cutoffDate = new Date('2024-06-01T00:00:00');
+  
+  const chartKeys = GLOBAL_SORTED_MONTHS
+    .filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate)
+    .sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
+
+  const labels = chartKeys.map(key => {
+    const d = GLOBAL_PF_DATA[key].dateObj;
+    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
+  });
+
+  const assetsData = chartKeys.map(key => GLOBAL_PF_DATA[key].assets);
+  const cashData = chartKeys.map(key => GLOBAL_PF_DATA[key].cash);
+
+  if (pfTrendChart) { pfTrendChart.destroy(); }
+  const ctx = document.getElementById('pf-trend-chart');
+  
+  const customLineLabelsPlugin = {
+    id: 'customLineLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      chart.data.datasets.forEach((dataset, i) => {
+        const meta = chart.getDatasetMeta(i);
+        if (!meta.hidden && meta.data.length > 0) {
+          const lastPoint = meta.data[meta.data.length - 1];
+          const lastValue = dataset.data[dataset.data.length - 1];
+          ctx.fillStyle = dataset.borderColor;
+          ctx.font = "500 11px 'Inter', sans-serif";
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('  ' + fmtK(lastValue), lastPoint.x, lastPoint.y);
+
+          const firstPoint = meta.data[0];
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(dataset.label, firstPoint.x, firstPoint.y - 8);
+        }
+      });
+    }
+  };
+
+  Chart.register(customLineLabelsPlugin);
+
+  pfTrendChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Assets', data:assetsData, borderColor:'#00e5a0', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6},
+        {label:'Cash', data:cashData, borderColor:'#4eb5ff', borderWidth: 2.5, tension:0.4, pointRadius:0, pointHoverRadius:6}
+      ]
+    },
+    options:{
+      responsive:true, 
+      maintainAspectRatio:false, 
+      interaction:{mode:'index',intersect:false},
+      layout: { padding: { right: 50 } }, 
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#111418', borderColor:'#1e2530', borderWidth:1, titleColor:'#e8edf3', bodyColor:'#8892a4', padding:12,
+          callbacks:{ label: c => ` ${c.dataset.label}: ${fmtK(c.parsed.y)}` }
+        }
+      },
+      scales:{
+        y:{ display:false, beginAtZero:false },
+        x:{ ticks:{color:'#5a6478',font:{size:10,family:"'DM Mono', monospace"}, maxRotation: 0}, grid:{color:'rgba(255,255,255,0.05)', drawBorder:false, borderDash: [4, 4]} }
+      }
+    }
+  });
+}
+
+pfLoadData();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
