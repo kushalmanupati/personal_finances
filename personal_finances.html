@@ -105,6 +105,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-cat-row{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:8px 12px;border-radius:8px;background:var(--surface2);border:1px solid transparent;transition:all 0.2s;position:relative;}
 .pf-cat-row:hover{border-color:var(--border);background:rgba(255,255,255,0.02);}
 .pf-cat-row.expanded{border-color:var(--border);background:var(--surface);}
+.pf-cat-row.goal-row.expanded{border-color:var(--yellow);background:var(--yellow-dim);}
 .pf-cat-main{display:flex;align-items:center;justify-content:space-between;}
 .pf-cat-left{display:flex;align-items:center;gap:8px;}
 .pf-cat-expand{width:14px;height:14px;color:var(--muted);transition:transform 0.3s;}
@@ -112,6 +113,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 .pf-cat-name{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;}
 .pf-cat-subtext {font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;font-weight:400;}
 .pf-cat-count{background:transparent;border:1px solid var(--green);color:var(--text);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600;font-family:'Inter',sans-serif;margin-left:4px;}
+.pf-cat-count.yellow { border-color: var(--yellow); }
 .pf-cat-right{text-align:right;}
 .pf-cat-amount{font-size:14px;font-weight:700;color:var(--text);}
 .pf-goal-topval{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
@@ -124,6 +126,7 @@ select.pf-month-select{appearance:none;background:transparent;border:none;color:
 /* Progress Bars */
 .pf-cat-bar-wrap{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-left:22px;}
 .pf-cat-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.5s ease;}
+.pf-cat-bar.yellow { background: var(--yellow); }
 
 /* Portfolio Details Nested */
 .pf-acct-details{margin:6px 0 4px 22px;background:var(--bg);border-radius:6px;padding:12px;display:none;border:1px solid var(--border);}
@@ -350,7 +353,7 @@ const PF_WEBHOOK_INCOMES = 'https://script.google.com/macros/s/AKfycbxGfZVYSOZR6
 let pfTrendChart = null;
 let GLOBAL_PF_DATA = {};       
 let GLOBAL_SORTED_MONTHS = []; 
-let GLOBAL_AVG_EXPENSE = 0; 
+let GLOBAL_MONTHLY_EXPENSE = 0; 
 let GLOBAL_PASSIVE_INC = 0;
 let GLOBAL_GOALS = [];      
 
@@ -464,8 +467,8 @@ function pfLoadFallback() {
     details.push([m, 'Global - Crypto Coinbase', 'Crypto', 220000 + (i*5000)]);
   });
 
-  let exp = [['Month', 'Amount'], ['Jan 2026', 37300]];
-  let inc = [['Month', 'Amount'], ['Jan 2026', 8500]];
+  let exp = [['Month', 'Amount'], ['Dec 2025', 10500]];
+  let inc = [['Month', 'Amount'], ['Feb 2026', 8500]];
   
   let goals = [['Name', 'Category', 'Date', 'Target', 'Asset', 'Alloc'], 
     ['Retirement House', 'House', '31 Dec 2035', 500000, 'K - Invest Saxo', 20],
@@ -475,27 +478,58 @@ function pfLoadFallback() {
   pfProcessData({ details: details, expenses: exp, goals: goals, incomes: inc });
 }
 
+// ── ROBUST SUMMATION HELPER ──
+function getLatestMonthSum(rawArray, dateCol, amtCol) {
+  if (!rawArray || rawArray.length <= 1) return 0;
+  let rows = rawArray.slice(1);
+  let monthlySums = {};
+
+  rows.forEach(row => {
+    let rawDate = String(row[dateCol] || '').trim();
+    let rawAmt = String(row[amtCol] || '').replace(/[^0-9.-]+/g,"");
+    let val = parseFloat(rawAmt);
+
+    // Skip if no date or if the value is invalid
+    if(!rawDate || isNaN(val)) return;
+
+    // Convert to strict YYYY-MM format to group identical months safely
+    let d = new Date(rawDate + (rawDate.length <= 8 ? ' 01' : ''));
+    if(isNaN(d)) return;
+
+    let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
+    if(!monthlySums[mKey]) monthlySums[mKey] = 0;
+    
+    monthlySums[mKey] += val;
+  });
+
+  // Sort dates descending so [0] is the most recent month
+  let sortedKeys = Object.keys(monthlySums).sort((a,b) => b.localeCompare(a));
+  if(sortedKeys.length === 0) return 0;
+
+  return monthlySums[sortedKeys[0]];
+}
+
 // ── DATA PARSING ──
 
 function pfProcessData(allData) {
   // ════════════════════════════════════════════════════════
-  // ⚙️ COLUMN CONFIGURATION (0-Indexed: A=0, B=1, C=2, D=3, etc.)
+  // ⚙️ COLUMN CONFIGURATION (0-Indexed: A=0, B=1, C=2)
   // ════════════════════════════════════════════════════════
   // EXPENSES TAB
-  const EXP_COL_DATE = 1; // Col B (Month)
-  const EXP_COL_AMT  = 2; // Col C (Amount)
+  const EXP_COL_MONTH = 1; // Col B (Month)
+  const EXP_COL_AMT   = 2; // Col C (Spend in SGD)
 
   // INVESTMENT INCOMES TAB
-  const INC_COL_DATE = 0; // Col A (Date/Month)
-  const INC_COL_AMT  = 2; // Col C (Amount - Change this if your amount is in Col B or D!)
+  const INC_COL_MONTH = 0; // Col A (Month/Year)
+  const INC_COL_AMT   = 5; // Col F (Amount SGD)
   
   // GOAL MAPPER TAB
-  const GOAL_COL_NAME = 0;   // Col A 
-  const GOAL_COL_CAT = 1;    // Col B 
-  const GOAL_COL_DATE = 2;   // Col C 
+  const GOAL_COL_NAME   = 0; // Col A 
+  const GOAL_COL_CAT    = 1; // Col B 
+  const GOAL_COL_DATE   = 2; // Col C 
   const GOAL_COL_TARGET = 3; // Col D 
-  const GOAL_COL_ASSET = 4;  // Col E 
-  const GOAL_COL_ALLOC = 5;  // Col F 
+  const GOAL_COL_ASSET  = 4; // Col E 
+  const GOAL_COL_ALLOC  = 5; // Col F 
   // ════════════════════════════════════════════════════════
 
   // 1. Process Main Portfolio
@@ -532,43 +566,12 @@ function pfProcessData(allData) {
   GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // Helper function to safely calculate the average of the 3 most recent months
-  function getLatestAvg(rawArray, dateCol, amtCol) {
-    if (!rawArray || rawArray.length <= 1) return 0;
-    let rows = rawArray.slice(1);
-    let monthly = {};
-    
-    rows.forEach(row => {
-      let rawDate = String(row[dateCol] || '').trim();
-      let rawAmt = String(row[amtCol] || '').replace(/[^0-9.-]+/g,"");
-      let val = parseFloat(rawAmt);
-      if(!rawDate || isNaN(val) || val <= 0) return;
-
-      let d = new Date(rawDate + (rawDate.length <= 8 ? ' 01' : ''));
-      if(isNaN(d)) return;
-      
-      let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
-      if(!monthly[mKey]) monthly[mKey] = 0;
-      monthly[mKey] += val;
-    });
-    
-    let sorted = Object.keys(monthly).sort((a,b) => b.localeCompare(a)); // Newest first
-    if(sorted.length === 0) return 0;
-    
-    let sum = 0, count = 0;
-    for(let i=0; i < Math.min(3, sorted.length); i++) {
-      sum += monthly[sorted[i]];
-      count++;
-    }
-    return sum / count;
-  }
-
-  // 2. Process Expenses
-  GLOBAL_AVG_EXPENSE = getLatestAvg(allData.expenses, EXP_COL_DATE, EXP_COL_AMT);
-  if (GLOBAL_AVG_EXPENSE === 0) GLOBAL_AVG_EXPENSE = 1; // Prevent dividing by zero
-
-  // 3. Process Investment Incomes
-  GLOBAL_PASSIVE_INC = getLatestAvg(allData.incomes, INC_COL_DATE, INC_COL_AMT);
+  // 2. Process Expenses (Sums Col C grouped strictly by the newest Month)
+  GLOBAL_MONTHLY_EXPENSE = getLatestMonthSum(allData.expenses, EXP_COL_MONTH, EXP_COL_AMT);
+  if (GLOBAL_MONTHLY_EXPENSE === 0) GLOBAL_MONTHLY_EXPENSE = 1; // Prevent zero division bug
+  
+  // 3. Process Investment Incomes (Sums Col F grouped strictly by the newest Month)
+  GLOBAL_PASSIVE_INC = getLatestMonthSum(allData.incomes, INC_COL_MONTH, INC_COL_AMT);
 
   // 4. Process Goals
   const goalsRaw = allData.goals || [];
@@ -583,16 +586,14 @@ function pfProcessData(allData) {
     let target = parseFloat(String(row[GOAL_COL_TARGET]).replace(/[^0-9.-]+/g,"")) || 0;
     let mappedAsset = String(row[GOAL_COL_ASSET]||'').trim();
     
-    // Parses percentages securely
     let allocRaw = String(row[GOAL_COL_ALLOC]||'0').replace(/[^0-9.-]+/g,"");
     let alloc = parseFloat(allocRaw);
-    if (alloc > 1) alloc = alloc / 100;
+    if (alloc > 1) alloc = alloc / 100; // Convert 20 to 0.20
 
     if(!name) return;
     if(!goalMap[name]) goalMap[name] = { name, category, dateStr, current: 0, target: target, accounts: [] };
     if (target > goalMap[name].target) goalMap[name].target = target;
     
-    // Dynamic Balance Lookup based on exact Account Name
     if (mappedAsset && latestMonthData) {
        let acctBal = 0;
        Object.values(latestMonthData.categories).forEach(cat => {
@@ -624,6 +625,7 @@ function pfProcessData(allData) {
   document.getElementById('pf-setup').classList.add('hidden');
   document.getElementById('pf-dashboard').classList.remove('hidden');
 }
+
 // Tooltips
 const pfTooltip = document.createElement('div');
 pfTooltip.className = 'rich-tooltip';
@@ -729,13 +731,13 @@ function renderPortfolioSections() {
 function renderGoalsAndFreedom() {
   
   // 1. Freedom Crossover 
-  const targetAssets = 10000000; // Fixed visual Target
-  const withdrawalRate = 0.04;
+  const targetAssets = 10000000; 
   
   const passiveIncome = GLOBAL_PASSIVE_INC; 
-  const expenses = GLOBAL_AVG_EXPENSE;      
+  const expenses = GLOBAL_MONTHLY_EXPENSE;      
   const gap = expenses - passiveIncome;
   
+  // Freedom % logic based exactly on the user screenshot
   const freedomPct = expenses > 0 ? (passiveIncome / expenses) * 100 : 0;
 
   document.getElementById('pf-freedom-pct').textContent = Math.round(freedomPct) + '%';
