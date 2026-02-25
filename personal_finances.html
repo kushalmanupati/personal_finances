@@ -467,8 +467,8 @@ function pfLoadFallback() {
     details.push([m, 'Global - Crypto Coinbase', 'Crypto', 220000 + (i*5000)]);
   });
 
-  let exp = [['Month', 'Amount'], ['Dec 2025', 10500]];
-  let inc = [['Month', 'Amount'], ['Feb 2026', 8500]];
+  let exp = [['Date', 'Month', 'Spend in SGD'], ['', 'Dec 2025', 10500]];
+  let inc = [['Month/Year', 'Asset Name', 'Category', 'Currency', 'Amount (Local)', 'Amount (SGD)'], ['Feb 2026', 'BLR Flat', 'Rent', 'INR', 60000, 834.9]];
   
   let goals = [['Name', 'Category', 'Date', 'Target', 'Asset', 'Alloc'], 
     ['Retirement House', 'House', '31 Dec 2035', 500000, 'K - Invest Saxo', 20],
@@ -478,9 +478,19 @@ function pfLoadFallback() {
   pfProcessData({ details: details, expenses: exp, goals: goals, incomes: inc });
 }
 
-// ── ROBUST SUMMATION HELPER ──
-function getLatestMonthSum(rawArray, dateCol, amtCol) {
+// ── DYNAMIC HEADER FINDER ──
+// This function ensures we NEVER grab the wrong column, even if you move them!
+function getLatestMonthSumDynamic(rawArray, dateColName, amtColName) {
   if (!rawArray || rawArray.length <= 1) return 0;
+  
+  let headers = rawArray[0].map(h => String(h).toLowerCase().trim());
+  let dateCol = headers.indexOf(dateColName.toLowerCase());
+  let amtCol = headers.indexOf(amtColName.toLowerCase());
+  
+  // Failsafes just in case headers don't match exactly
+  if (dateCol === -1) dateCol = 0; 
+  if (amtCol === -1) amtCol = headers.length - 1; 
+  
   let rows = rawArray.slice(1);
   let monthlySums = {};
 
@@ -489,11 +499,13 @@ function getLatestMonthSum(rawArray, dateCol, amtCol) {
     let rawAmt = String(row[amtCol] || '').replace(/[^0-9.-]+/g,"");
     let val = parseFloat(rawAmt);
 
-    // Skip if no date or if the value is invalid
     if(!rawDate || isNaN(val)) return;
 
-    // Convert to strict YYYY-MM format to group identical months safely
-    let d = new Date(rawDate + (rawDate.length <= 8 ? ' 01' : ''));
+    // Cross-Browser Safe Date Parsing
+    let cleanDate = rawDate;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) { cleanDate = "01 " + rawDate; }
+    
+    let d = new Date(cleanDate);
     if(isNaN(d)) return;
 
     let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
@@ -502,7 +514,7 @@ function getLatestMonthSum(rawArray, dateCol, amtCol) {
     monthlySums[mKey] += val;
   });
 
-  // Sort dates descending so [0] is the most recent month
+  // Sort descending so [0] is the most recent month
   let sortedKeys = Object.keys(monthlySums).sort((a,b) => b.localeCompare(a));
   if(sortedKeys.length === 0) return 0;
 
@@ -510,28 +522,8 @@ function getLatestMonthSum(rawArray, dateCol, amtCol) {
 }
 
 // ── DATA PARSING ──
-
 function pfProcessData(allData) {
-  // ════════════════════════════════════════════════════════
-  // ⚙️ COLUMN CONFIGURATION (0-Indexed: A=0, B=1, C=2)
-  // ════════════════════════════════════════════════════════
-  // EXPENSES TAB
-  const EXP_COL_MONTH = 1; // Col B (Month)
-  const EXP_COL_AMT   = 2; // Col C (Spend in SGD)
-
-  // INVESTMENT INCOMES TAB
-  const INC_COL_MONTH = 0; // Col A (Month/Year)
-  const INC_COL_AMT   = 5; // Col F (Amount SGD)
   
-  // GOAL MAPPER TAB
-  const GOAL_COL_NAME   = 0; // Col A 
-  const GOAL_COL_CAT    = 1; // Col B 
-  const GOAL_COL_DATE   = 2; // Col C 
-  const GOAL_COL_TARGET = 3; // Col D 
-  const GOAL_COL_ASSET  = 4; // Col E 
-  const GOAL_COL_ALLOC  = 5; // Col F 
-  // ════════════════════════════════════════════════════════
-
   // 1. Process Main Portfolio
   const detailsRaw = allData.details || [];
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : detailsRaw;
@@ -545,7 +537,9 @@ function pfProcessData(allData) {
 
     if (!rawMonth || isNaN(value)) return;
 
-    const d = new Date(rawMonth + (rawMonth.length <= 8 ? ' 01' : ''));
+    let cleanDate = rawMonth;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
+    const d = new Date(cleanDate);
     if (isNaN(d)) return;
 
     const monthKey = parseToKey(d);
@@ -566,16 +560,31 @@ function pfProcessData(allData) {
   GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => GLOBAL_PF_DATA[b].dateObj - GLOBAL_PF_DATA[a].dateObj);
   if (GLOBAL_SORTED_MONTHS.length === 0) return;
 
-  // 2. Process Expenses (Sums Col C grouped strictly by the newest Month)
-  GLOBAL_MONTHLY_EXPENSE = getLatestMonthSum(allData.expenses, EXP_COL_MONTH, EXP_COL_AMT);
-  if (GLOBAL_MONTHLY_EXPENSE === 0) GLOBAL_MONTHLY_EXPENSE = 1; // Prevent zero division bug
-  
-  // 3. Process Investment Incomes (Sums Col F grouped strictly by the newest Month)
-  GLOBAL_PASSIVE_INC = getLatestMonthSum(allData.incomes, INC_COL_MONTH, INC_COL_AMT);
+  // 2. Process Expenses dynamically using EXACT header names
+  GLOBAL_MONTHLY_EXPENSE = getLatestMonthSumDynamic(allData.expenses, "Month", "Spend in SGD");
+  if (GLOBAL_MONTHLY_EXPENSE === 0) GLOBAL_MONTHLY_EXPENSE = 1; 
 
-  // 4. Process Goals
+  // 3. Process Investment Incomes dynamically using EXACT header names
+  GLOBAL_PASSIVE_INC = getLatestMonthSumDynamic(allData.incomes, "Month/Year", "Amount (SGD)");
+
+  // 4. Process Goals dynamically using EXACT header names
   const goalsRaw = allData.goals || [];
-  const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : goalsRaw;
+  let gHeaders = (goalsRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  
+  // Safe helper to find column indexes
+  const getCol = (name, fallback) => {
+      let idx = gHeaders.indexOf(name.toLowerCase());
+      return idx !== -1 ? idx : fallback;
+  };
+  
+  const GOAL_COL_NAME   = getCol("goal name", 0);
+  const GOAL_COL_CAT    = getCol("category", 1);
+  const GOAL_COL_DATE   = getCol("target date", 2);
+  const GOAL_COL_TARGET = getCol("target amount", 3);
+  const GOAL_COL_ASSET  = getCol("linked asset", 4);
+  const GOAL_COL_ALLOC  = getCol("allocation %", 5);
+
+  const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : [];
   let goalMap = {};
   const latestMonthData = GLOBAL_PF_DATA[GLOBAL_SORTED_MONTHS[0]];
 
@@ -586,9 +595,10 @@ function pfProcessData(allData) {
     let target = parseFloat(String(row[GOAL_COL_TARGET]).replace(/[^0-9.-]+/g,"")) || 0;
     let mappedAsset = String(row[GOAL_COL_ASSET]||'').trim();
     
+    // Parses percentages safely (e.g. 20% -> 0.20)
     let allocRaw = String(row[GOAL_COL_ALLOC]||'0').replace(/[^0-9.-]+/g,"");
     let alloc = parseFloat(allocRaw);
-    if (alloc > 1) alloc = alloc / 100; // Convert 20 to 0.20
+    if (alloc > 1) alloc = alloc / 100; 
 
     if(!name) return;
     if(!goalMap[name]) goalMap[name] = { name, category, dateStr, current: 0, target: target, accounts: [] };
@@ -737,7 +747,6 @@ function renderGoalsAndFreedom() {
   const expenses = GLOBAL_MONTHLY_EXPENSE;      
   const gap = expenses - passiveIncome;
   
-  // Freedom % logic based exactly on the user screenshot
   const freedomPct = expenses > 0 ? (passiveIncome / expenses) * 100 : 0;
 
   document.getElementById('pf-freedom-pct').textContent = Math.round(freedomPct) + '%';
@@ -774,12 +783,10 @@ function renderGoalsAndFreedom() {
     `).join('');
     
     const leftToSave = goal.target - goal.current;
+    const subtext = goal.category ? `${goal.category} · ${goal.dateStr}` : goal.dateStr;
 
     const row = document.createElement('div');
     row.className = 'pf-cat-row goal-row';
-    
-    const subtext = goal.category ? `${goal.category} · ${goal.dateStr}` : goal.dateStr;
-
     row.innerHTML = `
       <div class="pf-cat-main">
         <div class="pf-cat-left">
