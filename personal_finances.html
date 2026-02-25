@@ -178,22 +178,103 @@ const PF_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwfy3qzMBgmINz8ekI26
 
 let pfTrendChart = null;
 
-// Function to determine if an account should be included in "Net Cash"
-function isLiquidCash(account, category) {
-  const str = (String(account) + ' ' + String(category)).toLowerCase();
-  if (str.includes('real estate') || str.includes('growth fund') || str.includes('project')) {
+// Function to determine if a value should be included in "Net Cash" based on Category
+function isLiquidCash(category) {
+  const catLower = String(category).toLowerCase().trim();
+  
+  // Exclude based strictly on the Category column
+  if (catLower.includes('real estate') || 
+      catLower.includes('growth fund') || 
+      catLower.includes('project')) {
     return false;
   }
+
   return true;
 }
 
-function pfLoadData() {
-  document.getElementById('pf-setup').classList.remove('hidden');
-  document.getElementById('pf-dashboard').classList.add('hidden');
-  document.getElementById('pf-error').classList.add('hidden');
+function pfProcessData(detailsRaw) {
+  // Ignore header rows
+  const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : detailsRaw;
+  const monthlyData = {};
 
-  const cb = 'pfCb_' + Date.now();
-  const sc = document.createElement('script');
+  // Parse Details (Expected: A=Month, B=Account, C=Category, D=Value)
+  detailsRows.forEach(row => {
+    const rawMonth = String(row[0]||'').trim();
+    const account = String(row[1]||'').trim();
+    const category = String(row[2]||'').trim();
+    
+    // Clean the value of all currency symbols, commas, and spaces
+    let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
+
+    if (!rawMonth || isNaN(value)) return;
+
+    // Convert string "Feb 2026" or "2026-02-01" to Date object for proper sorting
+    const d = new Date(rawMonth + (rawMonth.length <= 8 ? ' 01' : ''));
+    if (isNaN(d)) return;
+
+    // Create a normalized YYYY-MM key for grouping
+    const monthKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = { dateObj: d, assets: 0, cash: 0, liabilities: 0 };
+    }
+
+    // Sort into Assets vs Liabilities
+    if (value > 0) {
+      monthlyData[monthKey].assets += value; // Adds to Total Assets
+      
+      // Filter Logic for Net Cash (Passes only the category to the check)
+      if (isLiquidCash(category)) {
+        monthlyData[monthKey].cash += value;
+      }
+    } else if (value < 0) {
+      monthlyData[monthKey].liabilities += value; // Keeps liabilities separate (negative values)
+    }
+  });
+
+  // Sort dates newest to oldest to grab the latest month for KPIs
+  const sortedKeysDesc = Object.keys(monthlyData).sort((a,b) => monthlyData[b].dateObj - monthlyData[a].dateObj);
+  
+  if (sortedKeysDesc.length === 0) return;
+
+  // ── UPDATE TOP KPI CARDS ──
+  const currentMonthKey = sortedKeysDesc[0];
+  const curData = monthlyData[currentMonthKey];
+  
+  // Format top KPI month name nicely
+  const curDateLabel = curData.dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  
+  // Display precise exact numbers so you can verify them
+  document.getElementById('pf-total-assets').textContent = '$' + Math.round(curData.assets).toLocaleString();
+  document.getElementById('pf-assets-month').textContent = 'For ' + curDateLabel;
+  document.getElementById('pf-net-cash').textContent = '$' + Math.round(curData.cash).toLocaleString();
+  
+  // Format liabilities
+  let formattedLiab = Math.round(Math.abs(curData.liabilities));
+  document.getElementById('pf-liabilities').textContent = '-$' + formattedLiab.toLocaleString();
+
+  // ── BUILD CHART DATA (June 2024 onwards) ──
+  const cutoffDate = new Date('2024-06-01T00:00:00');
+  
+  // Filter and sort chronologically (oldest to newest) for chart plotting
+  const chartKeys = Object.keys(monthlyData)
+    .filter(key => monthlyData[key].dateObj >= cutoffDate)
+    .sort((a,b) => monthlyData[a].dateObj - monthlyData[b].dateObj);
+
+  const labels = chartKeys.map(key => {
+    const d = monthlyData[key].dateObj;
+    return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
+  });
+
+  const assetsData = chartKeys.map(key => monthlyData[key].assets);
+  const cashData = chartKeys.map(key => monthlyData[key].cash);
+  const liabData = chartKeys.map(key => monthlyData[key].liabilities);
+
+  pfRenderChart(labels, assetsData, cashData, liabData);
+  
+  document.getElementById('pf-setup').classList.add('hidden');
+  document.getElementById('pf-dashboard').classList.remove('hidden');
+}
 
   // Timeout for offline functionality fallback
   const fallbackTimer = setTimeout(() => {
