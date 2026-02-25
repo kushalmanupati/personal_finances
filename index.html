@@ -86,6 +86,8 @@ select.asset-select:focus{border-color:var(--green);}
 .kpi-card.blue .kpi-value{color:var(--blue);}
 .kpi-sub{font-size:11px;color:var(--muted2);}
 /* Grids */
+.grid-donut-bar{display:grid;grid-template-columns:2fr 3fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
+@media(max-width:900px){.grid-donut-bar{grid-template-columns:1fr;}}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.65s ease both;}
 .grid-full{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.7s ease both;}
@@ -117,11 +119,11 @@ select.asset-select:focus{border-color:var(--green);}
 .badge.yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
 .badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,78,106,0.2);}
 /* Donut */
-.donut-wrap{display:flex;align-items:center;gap:24px;}
-.donut-legend{display:flex;flex-direction:column;gap:10px;flex:1;}
-.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);}
-.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.legend-val{margin-left:auto;color:var(--text);font-weight:500;}
+.donut-wrap{display:flex;align-items:center;justify-content:center;padding:10px 0;}
+.donut-wrap svg{width:100%;max-width:240px;height:auto;overflow:visible;}
+.donut-arc{transition:opacity 0.2s, stroke-width 0.2s;cursor:pointer;}
+.donut-arc:hover{opacity:0.8;stroke-width:24;}
+.chart-tooltip{position:absolute;background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:11px;color:var(--text);pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-family:'DM Mono',monospace;white-space:nowrap;}
 /* Ratios */
 .ratio-grid{display:flex;flex-direction:column;gap:10px;}
 .ratio-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
@@ -244,7 +246,6 @@ select.asset-select:focus{border-color:var(--green);}
 </head>
 <body>
 
-<!-- ══ TAB BAR ══ -->
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('options')">
     Options Dashboard<span class="tab-badge">LIVE</span>
@@ -254,9 +255,6 @@ select.asset-select:focus{border-color:var(--green);}
   </button>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     TAB 1: OPTIONS DASHBOARD
-══════════════════════════════════════════════ -->
 <div id="tab-options" class="tab-panel active">
 <div class="wrapper">
 
@@ -308,25 +306,39 @@ select.asset-select:focus{border-color:var(--green);}
     <div class="kpi-card blue"><div class="kpi-label">Total Capital Deployed</div><div class="kpi-value" id="kpi-capital">—</div><div class="kpi-sub" id="kpi-capital-sub">—</div></div>
   </div>
 
-  <div class="grid-2 section-gap">
+
+  <div class="grid-full section-gap" id="trend-chart-row">
+    <div class="card">
+      <div class="card-title"><span></span>Cumulative Trend</div>
+      <div style="position:relative;height:280px;">
+        <canvas id="opt-trend-chart"></canvas>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--muted2);">
+        <div style="display:flex;gap:24px;">
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:20px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Premium</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:20px;height:2px;background:var(--blue);display:inline-block;border-radius:1px"></span>Net Income</span>
+        </div>
+        <div style="display:flex;gap:24px;">
+          <span>Premium: <strong style="color:var(--green)" id="trend-total-premium">—</strong></span>
+          <span>Net Income: <strong style="color:var(--blue)" id="trend-total-net">—</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-donut-bar section-gap">
     <div class="card">
       <div class="card-title"><span></span>Trade Outcome Breakdown</div>
       <div class="donut-wrap">
-        <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
-          <circle cx="60" cy="60" r="45" fill="none" stroke="#1e2530" stroke-width="18"/>
-          <circle id="donut-assigned" cx="60" cy="60" r="45" fill="none" stroke="#4eb5ff" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-          <circle id="donut-expired"  cx="60" cy="60" r="45" fill="none" stroke="#00e5a0" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-          <circle id="donut-active"   cx="60" cy="60" r="45" fill="none" stroke="#ffd166" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-          <circle id="donut-loss"     cx="60" cy="60" r="45" fill="none" stroke="#ff4e6a" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-          <text id="donut-count" x="60" y="56" text-anchor="middle" font-size="20" font-family="Syne" font-weight="700" fill="#e8edf3">0</text>
-          <text x="60" y="70" text-anchor="middle" font-size="9" fill="#5a6478">TRADES</text>
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#1e2530" stroke-width="20"/>
+          <circle id="donut-assigned" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#4eb5ff" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+          <circle id="donut-expired" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#00e5a0" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+          <circle id="donut-active" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#ffd166" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+          <circle id="donut-loss" class="donut-arc" cx="100" cy="100" r="80" fill="none" stroke="#ff4e6a" stroke-width="20" stroke-dasharray="0 502.4" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+          <text id="donut-count" x="100" y="94" text-anchor="middle" font-size="34" font-family="Syne" font-weight="700" fill="#e8edf3">0</text>
+          <text x="100" y="116" text-anchor="middle" font-size="10" fill="#5a6478" letter-spacing="1">TRADES</text>
         </svg>
-        <div class="donut-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Perfect Assignment<span class="legend-val" id="leg-assigned">—</span></div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Expired Worthless<span class="legend-val" id="leg-expired">—</span></div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Active / Open<span class="legend-val" id="leg-active">—</span></div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Net Loss<span class="legend-val" id="leg-loss">—</span></div>
-        </div>
       </div>
     </div>
     <div class="card">
@@ -390,23 +402,15 @@ select.asset-select:focus{border-color:var(--green);}
     OPTIONS ALPHA · COVERED CALL STRATEGY TRACKER · LIVE DATA
   </div>
 </div>
-</div><!-- /tab-options -->
-
-
-<!-- ══════════════════════════════════════════════
-     TAB 2: PERSONAL FINANCE
-══════════════════════════════════════════════ -->
-<div id="tab-finance" class="tab-panel">
-  <!-- Load screen -->
+</div><div id="tab-finance" class="tab-panel">
   <div id="pf-setup" class="pf-setup">
     <div class="pf-setup-title">Personal Finance</div>
-    <p class="pf-setup-sub">Click below to load your financial data live from Google Sheets.</p>
-    <button class="pf-load-btn" id="pf-load-btn" onclick="pfLoadData()">Load Dashboard</button>
+    <p class="pf-setup-sub">Fetching your financial data from Google Sheets…</p>
+    <button class="pf-load-btn" id="pf-load-btn" onclick="pfLoadData()" style="display:none">Reload</button>
     <div id="pf-loading" class="pf-loading hidden">Loading financial data…</div>
     <div id="pf-error" class="pf-error hidden"></div>
   </div>
 
-  <!-- Dashboard (hidden until loaded) -->
   <div id="pf-dashboard" class="pf-wrap hidden">
     <h1>Personal Finance</h1>
 
@@ -463,13 +467,7 @@ select.asset-select:focus{border-color:var(--green);}
       <canvas id="pf-trend-chart"></canvas>
     </div>
   </div>
-</div><!-- /tab-finance -->
-
-
-<!-- ══════════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════════ -->
-<script>
+</div><script>
 // ════════════════════════════════════════════════════════
 // TAB SWITCHING
 // ════════════════════════════════════════════════════════
@@ -609,8 +607,129 @@ function applyFilters() {
   const data=filtered();
   renderKPI(data); renderDonut(data); renderPremiumBars(data);
   renderRatios(data); renderCapitalBars(data); renderTickerBars(data);
-  renderTradeSummary(data); renderPdayGrid(data); renderTradeLog(data);
+  renderTradeSummary(data); renderPdayGrid(data); renderTradeLog(data); renderTrendChart(data);
   document.getElementById('filter-status').style.display=data.length<TRADES.length?'inline-block':'none';
+}
+
+
+// ── CUMULATIVE TREND CHART ──────────────────────────────────────────
+let optTrendChart = null;
+
+function renderTrendChart(data) {
+  // Sort trades by date
+  const sorted = [...data].filter(t=>t.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if (!sorted.length) return;
+
+  // Build per-day cumulative premium and net income
+  const dayMap = {};
+  sorted.forEach(t => {
+    const d = t.date;
+    if (!dayMap[d]) dayMap[d] = { premium: 0, net: 0 };
+    dayMap[d].premium += t.premium || 0;
+    dayMap[d].net += (t.premium || 0) + (t.stockPL || 0);
+  });
+
+  // Get all unique dates across the range (fill gaps)
+  const from = document.getElementById('date-from').value;
+  const to   = document.getElementById('date-to').value;
+  const allDays = Object.keys(dayMap).sort();
+
+  // Build cumulative arrays
+  const labels = [], cumPremium = [], cumNet = [];
+  let sumP = 0, sumN = 0;
+  allDays.forEach(d => {
+    sumP += dayMap[d].premium;
+    sumN += dayMap[d].net;
+    labels.push(d);
+    cumPremium.push(parseFloat(sumP.toFixed(2)));
+    cumNet.push(parseFloat(sumN.toFixed(2)));
+  });
+
+  // Format labels as "13 Feb"
+  const fmtLabel = d => {
+    const dt = new Date(d);
+    return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  };
+
+  // Update totals in legend
+  document.getElementById('trend-total-premium').textContent = fmtDec(sumP);
+  document.getElementById('trend-total-net').textContent = fmtDec(sumN);
+
+  const ctx = document.getElementById('opt-trend-chart');
+  if (!ctx) return;
+
+  if (optTrendChart) { optTrendChart.destroy(); optTrendChart = null; }
+
+  optTrendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.map(fmtLabel),
+      datasets: [
+        {
+          label: 'Premium',
+          data: cumPremium,
+          borderColor: '#00e5a0',
+          backgroundColor: 'rgba(0,229,160,0.08)',
+          fill: true,
+          borderWidth: 2.5,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#00e5a0',
+          pointBorderColor: '#0a0c0f',
+          pointBorderWidth: 2,
+          pointHoverRadius: 7,
+        },
+        {
+          label: 'Net Income',
+          data: cumNet,
+          borderColor: '#4eb5ff',
+          backgroundColor: 'rgba(78,181,255,0.05)',
+          fill: true,
+          borderWidth: 2.5,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#4eb5ff',
+          pointBorderColor: '#0a0c0f',
+          pointBorderWidth: 2,
+          pointHoverRadius: 7,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111418',
+          borderColor: '#1e2530',
+          borderWidth: 1,
+          titleColor: '#e8edf3',
+          bodyColor: '#8892a4',
+          padding: 12,
+          callbacks: {
+            label: c => ' ' + c.dataset.label + ': $' + c.parsed.y.toFixed(2)
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#5a6478', font: { size: 11, family: "'DM Mono', monospace" }, maxRotation: 0 },
+          grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#5a6478',
+            font: { size: 11, family: "'DM Mono', monospace" },
+            callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'K' : v)
+          },
+          grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false }
+        }
+      }
+    }
+  });
 }
 
 function renderKPI(data) {
@@ -632,22 +751,55 @@ function renderKPI(data) {
   spEl.style.color=stockPL<0?'var(--red)':stockPL>0?'var(--green)':'var(--muted2)';
 }
 
+// Global tooltip setup for Donut Chart
+const donutTt = document.createElement('div');
+donutTt.className = 'chart-tooltip';
+document.body.appendChild(donutTt);
+
+document.addEventListener('mouseover', e => {
+  if (e.target.classList.contains('donut-arc')) {
+    donutTt.innerHTML = e.target.dataset.tip;
+    donutTt.style.opacity = 1;
+  }
+});
+document.addEventListener('mousemove', e => {
+  if (e.target.classList.contains('donut-arc')) {
+    donutTt.style.left = (e.pageX + 15) + 'px';
+    donutTt.style.top = (e.pageY + 15) + 'px';
+  }
+});
+document.addEventListener('mouseout', e => {
+  if (e.target.classList.contains('donut-arc')) donutTt.style.opacity = 0;
+});
+
 function renderDonut(data) {
-  const n=data.length||1;
-  const a=data.filter(t=>t.status==='assigned').length;
-  const e=data.filter(t=>t.status==='expired').length;
-  const ac=data.filter(t=>t.status==='active').length;
-  const l=data.filter(t=>t.status==='loss').length;
-  const C=2*Math.PI*45;
-  const aL=(a/n)*C,eL=(e/n)*C,acL=(ac/n)*C,lL=(l/n)*C;
-  setArc('donut-assigned',aL,C,0); setArc('donut-expired',eL,C,-aL);
-  setArc('donut-active',acL,C,-(aL+eL)); setArc('donut-loss',lL,C,-(aL+eL+acL));
-  document.getElementById('donut-count').textContent=data.length;
-  document.getElementById('leg-assigned').textContent=`${a} (${Math.round(a/n*100)}%)`;
-  document.getElementById('leg-expired').textContent=`${e} (${Math.round(e/n*100)}%)`;
-  document.getElementById('leg-active').textContent=`${ac} (${Math.round(ac/n*100)}%)`;
-  document.getElementById('leg-loss').textContent=`${l} (${Math.round(l/n*100)}%)`;
+  const n = data.length || 1;
+  const a = data.filter(t => t.status === 'assigned').length;
+  const e = data.filter(t => t.status === 'expired').length;
+  const ac = data.filter(t => t.status === 'active').length;
+  const l = data.filter(t => t.status === 'loss').length;
+  
+  const C = 2 * Math.PI * 80;
+  const aL = (a / n) * C, eL = (e / n) * C, acL = (ac / n) * C, lL = (l / n) * C;
+  
+  setArc('donut-assigned', aL, C, 0); 
+  setArc('donut-expired', eL, C, -aL);
+  setArc('donut-active', acL, C, -(aL + eL)); 
+  setArc('donut-loss', lL, C, -(aL + eL + acL));
+  
+  document.getElementById('donut-count').textContent = data.length;
+
+  const setTip = (id, label, val) => {
+    const el = document.getElementById(id);
+    if(el) el.dataset.tip = `<strong style="color:${el.getAttribute('stroke')}">●</strong> &nbsp;${label}: <strong>${val}</strong> (${Math.round(val/n*100)}%)`;
+  };
+
+  setTip('donut-assigned', 'Perfect Assignment', a);
+  setTip('donut-expired', 'Expired Worthless', e);
+  setTip('donut-active', 'Active / Open', ac);
+  setTip('donut-loss', 'Net Loss', l);
 }
+
 function setArc(id,len,C,offset) {
   const el=document.getElementById(id); if(!el) return;
   el.setAttribute('stroke-dasharray',`${len.toFixed(2)} ${(C-len).toFixed(2)}`);
@@ -788,11 +940,14 @@ function resetFilters(){
 // Init options tab
 fetchData();
 
+// Auto-fetch personal finance on page load
+pfLoadData();
+
 
 // ════════════════════════════════════════════════════════
 // TAB 2 — PERSONAL FINANCE
 // ════════════════════════════════════════════════════════
-const PF_WEBHOOK = 'YOUR_PF_APPS_SCRIPT_URL_HERE';
+const PF_WEBHOOK = 'https://script.google.com/macros/s/AKfycbx0pWODt2uFo4GQ-pYedSnGr7Ufry6nCd4PyOa7AhzXysgcr49JZHHRynQodmkNPRX2Fw/exec';
 
 const PF_EXCLUDED = [
   'A - Growth Fund','E - FCNR ICICI','K - Invest Private Credit',
@@ -806,6 +961,9 @@ function pfLoadData() {
   document.getElementById('pf-loading').classList.remove('hidden');
   document.getElementById('pf-error').classList.add('hidden');
   document.getElementById('pf-load-btn').disabled = true;
+  // Show setup screen with spinner while loading
+  document.getElementById('pf-setup').classList.remove('hidden');
+  document.getElementById('pf-dashboard').classList.add('hidden');
 
   const cb = 'pfCb_' + Date.now();
   const sc = document.createElement('script');
@@ -834,6 +992,33 @@ function pfLoadData() {
     document.getElementById('pf-load-btn').disabled = false;
   };
 
+  if (PF_WEBHOOK === 'YOUR_PF_APPS_SCRIPT_URL_HERE') {
+    delete window[cb];
+    document.getElementById('pf-loading').classList.add('hidden');
+    pfShowError('Personal Finance webhook not configured yet. Paste your Apps Script URL into PF_WEBHOOK in the HTML.');
+    document.getElementById('pf-load-btn').style.display = 'inline-block';
+    document.getElementById('pf-load-btn').disabled = false;
+    return;
+  }
+
+  // 15-second timeout — Apps Script can be slow on cold start
+  const timeout = setTimeout(() => {
+    if (window[cb]) {
+      delete window[cb];
+      if(document.body.contains(sc)) document.body.removeChild(sc);
+      document.getElementById('pf-loading').classList.add('hidden');
+      pfShowError('Timed out after 15s. The Apps Script may need authorization. Open this URL in your browser to authorize it, then reload: ' + PF_WEBHOOK);
+      document.getElementById('pf-load-btn').style.display = 'inline-block';
+      document.getElementById('pf-load-btn').disabled = false;
+    }
+  }, 15000);
+
+  const origCb = window[cb];
+  window[cb] = function(json) {
+    clearTimeout(timeout);
+    origCb(json);
+  };
+
   sc.src = PF_WEBHOOK + '?callback=' + cb;
   document.body.appendChild(sc);
 }
@@ -843,8 +1028,18 @@ function pfProcessData(detailsRaw, expensesRaw) {
   const detailsRows = detailsRaw.slice(1);
   const monthlyData = {};
 
+  const _monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function normDetMonth(raw) {
+    if (!raw) return null;
+    const s = String(raw).trim();
+    if (/^[A-Za-z]{3} \d{4}$/.test(s)) return s;
+    const d = new Date(s);
+    if (!isNaN(d)) return _monthNames[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+    return s; // fallback
+  }
+
   detailsRows.forEach(row => {
-    const month = row[0], account = row[1], category = row[2];
+    const month = normDetMonth(row[0]), account = String(row[1]||'').trim(), category = String(row[2]||'').trim();
     let value = parseFloat(String(row[3]).replace(/[$,]/g,'') || 0);
     if (!month || !account || isNaN(value)) return;
     if (!monthlyData[month]) monthlyData[month] = { totalAssets:0, netCash:0 };
@@ -855,15 +1050,35 @@ function pfProcessData(detailsRaw, expensesRaw) {
   // ── Parse expenses ──
   const expRows = expensesRaw.slice(1);
   const monthlyExpenses = {};
+  // Build a map from expense month key → details month key
+  // Expense month column can be "2025-12-01" (date string) or "Mon YYYY"
+  // We need to normalize both to the same "Mon YYYY" format used in details
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function normalizeExpMonth(raw) {
+    if (!raw) return null;
+    const s = String(raw).trim();
+    // Already in "Mon YYYY" format
+    if (/^[A-Za-z]{3} \d{4}$/.test(s)) return s;
+    // Date string like "2025-12-01" or "2026-12-01"
+    const d = new Date(s);
+    if (!isNaN(d)) return monthNames[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+    return null;
+  }
+
   expRows.forEach(row => {
-    const month = row[1];
+    const month = normalizeExpMonth(row[1]);
     let amt = parseFloat(String(row[2]).replace(/[$,]/g,'') || 0);
     if (!month || isNaN(amt)) return;
     monthlyExpenses[month] = (monthlyExpenses[month]||0) + amt;
   });
 
-  // ── Sort months descending ──
-  const months = Object.keys(monthlyData).sort((a,b) => new Date(b) - new Date(a));
+  // ── Sort months descending ── handle "Mon YYYY" format like "Feb 2026"
+  function parseMonthStr(s) {
+    // Handles "Feb 2026", "Jan 2025", etc.
+    const d = new Date(s + ' 01');
+    return isNaN(d) ? new Date(s) : d;
+  }
+  const months = Object.keys(monthlyData).sort((a,b) => parseMonthStr(b) - parseMonthStr(a));
   const currentMonth = months[0];
   const prevMonth    = months[1];
   const curData      = monthlyData[currentMonth];
@@ -891,7 +1106,7 @@ function pfProcessData(detailsRaw, expensesRaw) {
   });
 
   detailsRows.forEach(row => {
-    const month=row[0], account=row[1], category=row[2];
+    const month=normDetMonth(row[0]), account=String(row[1]||'').trim(), category=String(row[2]||'').trim();
     let value=parseFloat(String(row[3]).replace(/[$,]/g,'')||0);
     if(!month||!category||isNaN(value)) return;
 
