@@ -1779,7 +1779,6 @@ if ('serviceWorker' in navigator) {
   var overlay = document.getElementById("pf-lock-overlay");
   if(!overlay) return;
 
-  // Already unlocked this session — hide immediately
   if(sessionStorage.getItem(SESSION_KEY) === "1"){
     overlay.style.display = "none";
     return;
@@ -1827,7 +1826,6 @@ if ('serviceWorker' in navigator) {
     if(errEl) errEl.innerHTML = "&nbsp;";
   };
 
-  // Keyboard support
   document.addEventListener("keydown", function(e){
     if(overlay.style.display === "none") return;
     if(e.key >= "0" && e.key <= "9") lockKey(parseInt(e.key));
