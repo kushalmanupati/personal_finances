@@ -62,6 +62,39 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-error{background:rgba(255,78,106,0.1);border:1px solid rgba(255,78,106,0.3);border-radius:8px;padding:12px;color:var(--red);font-size:13px;margin-top:14px;font-family:'DM Mono',monospace;}
 .hidden{display:none !important;}
 
+/* ── Skeleton shimmer ── */
+@keyframes shimmer{0%{background-position:-800px 0}100%{background-position:800px 0}}
+.skeleton{
+  background:linear-gradient(90deg,var(--surface2) 25%,rgba(255,255,255,0.04) 50%,var(--surface2) 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.6s infinite linear;
+  border-radius:6px;
+}
+.skeleton-text{height:14px;margin-bottom:8px;border-radius:4px;}
+.skeleton-val{height:36px;width:60%;border-radius:6px;margin-top:4px;}
+.skeleton-chart{width:100%;border-radius:8px;}
+
+/* Stale data banner */
+.pf-stale-banner{
+  background:var(--yellow-dim);border:1px solid var(--yellow);color:var(--yellow);
+  font-size:11px;font-family:'DM Mono',monospace;text-align:center;
+  padding:8px 16px;border-radius:8px;margin-bottom:16px;letter-spacing:0.5px;
+}
+
+/* Fetch status row */
+.pf-fetch-status{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:4px;
+}
+.pf-fetch-pill{
+  font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.5px;text-transform:uppercase;
+  padding:2px 8px;border-radius:10px;border:1px solid var(--border);color:var(--muted);
+  transition:all 0.3s;
+}
+.pf-fetch-pill.loading{border-color:var(--blue);color:var(--blue);animation:pulse 1s infinite;}
+.pf-fetch-pill.done{border-color:var(--green);color:var(--green);}
+.pf-fetch-pill.error{border-color:var(--red);color:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
 /* PF KPI */
 .pf-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:20px;}
 .pf-kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:border-color 0.2s;position:relative;overflow:hidden;}
@@ -239,10 +272,19 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
         <select class="pf-month-select" id="pf-month-filter" onchange="updateAllSections()"></select>
       </div>
       <div class="date-str" id="pf-date-str">Last updated: —</div>
+      <div class="pf-fetch-status" id="pf-fetch-status">
+        <span class="pf-fetch-pill loading" id="pill-details">DETAILS</span>
+        <span class="pf-fetch-pill loading" id="pill-expenses">EXPENSES</span>
+        <span class="pf-fetch-pill loading" id="pill-goals">GOALS</span>
+        <span class="pf-fetch-pill loading" id="pill-incomes">INCOME</span>
+      </div>
     </div>
   </header>
 
-  <div id="pf-setup" class="pf-setup">
+  <!-- Stale cache banner (hidden by default) -->
+  <div class="pf-stale-banner hidden" id="pf-stale-banner">⚡ Showing cached data from <span id="pf-cache-age"></span> — refreshing in background</div>
+
+  <div id="pf-setup" class="pf-setup hidden">
     <div class="pf-setup-title">Syncing Financial Data</div>
     <div id="pf-loading" class="pf-loading">
       <div class="pf-spinner"></div>
@@ -256,26 +298,31 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
     <div class="pf-kpi-grid">
       <div class="pf-kpi-card green">
         <div class="pf-kpi-label">Total Assets</div>
-        <div class="pf-kpi-value green" id="pf-total-assets">—</div>
+        <div class="pf-kpi-value green" id="pf-total-assets">
+          <div class="skeleton skeleton-val" style="width:140px;height:36px;"></div>
+        </div>
       </div>
       <div class="pf-kpi-card blue">
         <div class="pf-kpi-label">Net Cash</div>
-        <div class="pf-kpi-value blue" id="pf-net-cash">—</div>
+        <div class="pf-kpi-value blue" id="pf-net-cash">
+          <div class="skeleton skeleton-val" style="width:120px;height:36px;"></div>
+        </div>
       </div>
       <div class="pf-kpi-card" style="display:flex; flex-direction:column; position:relative;">
         <div class="pf-kpi-label" style="justify-content:space-between; width:100%; margin-bottom:0;">
           <span>Runway</span> <span style="color:var(--yellow)">⚡</span>
         </div>
         <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; width:100%; padding-top:16px;">
-          <div class="pf-runway-pill" id="pf-runway-val">⚡ 0.0 MO</div>
+          <div class="pf-runway-pill" id="pf-runway-val">⚡ — MO</div>
         </div>
       </div>
     </div>
 
     <div class="pf-chart-card">
       <div class="pf-chart-title"><span style="color:var(--green)">↗</span> Trend</div>
-      <div style="position:relative;height:240px;">
-        <canvas id="pf-trend-chart"></canvas>
+      <div style="position:relative;height:240px;" id="pf-trend-wrap">
+        <div class="skeleton" style="height:240px;width:100%;border-radius:8px;" id="pf-trend-skeleton"></div>
+        <canvas id="pf-trend-chart" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
       </div>
     </div>
 
@@ -295,8 +342,8 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
                     transform="rotate(-90 100 100)" stroke-linecap="round"/>
           </svg>
           <div class="pf-circle-val">
-            <div class="pf-circle-pct orange" id="pf-savings-pct">0%</div>
-            <div class="pf-circle-lbl" id="pf-savings-status">Healthy</div>
+            <div class="pf-circle-pct orange" id="pf-savings-pct">—</div>
+            <div class="pf-circle-lbl" id="pf-savings-status">Loading…</div>
           </div>
         </div>
       </div>
@@ -308,8 +355,9 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             <div class="pf-card-title">Cash Flow</div>
           </div>
         </div>
-        <div style="position:relative;height:240px;width:100%;">
-          <canvas id="pf-cashflow-chart"></canvas>
+        <div style="position:relative;height:240px;width:100%;" id="pf-cashflow-wrap">
+          <div class="skeleton" style="height:240px;width:100%;border-radius:8px;" id="pf-cashflow-skeleton"></div>
+          <canvas id="pf-cashflow-chart" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
         </div>
       </div>
     </div>
@@ -322,7 +370,12 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             <div class="pf-card-title">Portfolio</div>
           </div>
         </div>
-        <div class="pf-categories" id="pf-categories"></div>
+        <div class="pf-categories" id="pf-categories">
+          <!-- skeleton rows -->
+          <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+          <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+          <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        </div>
       </div>
 
       <div class="pf-card" style="margin-bottom:0;">
@@ -340,8 +393,8 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
                     transform="rotate(-90 100 100)" stroke-linecap="round"/>
           </svg>
           <div class="pf-circle-val">
-            <div class="pf-circle-pct" id="pf-af-pct">0%</div>
-            <div class="pf-circle-lbl" id="pf-af-status">Balanced</div>
+            <div class="pf-circle-pct" id="pf-af-pct">—</div>
+            <div class="pf-circle-lbl" id="pf-af-status">Loading…</div>
           </div>
         </div>
       </div>
@@ -349,8 +402,9 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
     
     <div class="pf-chart-card">
       <div class="pf-chart-title"><span style="color:var(--green)">↗</span> Passive Income</div>
-      <div style="position:relative;height:240px;">
-        <canvas id="pf-passive-chart"></canvas>
+      <div style="position:relative;height:240px;" id="pf-passive-wrap">
+        <div class="skeleton" style="height:240px;width:100%;border-radius:8px;" id="pf-passive-skeleton"></div>
+        <canvas id="pf-passive-chart" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
       </div>
     </div>
 
@@ -361,7 +415,10 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
           <div class="pf-card-title">Yield Leaderboard</div>
         </div>
       </div>
-      <div class="pf-categories" id="pf-yield-container"></div>
+      <div class="pf-categories" id="pf-yield-container">
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+      </div>
     </div>
 
     <div class="pf-goals-grid">
@@ -380,7 +437,7 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
                     transform="rotate(-90 100 100)" stroke-linecap="round"/>
           </svg>
           <div class="pf-circle-val">
-            <div class="pf-circle-pct blue" id="pf-freedom-pct">0%</div>
+            <div class="pf-circle-pct blue" id="pf-freedom-pct">—</div>
           </div>
         </div>
       </div>
@@ -392,7 +449,10 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             <div class="pf-card-title">Goal Progress</div>
           </div>
         </div>
-        <div class="pf-categories" id="pf-goals-container"></div>
+        <div class="pf-categories" id="pf-goals-container">
+          <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+          <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        </div>
       </div>
     </div>
     
@@ -430,8 +490,9 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
             Discretionary only
           </label>
         </div>
-        <div style="position:relative;height:240px;width:100%;">
-          <canvas id="pf-spends-chart"></canvas>
+        <div style="position:relative;height:240px;width:100%;" id="pf-spends-wrap">
+          <div class="skeleton" style="height:240px;width:100%;border-radius:8px;" id="pf-spends-skeleton"></div>
+          <canvas id="pf-spends-chart" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
         </div>
       </div>
     </div>
@@ -452,11 +513,15 @@ input[type="checkbox"]:checked + .pf-toggle::after {transform:translateX(14px);b
           <span style="display:flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Top 10 by Spend</span>
           <span id="pf-merchant-total">Total: $0</span>
       </div>
-      <div class="pf-categories" id="pf-merchants-container"></div>
+      <div class="pf-categories" id="pf-merchants-container">
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+        <div class="skeleton" style="height:52px;border-radius:8px;"></div>
+      </div>
     </div>
 
     <div style="text-align:center;">
-      <button class="refresh-btn" onclick="pfLoadData()">
+      <button class="refresh-btn" onclick="pfLoadData(true)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20q-3.35 0-5.675-2.325Q4 15.35 4 12q0-3.35 2.325-5.675Q8.65 4 12 4q1.725 0 3.3.712T18 6.75V4h2v7h-7V9h3.2q-1.05-1.8-2.825-2.9Q13.6 5 12 5 9.075 5 7.038 7.038 5 9.075 5 12q0 2.925 2.038 4.962Q9.075 19 12 19q2.5 0 4.388-1.5T18.8 13h2.05q-.5 3.45-3.175 5.725Q15.05 20 12 20Z"/></svg>
         Refresh Data
       </button>
@@ -482,6 +547,10 @@ const PF_WEBHOOK_DETAILS = 'https://script.google.com/macros/s/AKfycbz7yPg5-MP8G
 const PF_WEBHOOK_EXPENSES = 'https://script.google.com/macros/s/AKfycbx--EJ22tenXx4yUsVGUIOlCjNLd6uDNHFP_sASk0BBrVAMEm1dGvmziwaqGOwdGLim/exec';
 const PF_WEBHOOK_GOALS = 'https://script.google.com/macros/s/AKfycbw7Lqs-QkW4BVVIp584u-5KRvo4passTz5vLCbSH1c2Vn5UrFoNPDd-FclZ2HfIaGjwIw/exec';
 const PF_WEBHOOK_INCOMES = 'https://script.google.com/macros/s/AKfycbxGfZVYSOZR6RX0Yw4sOCDSPYNgvA5uSJKsCPA9U-WIqYuUjPY0j6J5iudQN8V1XpPYXw/exec';
+
+// ── localStorage cache keys & TTL ──
+const CACHE_KEY = 'pf_cache_v2';
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 let pfTrendChart = null;
 let pfPassiveChart = null;
@@ -514,7 +583,6 @@ const keyToLabel = key => {
 };
 function isLiquidCash(category) {
   const catLower = String(category).toLowerCase().trim();
-  // FIXED: "Projects" is no longer excluded from Net Cash
   return !(catLower.includes('real estate') || catLower.includes('growth fund'));
 }
 function isStableAsset(category) {
@@ -529,10 +597,31 @@ function setArc(id, pct, maxDash = 502.4) {
   el.setAttribute('stroke-dasharray', `${(pct > 100 ? 100 : pct / 100) * maxDash} ${maxDash}`);
 }
 
+// ── Skeleton helpers ──
+function showSkeleton(canvasId, skeletonId) {
+  const canvas = document.getElementById(canvasId);
+  const skel = document.getElementById(skeletonId);
+  if (canvas) canvas.style.display = 'none';
+  if (skel) skel.style.display = 'block';
+}
+function hideSkeleton(canvasId, skeletonId) {
+  const canvas = document.getElementById(canvasId);
+  const skel = document.getElementById(skeletonId);
+  if (canvas) canvas.style.display = 'block';
+  if (skel) skel.style.display = 'none';
+}
+
+// ── Fetch status pills ──
+function setPill(key, state) {
+  const pill = document.getElementById('pill-' + key);
+  if (!pill) return;
+  pill.className = 'pf-fetch-pill ' + state;
+}
+
 const customLineLabelsPlugin = {
   id: 'customLineLabels',
   afterDatasetsDraw(chart) {
-    if (chart.config.type !== 'line') return; // Do not draw line labels on Bar charts
+    if (chart.config.type !== 'line') return;
     const { ctx } = chart;
     chart.data.datasets.forEach((dataset, i) => {
       const meta = chart.getDatasetMeta(i);
@@ -555,42 +644,130 @@ const customLineLabelsPlugin = {
 };
 Chart.register(customLineLabelsPlugin);
 
-// ── PARALLEL DATA FETCHING ──
-function pfLoadData() {
-  document.getElementById('pf-setup').classList.remove('hidden');
-  document.getElementById('pf-dashboard').classList.add('hidden');
+// ══════════════════════════════════════════════════════
+// CACHE HELPERS
+// ══════════════════════════════════════════════════════
+function saveCache(data) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+  } catch(e) { /* storage full / private mode */ }
+}
+function loadCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed;
+  } catch(e) { return null; }
+}
+function cacheAgeLabel(ts) {
+  const mins = Math.round((Date.now() - ts) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + ' min ago';
+  const hrs = Math.round(mins / 60);
+  return hrs + (hrs === 1 ? ' hour' : ' hours') + ' ago';
+}
 
-  let completedReqs = 0;
+// ══════════════════════════════════════════════════════
+// PROGRESSIVE PARALLEL FETCH
+// ══════════════════════════════════════════════════════
+function pfLoadData(forceRefresh) {
+  // Reset pills to loading state
+  ['details','expenses','goals','incomes'].forEach(k => setPill(k, 'loading'));
+
+  // Try cache first (unless forced refresh)
+  if (!forceRefresh) {
+    const cached = loadCache();
+    if (cached) {
+      const isStale = (Date.now() - cached.ts) > CACHE_TTL_MS;
+      // Show dashboard immediately from cache
+      pfProcessData(cached.data, /* fromCache= */ true);
+      // Show stale banner if older than TTL
+      if (isStale) {
+        document.getElementById('pf-stale-banner').classList.remove('hidden');
+        document.getElementById('pf-cache-age').textContent = cacheAgeLabel(cached.ts);
+      } else {
+        document.getElementById('pf-stale-banner').classList.add('hidden');
+        // Fresh cache — show it and return, no background refresh needed
+        ['details','expenses','goals','incomes'].forEach(k => setPill(k, 'done'));
+        return;
+      }
+    } else {
+      // No cache at all — show dashboard shell with skeletons immediately
+      document.getElementById('pf-dashboard').classList.remove('hidden');
+      document.getElementById('pf-setup').classList.add('hidden');
+    }
+  } else {
+    document.getElementById('pf-stale-banner').classList.add('hidden');
+  }
+
+  // Fire all 4 fetches in parallel; process each as it arrives
+  const allFetchedData = { details: [], expenses: [], goals: [], incomes: [] };
+  let completedCount = 0;
   let hasFailed = false;
-  let allFetchedData = { details: [], expenses: [], goals: [], incomes: [] };
+  let detailsDone = false;
 
   const fallbackTimer = setTimeout(() => {
-    if(completedReqs < 4 && !hasFailed) {
-      hasFailed = true; pfLoadFallback();
+    if (!hasFailed) { hasFailed = true; pfLoadFallback(); }
+  }, 6000);
+
+  function onTabComplete(key) {
+    completedCount++;
+    setPill(key, 'done');
+
+    // Progressive render: as soon as details arrive, update KPIs + trend
+    if (key === 'details' && !detailsDone) {
+      detailsDone = true;
+      pfPartialProcess_details(allFetchedData.details);
     }
-  }, 10000); 
+    // As soon as expenses arrive, update expense sections
+    if (key === 'expenses') {
+      pfPartialProcess_expenses(allFetchedData.expenses);
+    }
+    // As soon as incomes arrive, update income sections
+    if (key === 'incomes') {
+      pfPartialProcess_incomes(allFetchedData.incomes);
+    }
+    // When all 4 done, do final full render and cache
+    if (completedCount === 4) {
+      clearTimeout(fallbackTimer);
+      pfProcessData(allFetchedData, false);
+      saveCache(allFetchedData);
+      document.getElementById('pf-stale-banner').classList.add('hidden');
+      document.getElementById('pf-fetch-status').style.opacity = '0';
+      setTimeout(() => document.getElementById('pf-fetch-status').style.display = 'none', 600);
+    }
+  }
 
   function fetchTab(url, key) {
     const cb = 'pfCb_' + key + '_' + Date.now() + Math.floor(Math.random()*1000);
     const sc = document.createElement('script');
     
     window[cb] = function(json) {
-      if(hasFailed) return; 
+      if (hasFailed) return; 
       delete window[cb]; document.body.removeChild(sc);
-      if (json.error) { hasFailed = true; pfLoadFallback(); return; }
+      if (json.error) { setPill(key, 'error'); return; }
       
       allFetchedData[key] = json.data || [];
-      completedReqs++;
       
-      if(key === 'details' && json.lastUpdated) {
+      if (key === 'details' && json.lastUpdated) {
         const lu = new Date(json.lastUpdated);
         document.getElementById('pf-date-str').textContent = 'Live · ' + lu.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + lu.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
       }
-      if (completedReqs === 4) { clearTimeout(fallbackTimer); pfProcessData(allFetchedData); }
+      onTabComplete(key);
     };
-    sc.onerror = function() { if(hasFailed) return; hasFailed = true; delete window[cb]; document.body.removeChild(sc); pfLoadFallback(); };
-    sc.src = url + '?callback=' + cb; document.body.appendChild(sc);
+    sc.onerror = function() {
+      if (hasFailed) return;
+      delete window[cb];
+      try { document.body.removeChild(sc); } catch(e) {}
+      setPill(key, 'error');
+      completedCount++;
+      if (completedCount === 4) { clearTimeout(fallbackTimer); pfProcessData(allFetchedData, false); saveCache(allFetchedData); }
+    };
+    sc.src = url + '?callback=' + cb;
+    document.body.appendChild(sc);
   }
+
   fetchTab(PF_WEBHOOK_DETAILS, 'details');
   fetchTab(PF_WEBHOOK_EXPENSES, 'expenses');
   fetchTab(PF_WEBHOOK_GOALS, 'goals');
@@ -599,39 +776,180 @@ function pfLoadData() {
 
 function pfLoadFallback() {
   document.getElementById('pf-date-str').textContent = 'Offline Mode';
-  pfProcessData({ details: [], expenses: [], goals: [], incomes: [] });
+  pfProcessData({ details: [], expenses: [], goals: [], incomes: [] }, false);
+}
+
+// ── Parse just the details tab and render KPIs + trend immediately ──
+function pfPartialProcess_details(detailsRaw) {
+  const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : [];
+  let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  let D_COL_INC = dHeaders.indexOf("total income");
+  let D_COL_EXP = dHeaders.indexOf("expenses");
+
+  GLOBAL_PF_DATA = {};
+  detailsRows.forEach(row => {
+    const rawMonth = String(row[0]||'').trim();
+    const account = String(row[1]||'').trim();
+    const category = String(row[2]||'').trim();
+    let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
+    if (!rawMonth) return;
+    let cleanDate = rawMonth;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
+    const d = new Date(cleanDate);
+    if (isNaN(d)) return;
+    const monthKey = parseToKey(d);
+    if (!GLOBAL_PF_DATA[monthKey]) GLOBAL_PF_DATA[monthKey] = { dateObj: d, assets: 0, cash: 0, categories: {}, totalIncome: 0, totalExpenses: 0 };
+    if (!isNaN(value) && value > 0) {
+      GLOBAL_PF_DATA[monthKey].assets += value;
+      if (isLiquidCash(category)) GLOBAL_PF_DATA[monthKey].cash += value;
+      if (!GLOBAL_PF_DATA[monthKey].categories[category]) GLOBAL_PF_DATA[monthKey].categories[category] = { total: 0, accounts: {} };
+      GLOBAL_PF_DATA[monthKey].categories[category].total += value;
+      GLOBAL_PF_DATA[monthKey].categories[category].accounts[account] = value;
+    }
+    let incVal = D_COL_INC !== -1 ? parseFloat(String(row[D_COL_INC]).replace(/[^0-9.-]+/g,"")) : 0;
+    let expVal = D_COL_EXP !== -1 ? parseFloat(String(row[D_COL_EXP]).replace(/[^0-9.-]+/g,"")) : 0;
+    if (!isNaN(incVal) && incVal > 0) GLOBAL_PF_DATA[monthKey].totalIncome = Math.max(GLOBAL_PF_DATA[monthKey].totalIncome || 0, incVal);
+    if (!isNaN(expVal) && expVal > 0) GLOBAL_PF_DATA[monthKey].totalExpenses = Math.max(GLOBAL_PF_DATA[monthKey].totalExpenses || 0, expVal);
+  });
+
+  GLOBAL_SORTED_MONTHS = Object.keys(GLOBAL_PF_DATA).sort((a,b) => b.localeCompare(a));
+  if (GLOBAL_SORTED_MONTHS.length === 0) return;
+
+  // Populate month filter
+  const monthSelect = document.getElementById('pf-month-filter');
+  if (!monthSelect.options.length) {
+    monthSelect.innerHTML = GLOBAL_SORTED_MONTHS.map(m => `<option value="${m}">${keyToLabel(m)}</option>`).join('');
+  }
+
+  // Render KPIs immediately
+  const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
+  const curData = GLOBAL_PF_DATA[currentMonthKey];
+  document.getElementById('pf-total-assets').textContent = fmtK(curData.assets);
+  document.getElementById('pf-net-cash').textContent = fmtK(curData.cash);
+
+  // Render trend chart immediately
+  renderTrendChart();
+  renderPortfolioSections();
+  renderSavingsAndCashFlow();
+  hideSkeleton('pf-trend-chart', 'pf-trend-skeleton');
+  hideSkeleton('pf-cashflow-chart', 'pf-cashflow-skeleton');
+
+  document.getElementById('pf-dashboard').classList.remove('hidden');
+  document.getElementById('pf-setup').classList.add('hidden');
+}
+
+// ── Parse just the expenses tab and update expense sections ──
+function pfPartialProcess_expenses(expRaw) {
+  let eHeaders = (expRaw[0] || []).map(h => String(h).toLowerCase().trim());
+  const eGetCol = (name, fallback) => { let idx = eHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
+  const EXP_COL_DATE = eGetCol("date", 0);
+  const EXP_COL_MONTH = eGetCol("month", 1);
+  const EXP_COL_AMT = eGetCol("spend in sgd", 2);
+  const EXP_COL_SRC = eGetCol("expense source", 3);
+  const EXP_COL_CAT = eGetCol("category of expense", 4);
+
+  GLOBAL_EXPENSE_HISTORY = {};
+  const expRows = expRaw.length > 1 ? expRaw.slice(1) : [];
+  expRows.forEach(row => {
+    let rawMonth = String(row[EXP_COL_MONTH]||'').trim();
+    let rawDate = String(row[EXP_COL_DATE]||'').trim();
+    let rawAmt = String(row[EXP_COL_AMT]||'').replace(/[^0-9.-]+/g,"");
+    let val = parseFloat(rawAmt);
+    let src = String(row[EXP_COL_SRC]||'Unknown').trim();
+    let cat = String(row[EXP_COL_CAT]||'Uncategorized').trim();
+    if(!rawMonth || isNaN(val) || val <= 0) return;
+    let cleanDate = rawMonth;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
+    let d = new Date(cleanDate);
+    if(isNaN(d)) return;
+    let mKey = parseToKey(d);
+    if(!GLOBAL_EXPENSE_HISTORY[mKey]) GLOBAL_EXPENSE_HISTORY[mKey] = { dateObj: d, total: 0, disc: 0, nonDisc: 0, categories: {}, merchants: {} };
+    let isNd = isNonDisc(cat);
+    GLOBAL_EXPENSE_HISTORY[mKey].total += val;
+    if(isNd) GLOBAL_EXPENSE_HISTORY[mKey].nonDisc += val; else GLOBAL_EXPENSE_HISTORY[mKey].disc += val;
+    if(!GLOBAL_EXPENSE_HISTORY[mKey].categories[cat]) GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] = 0;
+    GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] += val;
+    if(!GLOBAL_EXPENSE_HISTORY[mKey].merchants[src]) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src] = { total: 0, disc: 0, txns: [] };
+    GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].total += val;
+    if(!isNd) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].disc += val;
+    GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].txns.push({ date: rawDate, cat: cat, amt: val, isNonDisc: isNd });
+  });
+
+  let sortedExpKeys = Object.keys(GLOBAL_EXPENSE_HISTORY).sort((a,b) => b.localeCompare(a));
+  GLOBAL_MONTHLY_EXPENSE = sortedExpKeys.length > 0 ? GLOBAL_EXPENSE_HISTORY[sortedExpKeys[0]].total : 1;
+
+  // Update runway (needs cash)
+  if (GLOBAL_SORTED_MONTHS.length > 0) {
+    const curData = GLOBAL_PF_DATA[GLOBAL_SORTED_MONTHS[0]];
+    if (curData) {
+      let runwayValue = curData.cash / (GLOBAL_MONTHLY_EXPENSE > 0 ? GLOBAL_MONTHLY_EXPENSE : 1);
+      document.getElementById('pf-runway-val').textContent = '⚡ ' + runwayValue.toFixed(1) + ' MO';
+    }
+  }
+
+  renderSpendsChart();
+  renderMerchantsLeaderboard();
+  render503020();
+  hideSkeleton('pf-spends-chart', 'pf-spends-skeleton');
+}
+
+// ── Parse just the incomes tab and update passive/yield sections ──
+function pfPartialProcess_incomes(incRaw) {
+  const incRows = incRaw.length > 1 ? incRaw.slice(1) : [];
+  GLOBAL_INCOME_HISTORY = {};
+  incRows.forEach(row => {
+    let rawDate = String(row[0]||'').trim();
+    let assetName = String(row[1]||'').trim();
+    let category = String(row[2]||'').trim();
+    let val = parseFloat(String(row[5]||'').replace(/[^0-9.-]+/g,""));
+    if (!rawDate || isNaN(val)) return;
+    let cleanDate = rawDate;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) cleanDate = "01 " + rawDate;
+    let d = new Date(cleanDate);
+    if(isNaN(d)) return;
+    let mKey = parseToKey(d);
+    if (!GLOBAL_INCOME_HISTORY[mKey]) GLOBAL_INCOME_HISTORY[mKey] = { dateObj: d, total: 0, options: 0, categories: {} };
+    GLOBAL_INCOME_HISTORY[mKey].total += val;
+    if (category.toLowerCase() === 'options') GLOBAL_INCOME_HISTORY[mKey].options += val;
+    if (!GLOBAL_INCOME_HISTORY[mKey].categories[category]) GLOBAL_INCOME_HISTORY[mKey].categories[category] = { total: 0, assets: [] };
+    GLOBAL_INCOME_HISTORY[mKey].categories[category].total += val;
+    let existingAsset = GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.find(a => a.name === assetName);
+    if (existingAsset) existingAsset.value += val; else GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.push({ name: assetName, value: val });
+  });
+
+  let sortedIncKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => b.localeCompare(a));
+  GLOBAL_PASSIVE_INC = sortedIncKeys.length > 0 ? GLOBAL_INCOME_HISTORY[sortedIncKeys[0]].total : 0;
+
+  renderPassiveChart();
+  renderYieldLeaderboard();
+  renderGoalsAndFreedom();
+  hideSkeleton('pf-passive-chart', 'pf-passive-skeleton');
 }
 
 function getLatestMonthSumFixed(rawArray, dateColIdx, amtColIdx) {
   if (!rawArray || rawArray.length <= 1) return 0;
   let rows = rawArray.slice(1);
   let monthlySums = {};
-
   rows.forEach(row => {
     let rawDate = String(row[dateColIdx] || '').trim();
     let rawAmt = String(row[amtColIdx] || '').replace(/[^0-9.-]+/g,"");
     let val = parseFloat(rawAmt);
     if(!rawDate || isNaN(val)) return;
-
     let cleanDate = rawDate;
     if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) { cleanDate = "01 " + rawDate; }
     let d = new Date(cleanDate);
     if(isNaN(d)) return;
-
     let mKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
     if(!monthlySums[mKey]) monthlySums[mKey] = 0;
     monthlySums[mKey] += val;
   });
-
   let sortedKeys = Object.keys(monthlySums).sort((a,b) => b.localeCompare(a));
   if(sortedKeys.length === 0) return 0;
   return monthlySums[sortedKeys[0]];
 }
 
-
-// ── DATA PARSING ──
-function pfProcessData(allData) {
-  
+// ── FULL DATA PROCESS (called when all 4 done OR from cache) ──
+function pfProcessData(allData, fromCache) {
   const detailsRaw = allData.details || [];
   const detailsRows = detailsRaw.length > 1 ? detailsRaw.slice(1) : [];
   let dHeaders = (detailsRaw[0] || []).map(h => String(h).toLowerCase().trim());
@@ -645,15 +963,12 @@ function pfProcessData(allData) {
     const category = String(row[2]||'').trim();
     let value = parseFloat(String(row[3]).replace(/[^0-9.-]+/g,""));
     if (!rawMonth) return;
-
     let cleanDate = rawMonth;
     if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
     const d = new Date(cleanDate);
     if (isNaN(d)) return;
-
     const monthKey = parseToKey(d);
     if (!GLOBAL_PF_DATA[monthKey]) GLOBAL_PF_DATA[monthKey] = { dateObj: d, assets: 0, cash: 0, categories: {}, totalIncome: 0, totalExpenses: 0 };
-
     if (!isNaN(value) && value > 0) {
       GLOBAL_PF_DATA[monthKey].assets += value;
       if (isLiquidCash(category)) GLOBAL_PF_DATA[monthKey].cash += value;
@@ -673,7 +988,6 @@ function pfProcessData(allData) {
   const expRaw = allData.expenses || [];
   let eHeaders = (expRaw[0] || []).map(h => String(h).toLowerCase().trim());
   const eGetCol = (name, fallback) => { let idx = eHeaders.indexOf(name.toLowerCase()); return idx !== -1 ? idx : fallback; };
-  
   const EXP_COL_DATE = eGetCol("date", 0);
   const EXP_COL_MONTH = eGetCol("month", 1);
   const EXP_COL_AMT = eGetCol("spend in sgd", 2);
@@ -682,37 +996,29 @@ function pfProcessData(allData) {
 
   GLOBAL_EXPENSE_HISTORY = {};
   const expRows = expRaw.length > 1 ? expRaw.slice(1) : [];
-  
   expRows.forEach(row => {
-      let rawMonth = String(row[EXP_COL_MONTH]||'').trim();
-      let rawDate = String(row[EXP_COL_DATE]||'').trim();
-      let rawAmt = String(row[EXP_COL_AMT]||'').replace(/[^0-9.-]+/g,"");
-      let val = parseFloat(rawAmt);
-      let src = String(row[EXP_COL_SRC]||'Unknown').trim();
-      let cat = String(row[EXP_COL_CAT]||'Uncategorized').trim();
-
-      if(!rawMonth || isNaN(val) || val <= 0) return;
-
-      let cleanDate = rawMonth;
-      if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
-      let d = new Date(cleanDate);
-      if(isNaN(d)) return;
-
-      let mKey = parseToKey(d);
-      if(!GLOBAL_EXPENSE_HISTORY[mKey]) GLOBAL_EXPENSE_HISTORY[mKey] = { dateObj: d, total: 0, disc: 0, nonDisc: 0, categories: {}, merchants: {} };
-
-      let isNd = isNonDisc(cat);
-      GLOBAL_EXPENSE_HISTORY[mKey].total += val;
-      if(isNd) GLOBAL_EXPENSE_HISTORY[mKey].nonDisc += val; else GLOBAL_EXPENSE_HISTORY[mKey].disc += val;
-
-      if(!GLOBAL_EXPENSE_HISTORY[mKey].categories[cat]) GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] = 0;
-      GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] += val;
-
-      if(!GLOBAL_EXPENSE_HISTORY[mKey].merchants[src]) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src] = { total: 0, disc: 0, txns: [] };
-      GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].total += val;
-      if(!isNd) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].disc += val;
-      
-      GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].txns.push({ date: rawDate, cat: cat, amt: val, isNonDisc: isNd });
+    let rawMonth = String(row[EXP_COL_MONTH]||'').trim();
+    let rawDate = String(row[EXP_COL_DATE]||'').trim();
+    let rawAmt = String(row[EXP_COL_AMT]||'').replace(/[^0-9.-]+/g,"");
+    let val = parseFloat(rawAmt);
+    let src = String(row[EXP_COL_SRC]||'Unknown').trim();
+    let cat = String(row[EXP_COL_CAT]||'Uncategorized').trim();
+    if(!rawMonth || isNaN(val) || val <= 0) return;
+    let cleanDate = rawMonth;
+    if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawMonth)) cleanDate = "01 " + rawMonth;
+    let d = new Date(cleanDate);
+    if(isNaN(d)) return;
+    let mKey = parseToKey(d);
+    if(!GLOBAL_EXPENSE_HISTORY[mKey]) GLOBAL_EXPENSE_HISTORY[mKey] = { dateObj: d, total: 0, disc: 0, nonDisc: 0, categories: {}, merchants: {} };
+    let isNd = isNonDisc(cat);
+    GLOBAL_EXPENSE_HISTORY[mKey].total += val;
+    if(isNd) GLOBAL_EXPENSE_HISTORY[mKey].nonDisc += val; else GLOBAL_EXPENSE_HISTORY[mKey].disc += val;
+    if(!GLOBAL_EXPENSE_HISTORY[mKey].categories[cat]) GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] = 0;
+    GLOBAL_EXPENSE_HISTORY[mKey].categories[cat] += val;
+    if(!GLOBAL_EXPENSE_HISTORY[mKey].merchants[src]) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src] = { total: 0, disc: 0, txns: [] };
+    GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].total += val;
+    if(!isNd) GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].disc += val;
+    GLOBAL_EXPENSE_HISTORY[mKey].merchants[src].txns.push({ date: rawDate, cat: cat, amt: val, isNonDisc: isNd });
   });
 
   let sortedExpKeys = Object.keys(GLOBAL_EXPENSE_HISTORY).sort((a,b) => b.localeCompare(a));
@@ -721,29 +1027,22 @@ function pfProcessData(allData) {
   const incRaw = allData.incomes || [];
   const incRows = incRaw.length > 1 ? incRaw.slice(1) : [];
   GLOBAL_INCOME_HISTORY = {};
-  
   incRows.forEach(row => {
     let rawDate = String(row[0]||'').trim();
     let assetName = String(row[1]||'').trim();
     let category = String(row[2]||'').trim();
     let val = parseFloat(String(row[5]||'').replace(/[^0-9.-]+/g,""));
-
     if (!rawDate || isNaN(val)) return;
-
     let cleanDate = rawDate;
     if (/^[a-zA-Z]{3,}\s\d{4}$/.test(rawDate)) cleanDate = "01 " + rawDate;
     let d = new Date(cleanDate);
     if(isNaN(d)) return;
-
     let mKey = parseToKey(d);
     if (!GLOBAL_INCOME_HISTORY[mKey]) GLOBAL_INCOME_HISTORY[mKey] = { dateObj: d, total: 0, options: 0, categories: {} };
-
     GLOBAL_INCOME_HISTORY[mKey].total += val;
     if (category.toLowerCase() === 'options') GLOBAL_INCOME_HISTORY[mKey].options += val;
-
     if (!GLOBAL_INCOME_HISTORY[mKey].categories[category]) GLOBAL_INCOME_HISTORY[mKey].categories[category] = { total: 0, assets: [] };
     GLOBAL_INCOME_HISTORY[mKey].categories[category].total += val;
-    
     let existingAsset = GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.find(a => a.name === assetName);
     if (existingAsset) existingAsset.value += val; else GLOBAL_INCOME_HISTORY[mKey].categories[category].assets.push({ name: assetName, value: val });
   });
@@ -755,7 +1054,6 @@ function pfProcessData(allData) {
   const goalsRows = goalsRaw.length > 1 ? goalsRaw.slice(1) : [];
   let goalMap = {};
   const latestMonthData = GLOBAL_PF_DATA[GLOBAL_SORTED_MONTHS[0]];
-
   goalsRows.forEach(row => {
     let name = String(row[0]||'').trim();
     let category = String(row[1]||'').trim();
@@ -764,11 +1062,9 @@ function pfProcessData(allData) {
     let mappedAsset = String(row[4]||'').trim();
     let alloc = parseFloat(String(row[5]||'0').replace(/[^0-9.-]+/g,""));
     if (alloc > 1) alloc = alloc / 100; 
-
     if(!name) return;
     if(!goalMap[name]) goalMap[name] = { name, category, dateStr, current: 0, target: target, accounts: [] };
     if (target > goalMap[name].target) goalMap[name].target = target;
-    
     if (mappedAsset && latestMonthData) {
        let acctBal = 0;
        Object.values(latestMonthData.categories).forEach(cat => { if (cat.accounts[mappedAsset]) acctBal += cat.accounts[mappedAsset]; });
@@ -779,25 +1075,37 @@ function pfProcessData(allData) {
   });
   GLOBAL_GOALS = Object.values(goalMap);
 
-  // Init UI & KPIs
+  // KPIs
   const currentMonthKey = GLOBAL_SORTED_MONTHS[0];
   const curData = GLOBAL_PF_DATA[currentMonthKey];
-  
   document.getElementById('pf-total-assets').textContent = fmtK(curData.assets);
   document.getElementById('pf-net-cash').textContent = fmtK(curData.cash);
-
-  // Runway Math calculated dynamically using the freshly-calculated Net Cash
-  let runwayLatestExp = GLOBAL_MONTHLY_EXPENSE > 0 ? GLOBAL_MONTHLY_EXPENSE : 1;
-  let runwayValue = curData.cash / runwayLatestExp;
+  let runwayValue = curData.cash / (GLOBAL_MONTHLY_EXPENSE > 0 ? GLOBAL_MONTHLY_EXPENSE : 1);
   document.getElementById('pf-runway-val').textContent = '⚡ ' + runwayValue.toFixed(1) + ' MO';
 
+  // Populate month dropdown
   const monthSelect = document.getElementById('pf-month-filter');
   let allMonthKeys = new Set([...GLOBAL_SORTED_MONTHS, ...sortedIncKeys, ...sortedExpKeys]);
   let sortedAllMonths = Array.from(allMonthKeys).sort((a,b) => b.localeCompare(a)); 
+  const currentVal = monthSelect.value;
   monthSelect.innerHTML = sortedAllMonths.map(m => `<option value="${m}">${keyToLabel(m)}</option>`).join('');
-  
+  if (currentVal && sortedAllMonths.includes(currentVal)) monthSelect.value = currentVal;
+
+  if (fromCache) {
+    // Show date from cache timestamp
+    const cached = loadCache();
+    if (cached) document.getElementById('pf-date-str').textContent = 'Cached · ' + cacheAgeLabel(cached.ts);
+  }
+
+  // Render everything
   updateAllSections();
-  
+
+  // Hide all skeletons
+  hideSkeleton('pf-trend-chart', 'pf-trend-skeleton');
+  hideSkeleton('pf-cashflow-chart', 'pf-cashflow-skeleton');
+  hideSkeleton('pf-passive-chart', 'pf-passive-skeleton');
+  hideSkeleton('pf-spends-chart', 'pf-spends-skeleton');
+
   document.getElementById('pf-setup').classList.add('hidden');
   document.getElementById('pf-dashboard').classList.remove('hidden');
 }
@@ -809,7 +1117,6 @@ function updateAllSections() {
     renderGoalsAndFreedom();
     renderPassiveChart();
     renderYieldLeaderboard();
-    
     render503020();
     renderSpendsChart();
     renderMerchantsLeaderboard();
@@ -832,6 +1139,7 @@ function attachTooltip(el, html) {
 
 function render503020() {
   const selectedKey = document.getElementById('pf-month-filter').value;
+  if (!selectedKey) return;
   const pfData = GLOBAL_PF_DATA[selectedKey] || { totalIncome: 0 };
   const expData = GLOBAL_EXPENSE_HISTORY[selectedKey] || { total: 0, disc: 0, nonDisc: 0 };
 
@@ -867,6 +1175,8 @@ function renderSpendsChart() {
     .filter(key => GLOBAL_EXPENSE_HISTORY[key].dateObj >= cutoffDate)
     .sort((a,b) => GLOBAL_EXPENSE_HISTORY[a].dateObj - GLOBAL_EXPENSE_HISTORY[b].dateObj);
 
+  if (!chartKeys.length) return;
+
   const labels = chartKeys.map(key => {
     const d = GLOBAL_EXPENSE_HISTORY[key].dateObj;
     return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
@@ -898,6 +1208,7 @@ function renderSpendsChart() {
 
   if (pfSpendsChart) { pfSpendsChart.destroy(); }
   const ctx = document.getElementById('pf-spends-chart');
+  hideSkeleton('pf-spends-chart', 'pf-spends-skeleton');
 
   pfSpendsChart = new Chart(ctx, {
     type: 'bar',
@@ -926,6 +1237,7 @@ function renderSpendsChart() {
 
 function renderMerchantsLeaderboard() {
   const selectedKey = document.getElementById('pf-month-filter').value;
+  if (!selectedKey) return;
   const isDiscOnly = document.getElementById('pf-merchant-toggle').checked;
   const container = document.getElementById('pf-merchants-container');
   container.innerHTML = '';
@@ -1011,6 +1323,7 @@ function renderMerchantsLeaderboard() {
 
 function renderSavingsAndCashFlow() {
   const selectedKey = document.getElementById('pf-month-filter').value;
+  if (!selectedKey) return;
   const curData = GLOBAL_PF_DATA[selectedKey] || { totalIncome: 0, totalExpenses: 0 };
   
   const inc = curData.totalIncome || 0;
@@ -1019,6 +1332,7 @@ function renderSavingsAndCashFlow() {
   const savPct = inc > 0 ? (sav / inc) * 100 : 0; 
   
   document.getElementById('pf-savings-pct').textContent = Math.round(savPct) + '%';
+  document.getElementById('pf-savings-status').textContent = savPct >= 20 ? 'Healthy' : savPct >= 0 ? 'Low' : 'Deficit';
   setArc('pf-savings-circle', savPct);
 
   const savTtHtml = `
@@ -1033,6 +1347,8 @@ function renderSavingsAndCashFlow() {
     .filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate)
     .sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
 
+  if (!chartKeys.length) return;
+
   const labels = chartKeys.map(key => {
     const d = GLOBAL_PF_DATA[key].dateObj;
     return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
@@ -1043,6 +1359,7 @@ function renderSavingsAndCashFlow() {
 
   if (pfCashflowChart) { pfCashflowChart.destroy(); }
   const ctx = document.getElementById('pf-cashflow-chart');
+  hideSkeleton('pf-cashflow-chart', 'pf-cashflow-skeleton');
 
   pfCashflowChart = new Chart(ctx, {
     type:'line',
@@ -1054,9 +1371,7 @@ function renderSavingsAndCashFlow() {
       ]
     },
     options:{
-      responsive:true, 
-      maintainAspectRatio:false, 
-      interaction:{mode:'index',intersect:false},
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
       layout: { padding: { right: 50 } }, 
       plugins:{
         legend:{display:false},
@@ -1075,6 +1390,7 @@ function renderSavingsAndCashFlow() {
 
 function renderPortfolioSections() {
   const selectedKey = document.getElementById('pf-month-filter').value;
+  if (!selectedKey) return;
   const curData = GLOBAL_PF_DATA[selectedKey];
   const catContainer = document.getElementById('pf-categories');
   catContainer.innerHTML = '';
@@ -1243,6 +1559,7 @@ function renderGoalsAndFreedom() {
 
 function renderYieldLeaderboard() {
   const selectedKey = document.getElementById('pf-month-filter').value;
+  if (!selectedKey) return;
   const container = document.getElementById('pf-yield-container');
   container.innerHTML = '';
 
@@ -1290,6 +1607,8 @@ function renderPassiveChart() {
   const ctx = document.getElementById('pf-passive-chart');
 
   const chartKeys = Object.keys(GLOBAL_INCOME_HISTORY).sort((a,b) => GLOBAL_INCOME_HISTORY[a].dateObj - GLOBAL_INCOME_HISTORY[b].dateObj);
+  if (!chartKeys.length) return;
+
   const labels = chartKeys.map(key => {
     const d = GLOBAL_INCOME_HISTORY[key].dateObj;
     return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
@@ -1297,6 +1616,7 @@ function renderPassiveChart() {
 
   const totalData = chartKeys.map(k => GLOBAL_INCOME_HISTORY[k].total);
   const optionsData = chartKeys.map(k => GLOBAL_INCOME_HISTORY[k].options);
+  hideSkeleton('pf-passive-chart', 'pf-passive-skeleton');
 
   pfPassiveChart = new Chart(ctx, {
     type:'line',
@@ -1318,6 +1638,8 @@ function renderPassiveChart() {
 function renderTrendChart() {
   const cutoffDate = new Date('2024-06-01T00:00:00');
   const chartKeys = GLOBAL_SORTED_MONTHS.filter(key => GLOBAL_PF_DATA[key].dateObj >= cutoffDate).sort((a,b) => GLOBAL_PF_DATA[a].dateObj - GLOBAL_PF_DATA[b].dateObj);
+  if (!chartKeys.length) return;
+
   const labels = chartKeys.map(key => {
     const d = GLOBAL_PF_DATA[key].dateObj; return d.toLocaleString('en-US', { month: 'short' }) + " '" + d.toLocaleString('en-US', { year: '2-digit' });
   });
@@ -1326,6 +1648,7 @@ function renderTrendChart() {
 
   if (pfTrendChart) { pfTrendChart.destroy(); }
   const ctx = document.getElementById('pf-trend-chart');
+  hideSkeleton('pf-trend-chart', 'pf-trend-skeleton');
   
   pfTrendChart = new Chart(ctx, {
     type:'line',
@@ -1344,6 +1667,7 @@ function renderTrendChart() {
   });
 }
 
+// ── Boot ──
 pfLoadData();
 
 if ('serviceWorker' in navigator) {
