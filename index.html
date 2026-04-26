@@ -355,12 +355,22 @@ select.asset-select:focus{border-color:var(--green);}
 
   <div class="grid-full section-gap" id="trend-chart-row">
     <div class="card">
-      <div class="card-title"><span></span>Cumulative Trend</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div class="card-title" style="margin-bottom:0;"><span id="trend-title-dot"></span><span id="trend-title-text">Cumulative Trend</span></div>
+        <div style="display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;">
+          <button id="trend-btn-line" onclick="setChartViewMode('line')" style="display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:none;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;background:var(--surface2);color:var(--text);">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,11 4,7 7,8 10,4 13,2"/></svg>Line
+          </button>
+          <button id="trend-btn-bar" onclick="setChartViewMode('bar')" style="display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:none;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="3" height="5" rx="0.5"/><rect x="5.5" y="4" width="3" height="9" rx="0.5"/><rect x="10" y="6" width="3" height="7" rx="0.5"/></svg>Monthly
+          </button>
+        </div>
+      </div>
       <div style="position:relative;height:240px;">
         <canvas id="opt-trend-chart"></canvas>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--muted2);">
-        <div style="display:flex;gap:16px;">
+        <div style="display:flex;gap:16px;" id="trend-legend">
           <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Premium</span>
           <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--blue);display:inline-block;border-radius:1px"></span>Net</span>
         </div>
@@ -657,7 +667,38 @@ function applyFilters() {
 }
 
 let optTrendChart = null;
+let chartViewMode = 'line';
+let lastTrendData = [];
+
+function setChartViewMode(v) {
+  chartViewMode = v;
+  const btnLine = document.getElementById('trend-btn-line');
+  const btnBar  = document.getElementById('trend-btn-bar');
+  const dot     = document.getElementById('trend-title-dot');
+  const title   = document.getElementById('trend-title-text');
+  const legend  = document.getElementById('trend-legend');
+  if (btnLine) { btnLine.style.background = v === 'line' ? 'var(--surface2)' : 'transparent'; btnLine.style.color = v === 'line' ? 'var(--text)' : 'var(--muted)'; }
+  if (btnBar)  { btnBar.style.background  = v === 'bar'  ? 'var(--surface2)' : 'transparent'; btnBar.style.color  = v === 'bar'  ? 'var(--text)' : 'var(--muted)'; }
+  if (dot)   dot.style.background = v === 'bar' ? 'var(--blue)' : 'var(--green)';
+  if (title) title.textContent = v === 'line' ? 'Cumulative Trend' : 'Monthly Totals';
+  if (legend) legend.innerHTML = v === 'line'
+    ? `<span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Premium</span>
+       <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--blue);display:inline-block;border-radius:1px"></span>Net</span>`
+    : `<span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--green);display:inline-block;border-radius:2px;opacity:0.85"></span>Premium</span>
+       <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--blue);display:inline-block;border-radius:2px;opacity:0.85"></span>Net</span>`;
+  renderTrendChart(lastTrendData);
+}
+
 function renderTrendChart(data) {
+  lastTrendData = data || lastTrendData;
+  if (chartViewMode === 'bar') {
+    renderTrendChartBar(lastTrendData);
+  } else {
+    renderTrendChartLine(lastTrendData);
+  }
+}
+
+function renderTrendChartLine(data) {
   const sorted = [...data].filter(t=>t.date).sort((a,b)=>a.date.localeCompare(b.date));
   if (!sorted.length) return;
 
@@ -680,7 +721,6 @@ function renderTrendChart(data) {
   });
 
   const fmtLabel = d => new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-
   document.getElementById('trend-total-premium').textContent = fmtDec(sumP);
   document.getElementById('trend-total-net').textContent = fmtDec(sumN);
 
@@ -706,6 +746,68 @@ function renderTrendChart(data) {
       scales: {
         x: { ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false } },
         y: { display: false, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function renderTrendChartBar(data) {
+  const sorted = [...data].filter(t=>t.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if (!sorted.length) return;
+
+  // Group by month
+  const monthMap = {};
+  sorted.forEach(t => {
+    const d = new Date(t.date);
+    const key = d.toLocaleDateString('en-GB', {month:'short', year:'2-digit'});
+    if (!monthMap[key]) monthMap[key] = { premium: 0, net: 0, order: d.getFullYear()*100 + d.getMonth() };
+    monthMap[key].premium += t.premium || 0;
+    monthMap[key].net += (t.premium || 0) + (t.stockPL || 0);
+  });
+  const months = Object.entries(monthMap).sort((a,b)=>a[1].order - b[1].order);
+  const labels = months.map(([k]) => k);
+  const premData = months.map(([,v]) => Math.round(v.premium));
+  const netData  = months.map(([,v]) => Math.round(v.net));
+
+  const sumP = premData.reduce((s,v)=>s+v,0);
+  const sumN = netData.reduce((s,v)=>s+v,0);
+  document.getElementById('trend-total-premium').textContent = fmtDec(sumP);
+  document.getElementById('trend-total-net').textContent = fmtDec(sumN);
+
+  const ctx = document.getElementById('opt-trend-chart');
+  if (!ctx) return;
+  if (optTrendChart) { optTrendChart.destroy(); optTrendChart = null; }
+
+  optTrendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Premium', data: premData, backgroundColor: 'rgba(0,229,160,0.75)', borderColor: 'rgba(0,229,160,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false },
+        { label: 'Net Income', data: netData, backgroundColor: 'rgba(78,181,255,0.75)', borderColor: 'rgba(78,181,255,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111418', borderColor: '#1e2530', borderWidth: 1,
+          titleColor: '#e8edf3', bodyColor: '#8892a4', padding: 12,
+          callbacks: {
+            label: c => ' ' + c.dataset.label + ': $' + Math.round(c.parsed.y).toLocaleString(),
+            afterBody: items => {
+              const prem = items.find(i=>i.datasetIndex===0)?.parsed.y||0;
+              const net  = items.find(i=>i.datasetIndex===1)?.parsed.y||0;
+              const stockPL = net - prem;
+              return stockPL !== 0 ? [' Stock P/L: ' + (stockPL>=0?'+':'-') + '$' + Math.abs(Math.round(stockPL)).toLocaleString()] : [];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false } },
+        y: { ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" }, callback: v => '$' + (Math.abs(v)>=1000?(v/1000).toFixed(0)+'K':v) }, grid: { color: 'rgba(30,37,48,0.4)', drawBorder: false }, beginAtZero: true }
       }
     }
   });
