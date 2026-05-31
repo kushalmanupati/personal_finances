@@ -183,7 +183,36 @@ select.asset-select:focus{border-color:var(--green);}
 .no-data{text-align:center;padding:20px;font-size:12px;color:var(--muted);}
 .section-gap{margin-bottom:16px;}
 
-/* Editable Capital Card */
+/* Collapsible section */
+.collapsible-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none; margin-bottom: 0;
+}
+.collapsible-header:hover .collapse-chevron { color: var(--text); }
+.collapse-chevron {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--muted); font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; font-family: 'DM Mono', monospace;
+  transition: color 0.2s;
+}
+.collapse-chevron svg {
+  width: 14px; height: 14px; transition: transform 0.25s ease; flex-shrink: 0;
+}
+.collapse-chevron.open svg { transform: rotate(180deg); }
+.collapsible-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+  opacity: 0;
+}
+.collapsible-body.open {
+  max-height: 4000px;
+  opacity: 1;
+}
+.collapsible-peek {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+  display: flex; gap: 32px; font-size: 11px; color: var(--muted2);
+}
 .kpi-capital-wrap { position: relative; cursor: pointer; }
 .kpi-capital-edit-hint {
   font-size: 9px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase;
@@ -422,6 +451,26 @@ select.asset-select:focus{border-color:var(--green);}
     </div>
   </div>
 
+  <div class="grid-full section-gap">
+    <div class="card">
+      <div class="card-title"><span></span>Premium Trade Log</div>
+      <div class="table-responsive">
+        <table class="trades-table">
+          <thead><tr><th>Date</th><th>Asset</th><th>Name</th><th>Days</th><th>Premium</th><th>Total P/L</th><th>P/Day</th><th>Expiry</th><th>Status</th></tr></thead>
+          <tbody id="trade-tbody"></tbody>
+        </table>
+      </div>
+      <div id="trade-empty" class="no-data" style="display:none">No trades match current filters.</div>
+      
+      <div style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">Show</div>
+        <div class="chip log-limit active" onclick="setLogLimit(10, this)">Top-10</div>
+        <div class="chip log-limit" onclick="setLogLimit(20, this)">Top-20</div>
+        <div class="chip log-limit" onclick="setLogLimit('all', this)">All</div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid-donut-bar section-gap">
     <div class="card">
       <div class="card-title"><span></span>Trade Outcome</div>
@@ -459,33 +508,21 @@ select.asset-select:focus{border-color:var(--green);}
 
   <div class="grid-full section-gap">
     <div class="card">
-      <div class="card-title"><span></span>Profit / Day</div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:16px">Asset · Expiry — higher $/day = more time-efficient</div>
-      <div class="pday-grid-wide" id="pday-grid"></div>
-      <div style="display:flex;gap:32px;margin-top:16px;font-size:11px;color:var(--muted2)">
+      <div class="collapsible-header card-title" onclick="togglePdaySection()" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;gap:8px;"><span></span>Profit / Day</div>
+        <div class="collapse-chevron" id="pday-chevron">
+          <span id="pday-chevron-label">Show</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="collapsible-peek">
         <span>Best: <strong style="color:var(--green)" id="ppd-best">—</strong></span>
         <span>Avg: <strong style="color:var(--blue)" id="ppd-avg">—</strong></span>
         <span>Worst: <strong style="color:var(--muted)" id="ppd-worst">—</strong></span>
       </div>
-    </div>
-  </div>
-
-  <div class="grid-full section-gap">
-    <div class="card">
-      <div class="card-title"><span></span>Premium Trade Log</div>
-      <div class="table-responsive">
-        <table class="trades-table">
-          <thead><tr><th>Date</th><th>Asset</th><th>Name</th><th>Days</th><th>Premium</th><th>Total P/L</th><th>P/Day</th><th>Expiry</th><th>Status</th></tr></thead>
-          <tbody id="trade-tbody"></tbody>
-        </table>
-      </div>
-      <div id="trade-empty" class="no-data" style="display:none">No trades match current filters.</div>
-      
-      <div style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
-        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">Show</div>
-        <div class="chip log-limit active" onclick="setLogLimit(10, this)">Top-10</div>
-        <div class="chip log-limit" onclick="setLogLimit(20, this)">Top-20</div>
-        <div class="chip log-limit" onclick="setLogLimit('all', this)">All</div>
+      <div class="collapsible-body" id="pday-body">
+        <div style="font-size:10px;color:var(--muted);margin:16px 0 16px">Asset · Expiry — higher $/day = more time-efficient</div>
+        <div class="pday-grid-wide" id="pday-grid"></div>
       </div>
     </div>
   </div>
@@ -1075,6 +1112,17 @@ function setLogLimit(val, el) {
   logLimit = val;
   document.querySelectorAll('.log-limit').forEach(c => c.classList.remove('active'));
   el.classList.add('active'); applyFilters();
+}
+
+let pdayOpen = false;
+function togglePdaySection() {
+  pdayOpen = !pdayOpen;
+  const body = document.getElementById('pday-body');
+  const chevron = document.getElementById('pday-chevron');
+  const label = document.getElementById('pday-chevron-label');
+  body.classList.toggle('open', pdayOpen);
+  chevron.classList.toggle('open', pdayOpen);
+  label.textContent = pdayOpen ? 'Hide' : 'Show';
 }
 
 function renderTradeLog(data) {
