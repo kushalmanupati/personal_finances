@@ -28,6 +28,7 @@ Index · HTML
   --blue:#4eb5ff;  --blue-dim:rgba(78,181,255,0.1);
   --purple:#c77dff; --purple-dim:rgba(199,125,255,0.12);
   --orange:#ff9f1c; --orange-dim:rgba(255,159,28,0.12);
+  --neon-green:#39ff14;
   --text:#e8edf3;  --muted:#5a6478; --muted2:#8892a4;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -153,6 +154,13 @@ select.asset-select:focus{border-color:var(--green);}
 .donut-arc{transition:opacity 0.2s, stroke-width 0.2s;cursor:pointer;}
 .donut-arc:hover{opacity:0.8;stroke-width:24;}
 .chart-tooltip{position:absolute;background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:11px;color:var(--text);pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-family:'DM Mono',monospace;white-space:nowrap;}
+ 
+.opt-ext-tooltip{position:absolute;pointer-events:none;opacity:0;transition:opacity 0.12s ease;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);box-shadow:0 8px 24px rgba(0,0,0,0.45);transform:translate(-50%,-115%);z-index:20;white-space:nowrap;}
+.opt-ext-tt-title{font-weight:600;color:var(--text);margin-bottom:6px;font-size:11px;}
+.opt-ext-tt-row{display:flex;align-items:center;gap:6px;padding:2px 0;}
+.opt-ext-tt-row strong{color:var(--text);margin-left:2px;}
+.opt-ext-tt-dot{width:8px;height:8px;border-radius:2px;display:inline-block;flex-shrink:0;}
+.opt-ext-tt-sep{margin-top:4px;padding-top:4px;border-top:1px solid var(--border);opacity:0.85;}
  
 /* Ratios */
 .ratio-grid{display:flex;flex-direction:column;gap:10px;}
@@ -825,6 +833,50 @@ let optTrendChart = null;
 let chartViewMode = 'line';
 let lastTrendData = [];
  
+// ── Shared custom tooltip for the trend chart (line + bar) ──
+// Lets us color the injected "Total Premium" row independently of the
+// real datasets, which Chart.js's built-in tooltip can't do per-line.
+function optTrendTooltip(context) {
+  const {chart, tooltip} = context;
+  let el = chart.canvas.parentNode.querySelector('.opt-ext-tooltip');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'opt-ext-tooltip';
+    chart.canvas.parentNode.appendChild(el);
+  }
+  if (tooltip.opacity === 0) { el.style.opacity = 0; return; }
+ 
+  if (tooltip.body) {
+    const dps = tooltip.dataPoints || [];
+    let html = '';
+    if (tooltip.title && tooltip.title.length) html += `<div class="opt-ext-tt-title">${tooltip.title[0]}</div>`;
+    let callVal = 0, putVal = 0, netVal = 0;
+    dps.forEach(dp => {
+      const ds = dp.dataset;
+      const color = ds.borderColor || ds.backgroundColor || '#8892a4';
+      const val = dp.parsed.y || 0;
+      if (dp.datasetIndex === 0) callVal = val;
+      if (dp.datasetIndex === 1) putVal = val;
+      if (dp.datasetIndex === 2) netVal = val;
+      html += `<div class="opt-ext-tt-row"><span class="opt-ext-tt-dot" style="background:${color}"></span>${ds.label}: <strong>${fmtDec(val)}</strong></div>`;
+      if (dp.datasetIndex === 1) {
+        const total = callVal + putVal;
+        html += `<div class="opt-ext-tt-row"><span class="opt-ext-tt-dot" style="background:#39ff14"></span>Total Premium: <strong>${fmtDec(total)}</strong></div>`;
+      }
+    });
+    const stockPL = netVal - callVal - putVal;
+    if (stockPL !== 0 && dps.length >= 3) {
+      html += `<div class="opt-ext-tt-row opt-ext-tt-sep">Stock P/L: <strong>${(stockPL>=0?'+':'')}${fmtDec(stockPL)}</strong></div>`;
+    }
+    el.innerHTML = html;
+  }
+ 
+  const {offsetLeft, offsetTop} = chart.canvas;
+  el.style.opacity = 1;
+  el.style.left = (offsetLeft + tooltip.caretX) + 'px';
+  el.style.top = (offsetTop + tooltip.caretY) + 'px';
+}
+ 
 function setChartViewMode(v) {
   chartViewMode = v;
   const btnLine = document.getElementById('trend-btn-line');
@@ -881,6 +933,8 @@ function renderTrendChartLine(data) {
   const ctx = document.getElementById('opt-trend-chart');
   if (!ctx) return;
   if (optTrendChart) { optTrendChart.destroy(); optTrendChart = null; }
+  const existingTt = ctx.parentNode.querySelector('.opt-ext-tooltip');
+  if (existingTt) existingTt.style.opacity = 0;
  
   optTrendChart = new Chart(ctx, {
     type: 'line',
@@ -896,7 +950,7 @@ function renderTrendChartLine(data) {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: '#111418', borderColor: '#1e2530', borderWidth: 1, titleColor: '#e8edf3', bodyColor: '#8892a4', padding: 12, callbacks: { label: c => ' ' + c.dataset.label + ': $' + Math.round(c.parsed.y).toLocaleString() } }
+        tooltip: { enabled: false, position: 'nearest', external: optTrendTooltip }
       },
       scales: {
         x: { ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false } },
@@ -936,6 +990,8 @@ function renderTrendChartBar(data) {
   const ctx = document.getElementById('opt-trend-chart');
   if (!ctx) return;
   if (optTrendChart) { optTrendChart.destroy(); optTrendChart = null; }
+  const existingTt = ctx.parentNode.querySelector('.opt-ext-tooltip');
+  if (existingTt) existingTt.style.opacity = 0;
  
   optTrendChart = new Chart(ctx, {
     type: 'bar',
@@ -951,29 +1007,7 @@ function renderTrendChartBar(data) {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          backgroundColor: '#111418', borderColor: '#1e2530', borderWidth: 1,
-          titleColor: '#e8edf3', bodyColor: '#8892a4', padding: 12,
-          callbacks: {
-            label: c => ' ' + c.dataset.label + ': $' + Math.round(c.parsed.y).toLocaleString(),
-            afterLabel: c => {
-              // Insert "Total Premium" right after the Put row, before Net Income.
-              if (c.datasetIndex === 1) {
-                const call = c.chart.data.datasets[0].data[c.dataIndex] || 0;
-                const put  = c.chart.data.datasets[1].data[c.dataIndex] || 0;
-                return ' Total Premium: $' + Math.round(call + put).toLocaleString();
-              }
-              return undefined;
-            },
-            afterBody: items => {
-              const call = items.find(i=>i.datasetIndex===0)?.parsed.y||0;
-              const put  = items.find(i=>i.datasetIndex===1)?.parsed.y||0;
-              const net  = items.find(i=>i.datasetIndex===2)?.parsed.y||0;
-              const stockPL = net - call - put;
-              return stockPL !== 0 ? [' Stock P/L: ' + (stockPL>=0?'+':'-') + '$' + Math.abs(Math.round(stockPL)).toLocaleString()] : [];
-            }
-          }
-        }
+        tooltip: { enabled: false, position: 'nearest', external: optTrendTooltip }
       },
       scales: {
         x: { stacked: true, ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false } },
