@@ -1,20 +1,23 @@
+
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Options Alpha</title>
-
+ 
 <meta name="theme-color" content="#0a0c0f">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Opt Alpha">
 <link rel="apple-touch-icon" href="icon-192.png">
-
+ 
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
+ 
 <style>
 /* ══════════════════════════════════════════════════════
    GLOBAL CHROME & THEME
@@ -25,6 +28,8 @@
   --red:#ff4e6a;   --red-dim:rgba(255,78,106,0.12);
   --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.12);
   --blue:#4eb5ff;  --blue-dim:rgba(78,181,255,0.1);
+  --purple:#c77dff; --purple-dim:rgba(199,125,255,0.12);
+  --orange:#ff9f1c; --orange-dim:rgba(255,159,28,0.12);
   --text:#e8edf3;  --muted:#5a6478; --muted2:#8892a4;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -32,15 +37,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-
 body::before{content:'';position:fixed;inset:0;
   background-image:linear-gradient(rgba(0,229,160,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.03) 1px,transparent 1px);
   background-size:40px 40px;pointer-events:none;z-index:0;}
-
+ 
 /* Scrollbar styles */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
+ 
 .wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 16px;}
-
+ 
 /* Header */
 header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
 .logo{display:flex;flex-direction:column;gap:4px;}
@@ -49,7 +54,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
 .header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
 .date-str{font-size:10px;color:var(--muted);}
-
+ 
 /* Fetch status pills */
 .pf-fetch-status{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:4px;}
 .pf-fetch-pill{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.5px;text-transform:uppercase;padding:2px 8px;border-radius:10px;border:1px solid var(--border);color:var(--muted);transition:all 0.3s;}
@@ -58,7 +63,7 @@ header{display:flex;align-items:flex-start;justify-content:space-between;margin-
 .pf-fetch-pill.error{border-color:var(--red);color:var(--red);}
 @keyframes pfPulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .opt-stale-banner{background:rgba(255,209,102,0.1);border:1px solid var(--yellow);color:var(--yellow);font-size:11px;font-family:'DM Mono',monospace;text-align:center;padding:8px 16px;border-radius:8px;margin-bottom:16px;letter-spacing:0.5px;}
-
+ 
 /* Filter Bar */
 .filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:24px;animation:fadeUp 0.4s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -78,13 +83,13 @@ select.asset-select:focus{border-color:var(--green);}
 .asset-select-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px;}
 .filter-clear{font-size:10px;color:var(--muted);cursor:pointer;padding:6px 12px;border-radius:6px;border:1px solid transparent;transition:all 0.15s;white-space:nowrap;margin-left:auto;font-family:'DM Mono',monospace;background:none;}
 .filter-clear:hover{color:var(--red);border-color:var(--red-dim);background:var(--red-dim);}
-
+ 
 /* Mobile Filter Bar tweaks */
 @media(max-width: 600px) {
   .filter-divider { display: none; }
   .asset-select-wrap { max-width: 100%; }
 }
-
+ 
 /* KPI */
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;animation:fadeUp 0.5s ease both;}
 .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:border-color 0.2s;}
@@ -101,17 +106,17 @@ select.asset-select:focus{border-color:var(--green);}
 .kpi-card.yellow .kpi-value{color:var(--yellow);}
 .kpi-card.blue .kpi-value{color:var(--blue);}
 .kpi-sub{font-size:10px;color:var(--muted2);min-height:12px;}
-
+ 
 /* Grids */
 .grid-donut-bar{display:grid;grid-template-columns:2fr 3fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.65s ease both;}
 .grid-full{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;animation:fadeUp 0.7s ease both;}
 @media(max-width:900px){.grid-donut-bar, .grid-3{grid-template-columns:1fr;}}
-
+ 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
 .card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
 .card-title span{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;}
-
+ 
 /* Bar chart */
 .bar-chart{display:flex;flex-direction:column;gap:10px;}
 .bar-row{display:flex;align-items:center;gap:12px;}
@@ -119,10 +124,10 @@ select.asset-select:focus{border-color:var(--green);}
 .bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
 .bar-val{font-size:11px;color:var(--text);width:60px;text-align:right;flex-shrink:0;}
-
+ 
 /* Table Wrapper for Mobile */
 .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
-
+ 
 /* Trades table */
 .trades-table{width:100%;border-collapse:collapse;font-size:12px; min-width: 600px;}
 .trades-table th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:500;}
@@ -133,7 +138,7 @@ select.asset-select:focus{border-color:var(--green);}
 .trades-table td.c-blue{color:var(--blue);}
 .trades-table td.c-yellow{color:var(--yellow);}
 .trades-table td.c-red{color:var(--red);}
-
+ 
 /* Badges */
 .badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;letter-spacing:0.5px;}
 .badge.green{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,229,160,0.2);}
@@ -141,21 +146,23 @@ select.asset-select:focus{border-color:var(--green);}
 .badge.yellow{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
 .badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,78,106,0.2);}
 .badge.closed{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-
+.badge.optcall{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(199,125,255,0.2);}
+.badge.optput{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(255,159,28,0.2);}
+ 
 /* Donut */
 .donut-wrap{display:flex;align-items:center;justify-content:center;padding:10px 0;}
 .donut-wrap svg{width:100%;max-width:220px;height:auto;overflow:visible;}
 .donut-arc{transition:opacity 0.2s, stroke-width 0.2s;cursor:pointer;}
 .donut-arc:hover{opacity:0.8;stroke-width:24;}
 .chart-tooltip{position:absolute;background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:11px;color:var(--text);pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-family:'DM Mono',monospace;white-space:nowrap;}
-
+ 
 /* Ratios */
 .ratio-grid{display:flex;flex-direction:column;gap:10px;}
 .ratio-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
 .ratio-name{font-size:11px;color:var(--muted2);}
 .ratio-sub{font-size:10px;color:var(--muted);}
 .ratio-value{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
-
+ 
 /* P/Day grid */
 .pday-grid-wide{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
 .pday-cell{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color 0.2s,background 0.2s;}
@@ -167,7 +174,7 @@ select.asset-select:focus{border-color:var(--green);}
 .pday-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:8px;}
 .pday-bar-inner{height:100%;border-radius:2px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
 .pday-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px;}
-
+ 
 /* Insights */
 .insights{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:800px){.insights{grid-template-columns:1fr;}}
@@ -179,10 +186,10 @@ select.asset-select:focus{border-color:var(--green);}
 .insight.good strong{color:var(--green);}
 .insight.warn strong{color:var(--yellow);}
 .insight.info strong{color:var(--blue);}
-
+ 
 .no-data{text-align:center;padding:20px;font-size:12px;color:var(--muted);}
 .section-gap{margin-bottom:16px;}
-
+ 
 /* Collapsible section */
 .collapsible-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -241,7 +248,7 @@ select.asset-select:focus{border-color:var(--green);}
   margin-bottom: 2px;
 }
 .cap-inline-input::placeholder { color: var(--muted); font-size: 14px; font-weight: 400; }
-
+ 
 /* Controls & Bottom Tabs */
 .refresh-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -252,7 +259,7 @@ select.asset-select:focus{border-color:var(--green);}
 }
 .refresh-btn:hover { border-color: var(--muted); }
 .refresh-btn svg { width: 18px; height: 18px; fill: currentColor; }
-
+ 
 .bottom-tabs { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; margin-bottom: 24px; }
 @media(min-width: 600px) {
   .bottom-tabs { flex-direction: row; justify-content: center; }
@@ -264,7 +271,7 @@ select.asset-select:focus{border-color:var(--green);}
 }
 .btm-tab:hover { border-color: var(--muted); color: var(--text); }
 .btm-tab.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-
+ 
 /* ══════════════════════════════════════════════════════
    PASSCODE LOCK OVERLAY
 ══════════════════════════════════════════════════════ */
@@ -324,7 +331,7 @@ select.asset-select:focus{border-color:var(--green);}
   font-size:11px;color:#ff4e6a;font-family:"DM Mono",monospace;
   letter-spacing:0.5px;text-align:center;height:16px;transition:opacity 0.3s;
 }
-
+ 
 </style>
 </head>
 <body>
@@ -363,8 +370,8 @@ select.asset-select:focus{border-color:var(--green);}
     <div class="lock-err" id="lock-err">&nbsp;</div>
   </div>
 </div>
-
-
+ 
+ 
 <div class="wrapper">
   <header>
     <div class="logo">
@@ -378,9 +385,9 @@ select.asset-select:focus{border-color:var(--green);}
       </div>
     </div>
   </header>
-
+ 
   <div class="opt-stale-banner hidden" id="opt-stale-banner" style="display:none;">&#x26A1; Showing cached data from <span id="opt-cache-age"></span> — refreshing in background</div>
-
+ 
   <div class="filter-bar">
     <div class="asset-select-wrap">      <select class="asset-select" id="asset-filter" onchange="applyFilters()">
         <option value="ALL">All Assets</option>
@@ -403,7 +410,7 @@ select.asset-select:focus{border-color:var(--green);}
     </div>
     <button class="filter-clear" onclick="resetFilters()">✕ Reset</button>
   </div>
-
+ 
   <div class="kpi-row">
     <div class="kpi-card green"><div class="kpi-label">Total Premium</div><div class="kpi-value" id="kpi-premium">—</div></div>
     <div class="kpi-card green"><div class="kpi-label">Total Money Made</div><div class="kpi-value" id="kpi-made">—</div><div class="kpi-sub">Prem + Stock P/L</div></div>
@@ -421,7 +428,7 @@ select.asset-select:focus{border-color:var(--green);}
       </div>
     </div>
   </div>
-
+ 
   <div class="grid-full section-gap" id="trend-chart-row">
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -438,25 +445,27 @@ select.asset-select:focus{border-color:var(--green);}
       <div style="position:relative;height:240px;">
         <canvas id="opt-trend-chart"></canvas>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--muted2);">
-        <div style="display:flex;gap:16px;" id="trend-legend">
-          <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Premium</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--muted2);flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;" id="trend-legend">
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--purple);display:inline-block;border-radius:1px"></span>Premium (Call)</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--orange);display:inline-block;border-radius:1px"></span>Premium (Put)</span>
           <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--blue);display:inline-block;border-radius:1px"></span>Net</span>
         </div>
-        <div style="display:flex;gap:16px;">
-          <span>Prem: <strong style="color:var(--green)" id="trend-total-premium">—</strong></span>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <span>Call: <strong style="color:var(--purple)" id="trend-total-call">—</strong></span>
+          <span>Put: <strong style="color:var(--orange)" id="trend-total-put">—</strong></span>
           <span>Net: <strong style="color:var(--blue)" id="trend-total-net">—</strong></span>
         </div>
       </div>
     </div>
   </div>
-
+ 
   <div class="grid-full section-gap">
     <div class="card">
       <div class="card-title"><span></span>Premium Trade Log</div>
       <div class="table-responsive">
         <table class="trades-table">
-          <thead><tr><th>Date</th><th>Asset</th><th>Name</th><th>Days</th><th>Premium</th><th>Total P/L</th><th>P/Day</th><th>Expiry</th><th>Status</th></tr></thead>
+          <thead><tr><th>Date</th><th>Asset</th><th>Name</th><th>Type</th><th>Days</th><th>Premium</th><th>Total P/L</th><th>P/Day</th><th>Expiry</th><th>Status</th></tr></thead>
           <tbody id="trade-tbody"></tbody>
         </table>
       </div>
@@ -470,7 +479,7 @@ select.asset-select:focus{border-color:var(--green);}
       </div>
     </div>
   </div>
-
+ 
   <div class="grid-donut-bar section-gap">
     <div class="card">
       <div class="card-title"><span></span>Trade Outcome</div>
@@ -493,7 +502,7 @@ select.asset-select:focus{border-color:var(--green);}
       <div style="margin-top:14px;font-size:10px;color:var(--muted)">⚡ = Active/Open &nbsp;·&nbsp; ✗ = Net Loss</div>
     </div>
   </div>
-
+ 
   <div class="grid-3 section-gap">
     <div class="card"><div class="card-title"><span></span>Key Ratios</div><div class="ratio-grid" id="ratio-grid"></div></div>
     <div class="card">
@@ -505,7 +514,7 @@ select.asset-select:focus{border-color:var(--green);}
     </div>
     <div class="card"><div class="card-title"><span></span>Trade Summary</div><div class="ratio-grid" id="trade-summary"></div></div>
   </div>
-
+ 
   <div class="grid-full section-gap">
     <div class="card">
       <div class="collapsible-header card-title" onclick="togglePdaySection()" style="margin-bottom:0;">
@@ -526,7 +535,7 @@ select.asset-select:focus{border-color:var(--green);}
       </div>
     </div>
   </div>
-
+ 
   <div class="grid-full section-gap">
     <div class="card">
       <div class="card-title"><span></span>Insights & Recommendations</div>
@@ -540,58 +549,65 @@ select.asset-select:focus{border-color:var(--green);}
       </div>
     </div>
   </div>
-
+ 
   <div style="text-align:center;">
     <button class="refresh-btn" onclick="fetchData(true)">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20q-3.35 0-5.675-2.325Q4 15.35 4 12q0-3.35 2.325-5.675Q8.65 4 12 4q1.725 0 3.3.712T18 6.75V4h2v7h-7V9h3.2q-1.05-1.8-2.825-2.9Q13.6 5 12 5 9.075 5 7.038 7.038 5 9.075 5 12q0 2.925 2.038 4.962Q9.075 19 12 19q2.5 0 4.388-1.5T18.8 13h2.05q-.5 3.45-3.175 5.725Q15.05 20 12 20Z"/></svg>
       Refresh Data
     </button>
   </div>
-
+ 
   <div class="bottom-tabs">
     <a href="index.html" class="btm-tab active">Options Dashboard</a>
     <a href="personal_finances.html" class="btm-tab">Personal Finances</a>
   </div>
-
+ 
   <div style="text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;padding-bottom:32px">
     OPTIONS ALPHA · LIVE DATA
   </div>
 </div>
-
+ 
 <script>
 const OPT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxBd1UrtpB9iFc7iNV0zPC2ey3ZAOCgp26lBf8gio9hPhD1x1hsiYicP3OxOIebKKw0gA/exec';
-
+ 
 let TRADES   = [];
 let DEPOSITS = {};
 let logLimit = 10; 
 let capitalOverride = null; // null = use DEPOSITS; number = user-supplied override
-
+ 
+// ── Call / Put classification, derived purely from the trade's Name column ──
+// Rule: if Name ends with "Put" (any trailing whitespace/punctuation ok) -> Put premium.
+// Otherwise (e.g. Name ends with a month abbreviation like "Sep", "20Feb") -> Call premium.
+function classifyOptionType(name) {
+  return /put[\s.]*$/i.test(String(name || '').trim()) ? 'put' : 'call';
+}
+ 
 function getCapital(af) {
   if (capitalOverride !== null) return capitalOverride;
   return af === 'ALL'
     ? Object.values(DEPOSITS).reduce((s, v) => s + v, 0)
     : (DEPOSITS[af] || 0);
 }
-
+ 
 function startCapitalEdit(e) {
   // Don't re-open if clicking the reset badge or if input already exists
   if (e && (e.target.classList.contains('cap-reset') || e.target.tagName === 'INPUT')) return;
   const valEl = document.getElementById('kpi-capital');
   if (valEl.tagName === 'INPUT') return;
-
+ 
   const af = document.getElementById('asset-filter').value;
   const current = getCapital(af);
-
+ 
   const input = document.createElement('input');
   input.type = 'number';
   input.className = 'cap-inline-input';
   input.placeholder = 'Enter amount…';
   input.value = capitalOverride !== null ? capitalOverride : current;
-
+ 
   valEl.replaceWith(input);
   input.focus();
   input.select();
-
+ 
   function commit() {
     const raw = parseFloat(input.value);
     if (!isNaN(raw) && raw > 0) {
@@ -606,7 +622,7 @@ function startCapitalEdit(e) {
     if (ev.key === 'Escape') { input.removeEventListener('blur', commit); restoreCapitalDisplay(); }
   });
 }
-
+ 
 function restoreCapitalDisplay() {
   const wrap = document.querySelector('.kpi-capital-wrap');
   const existing = wrap.querySelector('input');
@@ -616,24 +632,24 @@ function restoreCapitalDisplay() {
   newDiv.id = 'kpi-capital';
   existing.replaceWith(newDiv);
 }
-
+ 
 function resetCapitalOverride(e) {
   e.stopPropagation();
   capitalOverride = null;
   applyFilters();
 }
-
+ 
 const COLOR_PALETTE = ['var(--blue)','var(--green)','var(--yellow)','#c77dff','#ff9f1c','var(--red)','#2ec4b6'];
 const COLORS_MAP    = {};
 function getColor(asset) {
   if (!COLORS_MAP[asset]) { COLORS_MAP[asset] = COLOR_PALETTE[Object.keys(COLORS_MAP).length % COLOR_PALETTE.length]; }
   return COLORS_MAP[asset];
 }
-
+ 
 const fmtNum = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(Math.round(v)).toLocaleString() : '$' + Math.round(v).toLocaleString());
 const fmtDec = v => v == null ? '—' : (v < 0 ? '-$' + Math.abs(Math.round(v)).toLocaleString() : '$' + Math.round(v).toLocaleString());
 const fmtK   = v => Math.abs(v) >= 1000 ? (v<0?'-':'')+'$'+(Math.abs(v)/1000).toFixed(0)+'K' : '$'+Math.round(v);
-
+ 
 function badge(s) {
   if(s==='assigned') return '<span class="badge blue">Assigned ✓</span>';
   if(s==='expired')  return '<span class="badge green">Expired ✓</span>';
@@ -641,7 +657,13 @@ function badge(s) {
   if(s==='closed')   return '<span class="badge closed">Closed</span>';
   return '<span class="badge yellow">Active ⚡</span>';
 }
-
+ 
+function optBadge(t) {
+  return classifyOptionType(t.name) === 'put'
+    ? '<span class="badge optput">Put</span>'
+    : '<span class="badge optcall">Call</span>';
+}
+ 
 function parseStatus(indicator, totalPL) {
   if (!indicator) return totalPL != null ? 'expired' : 'active';
   const ind = String(indicator);
@@ -652,17 +674,17 @@ function parseStatus(indicator, totalPL) {
   if (/Closed/i.test(ind))                 return 'closed'; 
   return totalPL != null ? 'expired' : 'active';
 }
-
+ 
 function fmtExpiry(s) {
   if (!s) return '—';
   const d = new Date(s);
   if (isNaN(d)) return String(s);
   return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short'});
 }
-
+ 
 const OPT_CACHE_KEY = 'opt_cache_v1';
 const OPT_CACHE_TTL = 30 * 60 * 1000; // 30 min
-
+ 
 function optSaveCache(data) {
   try { localStorage.setItem(OPT_CACHE_KEY, JSON.stringify({ts: Date.now(), data})); } catch(e){}
 }
@@ -679,7 +701,7 @@ function setPillOpt(state) {
   const pill = document.getElementById('pill-options');
   if(pill) pill.className = 'pf-fetch-pill ' + state;
 }
-
+ 
 function fetchData(forceRefresh) {
   // Try cache first
   if (!forceRefresh) {
@@ -698,7 +720,7 @@ function fetchData(forceRefresh) {
       if (banner) { banner.style.display='block'; document.getElementById('opt-cache-age').textContent = optCacheAgeLabel(cached.ts); }
     }
   }
-
+ 
   setPillOpt('loading');
   const cb = 'optCb_' + Date.now();
   const sc = document.createElement('script');
@@ -709,7 +731,7 @@ function fetchData(forceRefresh) {
     setPillOpt('error');
     loadFallback();
   }, 6000);
-
+ 
   window[cb] = function(json) {
     clearTimeout(fallbackTimer);
     delete window[cb];
@@ -736,7 +758,7 @@ function fetchData(forceRefresh) {
   sc.src = OPT_WEBHOOK + '?callback=' + cb;
   document.body.appendChild(sc);
 }
-
+ 
 function processOptData(json) {
   TRADES = json.premiumTrades.map(t => ({
     date: t.rawDate, asset: t.asset, name: t.name,
@@ -752,31 +774,31 @@ function processOptData(json) {
   updateDateRange();
   applyFilters();
 }
-
+ 
 function showOptLoading(on) {
   // Loading now handled by status pills — keep this as no-op for compatibility
 }
-
+ 
 function loadFallback() {
   TRADES=[
     {date:'2026-02-13',asset:'QQQ',name:'QQQ 602 20Feb',expiry:'20 Feb',days:7,premium:838,totalPL:938,ppd:134,status:'assigned',stockPL:100,capitalLocked:60100},
     {date:'2026-02-18',asset:'QQQ',name:'QQQ 606 19Feb',expiry:'19 Feb',days:1,premium:296,totalPL:296,ppd:296,status:'expired',stockPL:0,capitalLocked:60650},
     {date:'2026-02-20',asset:'QQQ',name:'QQQ 604 23Feb',expiry:'23 Feb',days:3,premium:407,totalPL:null,ppd:136,status:'active',stockPL:0,capitalLocked:60350},
     {date:'2026-02-12',asset:'GRAB',name:'GRAB $4.5 13Feb',expiry:'13 Feb',days:1,premium:14,totalPL:14,ppd:14,status:'closed',stockPL:0,capitalLocked:440},
-    {date:'2026-02-22',asset:'USAS',name:'USAS $8',expiry:'17 Apr',days:54,premium:190,totalPL:null,ppd:4,status:'active',stockPL:0,capitalLocked:744},
+    {date:'2026-02-22',asset:'USAS',name:'USAS $8 17Apr Put',expiry:'17 Apr',days:54,premium:190,totalPL:null,ppd:4,status:'active',stockPL:0,capitalLocked:744},
   ];
   DEPOSITS={QQQ:180750,GRAB:838,USAS:744};
   document.getElementById('opt-date-str').textContent = 'Offline Mode';
   refreshAssetDropdown(); applyFilters();
 }
-
+ 
 function refreshAssetDropdown() {
   const sel=document.getElementById('asset-filter');
   const assets=[...new Set(TRADES.map(t=>t.asset))].sort();
   while(sel.options.length>1) sel.remove(1);
   assets.forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
 }
-
+ 
 function updateDateRange() {
   if(!TRADES.length) return;
   const dates=TRADES.map(t=>t.date).filter(Boolean).sort();
@@ -785,14 +807,14 @@ function updateDateRange() {
   const allChip=document.querySelector('.chip[data-label="all"]');
   if(allChip){allChip.dataset.from=dates[0];allChip.dataset.to=dates[dates.length-1];}
 }
-
+ 
 function filtered() {
   const asset=document.getElementById('asset-filter').value;
   const from=document.getElementById('date-from').value;
   const to=document.getElementById('date-to').value;
   return TRADES.filter(t=>(asset==='ALL'||t.asset===asset)&&(!from||t.date>=from)&&(!to||t.date<=to));
 }
-
+ 
 function applyFilters() {
   const data=filtered();
   renderKPI(data); renderDonut(data); renderPremiumBars(data);
@@ -800,30 +822,25 @@ function applyFilters() {
   renderTradeSummary(data); renderPdayGrid(data); renderTradeLog(data); renderTrendChart(data);
   document.getElementById('filter-status').style.display=data.length<TRADES.length?'inline-block':'none';
 }
-
+ 
 let optTrendChart = null;
 let chartViewMode = 'line';
 let lastTrendData = [];
-
+ 
 function setChartViewMode(v) {
   chartViewMode = v;
   const btnLine = document.getElementById('trend-btn-line');
   const btnBar  = document.getElementById('trend-btn-bar');
   const dot     = document.getElementById('trend-title-dot');
   const title   = document.getElementById('trend-title-text');
-  const legend  = document.getElementById('trend-legend');
   if (btnLine) { btnLine.style.background = v === 'line' ? 'var(--surface2)' : 'transparent'; btnLine.style.color = v === 'line' ? 'var(--text)' : 'var(--muted)'; }
   if (btnBar)  { btnBar.style.background  = v === 'bar'  ? 'var(--surface2)' : 'transparent'; btnBar.style.color  = v === 'bar'  ? 'var(--text)' : 'var(--muted)'; }
   if (dot)   dot.style.background = v === 'bar' ? 'var(--blue)' : 'var(--green)';
   if (title) title.textContent = v === 'line' ? 'Cumulative Trend' : 'Monthly Totals';
-  if (legend) legend.innerHTML = v === 'line'
-    ? `<span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--green);display:inline-block;border-radius:1px"></span>Premium</span>
-       <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:2px;background:var(--blue);display:inline-block;border-radius:1px"></span>Net</span>`
-    : `<span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--green);display:inline-block;border-radius:2px;opacity:0.85"></span>Premium</span>
-       <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--blue);display:inline-block;border-radius:2px;opacity:0.85"></span>Net</span>`;
+  // Legend is the same 3-series set (Call / Put / Net) regardless of view mode.
   renderTrendChart(lastTrendData);
 }
-
+ 
 function renderTrendChart(data) {
   lastTrendData = data || lastTrendData;
   if (chartViewMode === 'bar') {
@@ -832,43 +849,48 @@ function renderTrendChart(data) {
     renderTrendChartLine(lastTrendData);
   }
 }
-
+ 
 function renderTrendChartLine(data) {
   const sorted = [...data].filter(t=>t.date).sort((a,b)=>a.date.localeCompare(b.date));
   if (!sorted.length) return;
-
+ 
   const dayMap = {};
   sorted.forEach(t => {
     const d = t.date;
-    if (!dayMap[d]) dayMap[d] = { premium: 0, net: 0 };
-    dayMap[d].premium += t.premium || 0;
-    dayMap[d].net += (t.premium || 0) + (t.stockPL || 0);
+    if (!dayMap[d]) dayMap[d] = { call: 0, put: 0, net: 0 };
+    const prem = t.premium || 0;
+    if (classifyOptionType(t.name) === 'put') dayMap[d].put += prem; else dayMap[d].call += prem;
+    dayMap[d].net += prem + (t.stockPL || 0);
   });
   const allDays = Object.keys(dayMap).sort();
-  const labels = [], cumPremium = [], cumNet = [];
-  let sumP = 0, sumN = 0;
+  const labels = [], cumCall = [], cumPut = [], cumNet = [];
+  let sumC = 0, sumPu = 0, sumN = 0;
   allDays.forEach(d => {
-    sumP += dayMap[d].premium;
+    sumC += dayMap[d].call;
+    sumPu += dayMap[d].put;
     sumN += dayMap[d].net;
     labels.push(d);
-    cumPremium.push(Math.round(sumP));
+    cumCall.push(Math.round(sumC));
+    cumPut.push(Math.round(sumPu));
     cumNet.push(Math.round(sumN));
   });
-
+ 
   const fmtLabel = d => new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-  document.getElementById('trend-total-premium').textContent = fmtDec(sumP);
+  document.getElementById('trend-total-call').textContent = fmtDec(sumC);
+  document.getElementById('trend-total-put').textContent = fmtDec(sumPu);
   document.getElementById('trend-total-net').textContent = fmtDec(sumN);
-
+ 
   const ctx = document.getElementById('opt-trend-chart');
   if (!ctx) return;
   if (optTrendChart) { optTrendChart.destroy(); optTrendChart = null; }
-
+ 
   optTrendChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels.map(fmtLabel),
       datasets: [
-        { label: 'Premium', data: cumPremium, borderColor: '#00e5a0', backgroundColor: 'rgba(0,229,160,0.08)', fill: true, borderWidth: 2.5, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#00e5a0', pointBorderColor: '#0a0c0f', pointBorderWidth: 2 },
+        { label: 'Premium (Call)', data: cumCall, borderColor: '#c77dff', backgroundColor: 'rgba(199,125,255,0.08)', fill: true, borderWidth: 2.5, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#c77dff', pointBorderColor: '#0a0c0f', pointBorderWidth: 2 },
+        { label: 'Premium (Put)', data: cumPut, borderColor: '#ff9f1c', backgroundColor: 'rgba(255,159,28,0.08)', fill: true, borderWidth: 2.5, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#ff9f1c', pointBorderColor: '#0a0c0f', pointBorderWidth: 2 },
         { label: 'Net Income', data: cumNet, borderColor: '#4eb5ff', backgroundColor: 'rgba(78,181,255,0.05)', fill: true, borderWidth: 2.5, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#4eb5ff', pointBorderColor: '#0a0c0f', pointBorderWidth: 2 }
       ]
     },
@@ -885,41 +907,46 @@ function renderTrendChartLine(data) {
     }
   });
 }
-
+ 
 function renderTrendChartBar(data) {
   const sorted = [...data].filter(t=>t.date).sort((a,b)=>a.date.localeCompare(b.date));
   if (!sorted.length) return;
-
+ 
   // Group by month
   const monthMap = {};
   sorted.forEach(t => {
     const d = new Date(t.date);
     const key = d.toLocaleDateString('en-GB', {month:'short', year:'2-digit'});
-    if (!monthMap[key]) monthMap[key] = { premium: 0, net: 0, order: d.getFullYear()*100 + d.getMonth() };
-    monthMap[key].premium += t.premium || 0;
-    monthMap[key].net += (t.premium || 0) + (t.stockPL || 0);
+    if (!monthMap[key]) monthMap[key] = { call: 0, put: 0, net: 0, order: d.getFullYear()*100 + d.getMonth() };
+    const prem = t.premium || 0;
+    if (classifyOptionType(t.name) === 'put') monthMap[key].put += prem; else monthMap[key].call += prem;
+    monthMap[key].net += prem + (t.stockPL || 0);
   });
   const months = Object.entries(monthMap).sort((a,b)=>a[1].order - b[1].order);
   const labels = months.map(([k]) => k);
-  const premData = months.map(([,v]) => Math.round(v.premium));
+  const callData = months.map(([,v]) => Math.round(v.call));
+  const putData  = months.map(([,v]) => Math.round(v.put));
   const netData  = months.map(([,v]) => Math.round(v.net));
-
-  const sumP = premData.reduce((s,v)=>s+v,0);
+ 
+  const sumC = callData.reduce((s,v)=>s+v,0);
+  const sumPu = putData.reduce((s,v)=>s+v,0);
   const sumN = netData.reduce((s,v)=>s+v,0);
-  document.getElementById('trend-total-premium').textContent = fmtDec(sumP);
+  document.getElementById('trend-total-call').textContent = fmtDec(sumC);
+  document.getElementById('trend-total-put').textContent = fmtDec(sumPu);
   document.getElementById('trend-total-net').textContent = fmtDec(sumN);
-
+ 
   const ctx = document.getElementById('opt-trend-chart');
   if (!ctx) return;
   if (optTrendChart) { optTrendChart.destroy(); optTrendChart = null; }
-
+ 
   optTrendChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
       datasets: [
-        { label: 'Premium', data: premData, backgroundColor: 'rgba(0,229,160,0.75)', borderColor: 'rgba(0,229,160,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false },
-        { label: 'Net Income', data: netData, backgroundColor: 'rgba(78,181,255,0.75)', borderColor: 'rgba(78,181,255,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false }
+        { label: 'Premium (Call)', data: callData, backgroundColor: 'rgba(199,125,255,0.85)', borderColor: 'rgba(199,125,255,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false, stack: 'premium', categoryPercentage: 0.6, barPercentage: 0.9 },
+        { label: 'Premium (Put)', data: putData, backgroundColor: 'rgba(255,159,28,0.85)', borderColor: 'rgba(255,159,28,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false, stack: 'premium', categoryPercentage: 0.6, barPercentage: 0.9 },
+        { label: 'Net Income', data: netData, backgroundColor: 'rgba(78,181,255,0.75)', borderColor: 'rgba(78,181,255,0.9)', borderWidth: 1, borderRadius: 4, borderSkipped: false, stack: 'net', categoryPercentage: 0.6, barPercentage: 0.9 }
       ]
     },
     options: {
@@ -932,22 +959,23 @@ function renderTrendChartBar(data) {
           callbacks: {
             label: c => ' ' + c.dataset.label + ': $' + Math.round(c.parsed.y).toLocaleString(),
             afterBody: items => {
-              const prem = items.find(i=>i.datasetIndex===0)?.parsed.y||0;
-              const net  = items.find(i=>i.datasetIndex===1)?.parsed.y||0;
-              const stockPL = net - prem;
+              const call = items.find(i=>i.datasetIndex===0)?.parsed.y||0;
+              const put  = items.find(i=>i.datasetIndex===1)?.parsed.y||0;
+              const net  = items.find(i=>i.datasetIndex===2)?.parsed.y||0;
+              const stockPL = net - call - put;
               return stockPL !== 0 ? [' Stock P/L: ' + (stockPL>=0?'+':'-') + '$' + Math.abs(Math.round(stockPL)).toLocaleString()] : [];
             }
           }
         }
       },
       scales: {
-        x: { ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false } },
-        y: { ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" }, callback: v => '$' + (Math.abs(v)>=1000?(v/1000).toFixed(0)+'K':v) }, grid: { color: 'rgba(30,37,48,0.4)', drawBorder: false }, beginAtZero: true }
+        x: { stacked: true, ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" } }, grid: { color: 'rgba(30,37,48,0.6)', drawBorder: false } },
+        y: { stacked: true, ticks: { color: '#5a6478', font: { size: 10, family: "'DM Mono', monospace" }, callback: v => '$' + (Math.abs(v)>=1000?(v/1000).toFixed(0)+'K':v) }, grid: { color: 'rgba(30,37,48,0.4)', drawBorder: false }, beginAtZero: true }
       }
     }
   });
 }
-
+ 
 function renderKPI(data) {
   const premium=data.reduce((s,t)=>s+(t.premium||0),0);
   const stockPL=data.reduce((s,t)=>s+(t.stockPL||0),0);
@@ -959,7 +987,7 @@ function renderKPI(data) {
   document.getElementById('kpi-premium').textContent=fmtDec(premium);
   document.getElementById('kpi-made').textContent=fmtDec(made);
   document.getElementById('kpi-roc').textContent=roc+'%';
-
+ 
   // Capital card: show value + override badge if custom
   const capEl = document.getElementById('kpi-capital');
   if (capEl && capEl.tagName !== 'INPUT') {
@@ -978,15 +1006,15 @@ function renderKPI(data) {
   spEl.textContent=fmtDec(stockPL);
   spEl.style.color=stockPL<0?'var(--red)':stockPL>0?'var(--green)':'var(--muted2)';
 }
-
+ 
 const donutTt = document.createElement('div');
 donutTt.className = 'chart-tooltip';
 document.body.appendChild(donutTt);
-
+ 
 document.addEventListener('mouseover', e => { if (e.target.classList.contains('donut-arc')) { donutTt.innerHTML = e.target.dataset.tip; donutTt.style.opacity = 1; }});
 document.addEventListener('mousemove', e => { if (e.target.classList.contains('donut-arc')) { donutTt.style.left = (e.pageX + 15) + 'px'; donutTt.style.top = (e.pageY + 15) + 'px'; }});
 document.addEventListener('mouseout', e => { if (e.target.classList.contains('donut-arc')) donutTt.style.opacity = 0; });
-
+ 
 function renderDonut(data) {
   const n = data.length || 1;
   const a = data.filter(t => t.status === 'assigned').length;
@@ -1012,12 +1040,12 @@ function renderDonut(data) {
   setTip('donut-assigned', 'Perfect Assignment', a); setTip('donut-expired', 'Expired Worthless', e);
   setTip('donut-closed', 'Closed', cl); setTip('donut-active', 'Active / Open', ac); setTip('donut-loss', 'Net Loss', l);
 }
-
+ 
 function setArc(id,len,C,offset) {
   const el=document.getElementById(id); if(!el) return;
   el.setAttribute('stroke-dasharray',`${len.toFixed(2)} ${(C-len).toFixed(2)}`); el.setAttribute('stroke-dashoffset',offset.toFixed(2));
 }
-
+ 
 function renderPremiumBars(data) {
   const sorted=[...data].sort((a,b)=>b.premium-a.premium);
   const max=Math.max(...sorted.map(t=>t.premium),1);
@@ -1025,7 +1053,7 @@ function renderPremiumBars(data) {
     ?sorted.map(t=>`<div class="bar-row"><div class="bar-label">${t.name}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(t.premium/max*100)}%;background:${getColor(t.asset)}"></div></div><div class="bar-val">${fmtDec(t.premium)}${t.status==='active'?' ⚡':t.status==='loss'?' ✗':''}</div></div>`).join('')
     :'<div class="no-data">No data</div>';
 }
-
+ 
 function renderRatios(data) {
   if(!data.length){document.getElementById('ratio-grid').innerHTML='<div class="no-data">No data</div>';return;}
   const premium = data.reduce((s,t)=>s+(t.premium||0),0);
@@ -1052,7 +1080,7 @@ function renderRatios(data) {
     <div class="ratio-item"><div><div class="ratio-name">Avg Premium / Trade</div><div class="ratio-sub">$${Math.round(premium)} / ${data.length} trades</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPrem}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Capital Efficiency</div><div class="ratio-sub">Stock P/L vs capital</div></div><div class="ratio-value" style="color:${stockPL<0?'var(--red)':'var(--green)'}">${effPct}%</div></div>`;
 }
-
+ 
 function renderCapitalBars(data) {
   const af=document.getElementById('asset-filter').value;
   const src=af==='ALL'?DEPOSITS:{[af]:DEPOSITS[af]||0};
@@ -1060,14 +1088,14 @@ function renderCapitalBars(data) {
   document.getElementById('capital-bars').innerHTML=Object.entries(src).sort((a,b)=>b[1]-a[1])
     .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtK(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
 }
-
+ 
 function renderTickerBars(data) {
   const byAsset={}; data.forEach(t=>{byAsset[t.asset]=(byAsset[t.asset]||0)+(t.premium||0);});
   const max=Math.max(...Object.values(byAsset),1);
   document.getElementById('ticker-bars').innerHTML=Object.entries(byAsset).sort((a,b)=>b[1]-a[1])
     .map(([a,v])=>`<div class="bar-row"><div class="bar-label">${a}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${getColor(a)}"></div></div><div class="bar-val">${fmtDec(v)}</div></div>`).join('')||'<div class="no-data">No data</div>';
 }
-
+ 
 function renderTradeSummary(data) {
   const n=data.length;
   const asgn=data.filter(t=>t.status==='assigned').length; const exp=data.filter(t=>t.status==='expired').length;
@@ -1075,9 +1103,12 @@ function renderTradeSummary(data) {
   const loss=data.filter(t=>t.status==='loss').length;
   const ppds=data.map(t=>t.ppd).filter(v=>v>0);
   const avgPPD=ppds.length?Math.round(ppds.reduce((s,v)=>s+v,0)/ppds.length):0;
+  const callCount = data.filter(t=>classifyOptionType(t.name)==='call').length;
+  const putCount  = data.filter(t=>classifyOptionType(t.name)==='put').length;
   
   document.getElementById('trade-summary').innerHTML=n?`
     <div class="ratio-item"><div><div class="ratio-name">Total Trades</div></div><div class="ratio-value" style="color:var(--text)">${n}</div></div>
+    <div class="ratio-item"><div><div class="ratio-name">Calls / Puts</div></div><div class="ratio-value"><span style="color:var(--purple)">${callCount}</span> / <span style="color:var(--orange)">${putCount}</span></div></div>
     <div class="ratio-item"><div><div class="ratio-name">Perfect Assignments</div></div><div class="ratio-value" style="color:var(--blue)">${asgn}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Expired / Closed</div></div><div class="ratio-value" style="color:var(--green)">${exp + cl}</div></div>
     <div class="ratio-item"><div><div class="ratio-name">Active / Open</div></div><div class="ratio-value" style="color:var(--yellow)">${act}</div></div>
@@ -1085,7 +1116,7 @@ function renderTradeSummary(data) {
     <div class="ratio-item"><div><div class="ratio-name">Avg P/Day</div><div class="ratio-sub">Positive trades only</div></div><div class="ratio-value" style="color:var(--blue)">$${avgPPD}/d</div></div>`
     :'<div class="no-data">No data</div>';
 }
-
+ 
 function renderPdayGrid(data) {
   const sorted=[...data].sort((a,b)=>b.ppd-a.ppd);
   const maxPPD=Math.max(...sorted.map(t=>t.ppd),1); const posPPDs=sorted.map(t=>t.ppd).filter(v=>v>0);
@@ -1094,7 +1125,7 @@ function renderPdayGrid(data) {
       const isLoss=t.ppd<0; const col=isLoss?'var(--red)':getColor(t.asset);
       return `<div class="pday-cell" style="${isLoss?'border-color:rgba(255,78,106,0.3);background:rgba(255,78,106,0.04)':''}">
         <div class="pday-header"><div class="pday-asset" style="color:${col}">${t.asset}</div>${badge(t.status)}</div>
-        <div class="pday-expiry">Expiry: <strong style="color:var(--text)">${t.expiry}</strong> · ${t.days}d</div>
+        <div class="pday-expiry">Expiry: <strong style="color:var(--text)">${t.expiry}</strong> · ${t.days}d · ${optBadge(t)}</div>
         <div class="pday-rate" style="color:${col}">${isLoss?'-':''}$${Math.round(Math.abs(t.ppd))}<span style="font-size:12px;font-weight:400;color:var(--muted2)">/day</span></div>
         <div style="font-size:10px;color:var(--muted)">Premium: ${fmtDec(t.premium)}</div>
         <div class="pday-bar-wrap"><div class="pday-bar-inner" style="width:${isLoss?0:Math.round((t.ppd/maxPPD)*100)}%;background:${col}"></div></div>
@@ -1107,13 +1138,13 @@ function renderPdayGrid(data) {
     document.getElementById('ppd-worst').textContent='$'+Math.round(Math.min(...posPPDs))+'/d';
   }
 }
-
+ 
 function setLogLimit(val, el) {
   logLimit = val;
   document.querySelectorAll('.log-limit').forEach(c => c.classList.remove('active'));
   el.classList.add('active'); applyFilters();
 }
-
+ 
 let pdayOpen = false;
 function togglePdaySection() {
   pdayOpen = !pdayOpen;
@@ -1124,7 +1155,7 @@ function togglePdaySection() {
   chevron.classList.toggle('open', pdayOpen);
   label.textContent = pdayOpen ? 'Hide' : 'Show';
 }
-
+ 
 function renderTradeLog(data) {
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
   const limited = logLimit === 'all' ? sorted : sorted.slice(0, logLimit);
@@ -1135,7 +1166,7 @@ function renderTradeLog(data) {
     const dObj = new Date(t.date); const dateStr = isNaN(dObj) ? t.date : dObj.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
     return `<tr style="background:${il?'rgba(255,78,106,0.06)':''}">
       <td>${dateStr}</td><td style="color:${getColor(t.asset)};font-weight:500">${t.asset}</td>
-      <td style="color:${nc}">${t.name}</td><td>${t.days}</td>
+      <td style="color:${nc}">${t.name}</td><td>${optBadge(t)}</td><td>${t.days}</td>
       <td class="${ia?'c-blue':il?'c-red':'c-green'}">${fmtDec(t.premium)}</td>
       <td class="${plC}">${fmtDec(t.totalPL)}</td>
       <td class="${ppdC}">${t.ppd<0?'-$'+Math.round(Math.abs(t.ppd)):'$'+Math.round(t.ppd)}</td>
@@ -1143,14 +1174,14 @@ function renderTradeLog(data) {
   }).join('');
   document.getElementById('trade-empty').style.display=sorted.length?'none':'block';
 }
-
+ 
 function setChip(el) { document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); document.getElementById('date-from').value=el.dataset.from; document.getElementById('date-to').value=el.dataset.to; applyFilters(); }
 function clearChip(){ document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); }
 function resetFilters(){ document.getElementById('asset-filter').value='ALL'; updateDateRange(); document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); document.querySelector('.chip[data-label="all"]')?.classList.add('active'); applyFilters(); }
-
+ 
 // Init dashboard
 fetchData();
-
+ 
 // Service Worker Registration for Offline PWA Support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1167,14 +1198,14 @@ if ('serviceWorker' in navigator) {
   var SESSION_KEY = "pf_unlocked";
   var overlay = document.getElementById("pf-lock-overlay");
   if(!overlay) return;
-
+ 
   if(sessionStorage.getItem(SESSION_KEY) === "1"){
     overlay.style.display = "none";
     return;
   }
-
+ 
   var entered = "";
-
+ 
   function updateDots(isError){
     for(var i=0;i<8;i++){
       var d = document.getElementById("ld"+i);
@@ -1184,7 +1215,7 @@ if ('serviceWorker' in navigator) {
       else if(i < entered.length) d.classList.add("filled");
     }
   }
-
+ 
   window.lockKey = function(n){
     if(entered.length >= 8) return;
     entered += String(n);
@@ -1206,7 +1237,7 @@ if ('serviceWorker' in navigator) {
       }
     }
   };
-
+ 
   window.lockDel = function(){
     if(entered.length === 0) return;
     entered = entered.slice(0,-1);
@@ -1214,7 +1245,7 @@ if ('serviceWorker' in navigator) {
     var errEl = document.getElementById("lock-err");
     if(errEl) errEl.innerHTML = "&nbsp;";
   };
-
+ 
   document.addEventListener("keydown", function(e){
     if(overlay.style.display === "none") return;
     if(e.key >= "0" && e.key <= "9") lockKey(parseInt(e.key));
@@ -1222,6 +1253,9 @@ if ('serviceWorker' in navigator) {
   });
 })();
 </script>
-
+ 
 </body>
 </html>
+ 
+
+
